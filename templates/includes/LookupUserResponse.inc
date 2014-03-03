@@ -1,9 +1,16 @@
+<UserId>[% user.userdata.cardnumber %]</UserId>
+[%# <UserFiscalAccount></UserFiscalAccount>
+LoanedItemsCount
+LoanedItem
+RequestedItemsCount
+RequestedItem
+%]
 <UserOptionalFields>
 [% FOREACH element IN elements %]
   [% IF element.textContent == 'User Address Information' %]
      <PhysicalAddress>
        <StructuredAddress>
-       <Line1>[% user.userdata.address1 %]</Line1>
+       <Line1>[% user.userdata.streetnumber %] [% user.userdata.address %]</Line1>
        [% IF user.userdata.address2 %]
        <Line2>[% user.userdata.address2 %]</Line2>
        [% END %]
