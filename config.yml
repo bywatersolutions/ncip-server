@@ -5,7 +5,7 @@
 # Your application's name
 appname: "NCIP::Dancing"
 
-views: "/home/chrisc/git/NCIPServer/templates/"
+views: "/home/chrisc/NCIPServer/templates/"
 
 # The default layout to use for your application (located in
 # views/layouts/main.tt)
