@@ -89,10 +89,12 @@ sub get_user_elements {
 
     my $root = $xmldoc->documentElement();
     my @elements =
-      $xpc->findnodes( 'ns:LookupUser/UserElementType/Value', $root );
+      $xpc->findnodes( '//ns:LookupUser/UserElementType/Value', $root );
     unless ( $elements[0] ) {
-        @elements = $xpc->findnodes( 'ns:LookupUser/UserElementType', $root );
+        warn "here";
+        @elements = $xpc->findnodes( '//ns:UserElementType', $root );
     }
+    warn @elements;
     return \@elements;
 }
 
