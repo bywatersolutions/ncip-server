@@ -91,11 +91,25 @@ sub get_user_elements {
     my @elements =
       $xpc->findnodes( '//ns:LookupUser/UserElementType/Value', $root );
     unless ( $elements[0] ) {
-        warn "here";
         @elements = $xpc->findnodes( '//ns:UserElementType', $root );
     }
     warn @elements;
     return \@elements;
+}
+
+sub get_agencies {
+    my $self   = shift;
+    my $xmldoc = shift;
+    my $xpc    = XML::LibXML::XPathContext->new;
+    $xpc->registerNs( 'ns', $self->namespace() );
+
+    my $root = $xmldoc->documentElement();
+
+    my @from =
+      $xpc->findnodes( '//ns:InitiationHeader/FromAgencyId/AgencyId', $root );
+    my @to =
+      $xpc->findnodes( '//ns:InitiationHeader/ToAgencyId/AgencyId', $root );
+    return ( $from[0]->textContent, $to[0]->textContent );
 }
 
 sub render_output {

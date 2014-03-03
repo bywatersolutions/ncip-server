@@ -4,16 +4,10 @@
     <[% messagetype %]>
        <ResponseHeader>
             <FromAgencyId>
-                <UniqueAgencyId>
-                    <Scheme>[% schemeurl %]</Scheme>
-                    <Value>[% fromagency %]</Value>
-                </UniqueAgencyId>
+              <AgencyId>[% fromagency %]</AgencyId>
             </FromAgencyId>
             <ToAgencyId>
-                <UniqueAgencyId>
-                    <Scheme>[% schemeurl %]</Scheme>
-                    <Value>[% toagency %]</Value>
-                </UniqueAgencyId>
+               <AgencyId>[% toagency %]</AgencyId>
             </ToAgencyId>
         </ResponseHeader>
     [% myfile = "includes/$messagetype" _ ".inc" %]

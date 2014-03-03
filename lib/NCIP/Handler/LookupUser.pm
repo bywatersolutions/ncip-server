@@ -64,11 +64,20 @@ sub handle {
 
         my $user = NCIP::User->new( { userid => $user_id, ils => $self->ils } );
         $user->initialise();
+        my $vars;
+        
+#  this bit should be at a lower level
+
+        my ($from,$to) = $self->get_agencies($xmldoc); 
+        
+        # we switch these for the templates
+        # because we are responding, to becomes from, from becomes to
+        $vars->{'fromagency'} = $to;
+        $vars->{'toagency'} = $from;
 
         # if we have blank user, we need to return that
         # and can skip looking for elementtypes
         if ( $user->userdata->{'borrowernumber'} eq '' ) {
-            my $vars;
             $vars->{'messagetype'}  = 'LookupUserResponse';
             $vars->{'error_detail'} = "Borrower not found";
             my $output = $self->render_output( 'problem.tt', $vars );
@@ -77,7 +86,6 @@ sub handle {
         my $elements = $self->get_user_elements($xmldoc);
 
         #set up the variables for our template
-        my $vars;
         $vars->{'messagetype'} = 'LookupUserResponse';
         $vars->{'elements'}    = $elements;
         $vars->{'user'}        = $user;
