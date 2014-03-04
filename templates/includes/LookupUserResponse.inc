@@ -40,4 +40,4 @@ RequestedItem
     </NameInformation>
   [% END %]
 [% END %]
-</UserOptionalFields/>
+</UserOptionalFields>

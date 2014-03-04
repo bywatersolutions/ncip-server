@@ -1,5 +1,4 @@
 [% INCLUDE 'includes/header.inc' %]
-<NCIPMessage>
   <[% messagetype %]>
     [% IF processingerror %]
     <Problem>

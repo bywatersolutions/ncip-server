@@ -1,7 +1,4 @@
-[%# INCLUDE 'includes/header.inc' %]
-
-<NCIPMessage>
-    <[% messagetype %]>
+   <[% messagetype %]>
        <ResponseHeader>
             <FromAgencyId>
               <AgencyId>[% fromagency | trim%]</AgencyId>
