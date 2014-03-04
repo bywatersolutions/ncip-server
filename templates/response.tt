@@ -4,10 +4,10 @@
     <[% messagetype %]>
        <ResponseHeader>
             <FromAgencyId>
-              <AgencyId>[% fromagency %]</AgencyId>
+              <AgencyId>[% fromagency | trim%]</AgencyId>
             </FromAgencyId>
             <ToAgencyId>
-               <AgencyId>[% toagency %]</AgencyId>
+               <AgencyId>[% toagency | trim %]</AgencyId>
             </ToAgencyId>
         </ResponseHeader>
     [% myfile = "includes/$messagetype" _ ".inc" %]

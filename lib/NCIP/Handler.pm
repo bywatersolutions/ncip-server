@@ -105,11 +105,11 @@ sub get_agencies {
 
     my $root = $xmldoc->documentElement();
 
-    my @from =
-      $xpc->findnodes( '//ns:InitiationHeader/FromAgencyId/AgencyId', $root );
-    my @to =
-      $xpc->findnodes( '//ns:InitiationHeader/ToAgencyId/AgencyId', $root );
-    return ( $from[0]->textContent, $to[0]->textContent );
+    my $from =
+      $xpc->find( '//ns:FromAgencyId', $root );
+    my $to =
+      $xpc->find( '//ns:ToAgencyId', $root );
+    return ( $from, $to );
 }
 
 sub render_output {
