@@ -23,7 +23,7 @@ use C4::Members qw{ GetMemberDetails };
 use C4::Circulation qw { AddReturn CanBookBeIssued AddIssue };
 use C4::Context;
 use C4::Items qw { GetItem };
-use C4::Reserves qw {CanBookBeReserved AddReserve };
+use C4::Reserves qw {CanBookBeReserved AddReserve GetReservesFromItemnumber};
 
 sub itemdata {
     my $self     = shift;
@@ -138,5 +138,22 @@ sub request {
     else {
         return ( 1, "Book can not be requested" );
     }
+}
+
+sub acceptitem {
+    my $self    = shift;
+    my $barcode = shift;
+    my $result;
+
+    # find hold and get branch for that, check in there
+    my $itemdata = GetItem( undef, $barcode );
+    my ( $reservedate, $borrowernumber, $branchcode, $reserve_id, $wait ) =
+      GetReservesFromItemnumber( $itemdata->{'itemnumber'} );
+    unless ($reserve_id) {
+        $result = { success => 0, messages => 'No hold found for that item' };
+        return $result;
+    }
+    $result = $self->checkin( $barcode, $branch );
+    return $result;
 }
 1;
