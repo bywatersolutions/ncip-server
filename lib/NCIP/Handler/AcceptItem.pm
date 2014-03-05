@@ -1,4 +1,4 @@
-package NCIP::Handler::AccpetItem;
+package NCIP::Handler::AcceptItem;
 
 =head1
 
@@ -26,9 +26,7 @@ sub handle {
         my $root = $xmldoc->documentElement();
         my $xpc  = XML::LibXML::XPathContext->new;
         $xpc->registerNs( 'ns', $self->namespace() );
-        my $itemid =
-          $xpc->findnodes( 'ns:AcceptItem/UniqueItemId/ItemIdentifierValue',
-            $root );
+        my $itemid = $xpc->findnodes( '//ns:ItemId', $root );
 
         # checkin the item
         my $accepted = $self->ils->acceptitem($itemid);
@@ -52,7 +50,7 @@ sub handle {
         else {
             my $elements = $self->get_user_elements($xmldoc);
             $vars->{'elements'} = $elements;
-            $vars->{'checkin'}  = $checkin;
+            $vars->{'accept'}   = $accepted;
             $output = $self->render_output( 'response.tt', $vars );
         }
         return $output;

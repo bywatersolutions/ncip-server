@@ -15,6 +15,8 @@
                 The item is on hold for another borrower
               [% CASE 'RENEW_ISSUE' %]
                 This item is already on loan to this borrower
+              [% CASE 'NO_HOLD' %]
+                There is no hold on this item
               [% END %]
                
           </Value>

@@ -150,10 +150,10 @@ sub acceptitem {
     my ( $reservedate, $borrowernumber, $branchcode, $reserve_id, $wait ) =
       GetReservesFromItemnumber( $itemdata->{'itemnumber'} );
     unless ($reserve_id) {
-        $result = { success => 0, messages => 'No hold found for that item' };
+        $result = { success => 0, messages => { NO_HOLD => 1 } };
         return $result;
     }
-    $result = $self->checkin( $barcode, $branch );
+    $result = $self->checkin( $barcode, $branchcode );
     return $result;
 }
 1;
