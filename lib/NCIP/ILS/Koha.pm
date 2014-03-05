@@ -44,12 +44,31 @@ sub userdata {
     return $userdata;
 }
 
+sub userenv {
+    my $self    = shift;
+    my @USERENV = (
+        1,
+        'test',
+        'MASTERTEST',
+        'Test',
+        'Test',
+        'AS',    #branchcode need to set this properly
+        'Auckland',
+        0,
+    );
+
+    C4::Context->_new_userenv('DUMMY_SESSION_ID');
+    C4::Context->set_userenv(@USERENV);
+    return;
+}
+
 sub checkin {
     my $self       = shift;
     my $barcode    = shift;
     my $branch     = shift;
     my $exemptfine = undef;
     my $dropbox    = undef;
+    $self->userenv();
     my ( $success, $messages, $issue, $borrower ) =
       AddReturn( $barcode, $branch, $exemptfine, $dropbox );
     my $result = {
@@ -69,20 +88,7 @@ sub checkout {
     my $borrower = GetMemberDetails( undef, $userid );
     my $error;
     my $confirm;
-    my @USERENV = (
-        1,
-        'test',
-        'MASTERTEST',
-        'Test',
-        'Test',
-        'AS',    #branchcode need to set this properly
-        'Auckland',
-        0,
-    );
-
-    C4::Context->_new_userenv('DUMMY_SESSION_ID');
-    C4::Context->set_userenv(@USERENV);
-
+    $self->userenv();
     if ($borrower) {
 
         ( $error, $confirm ) = CanBookBeIssued( $borrower, $barcode );
