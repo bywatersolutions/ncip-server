@@ -75,6 +75,19 @@ sub new {
     return $self;
 }
 
+=head2 xpc()
+
+    Give back an XPathContext Object, registered to the correct namespace
+
+=cut
+
+sub xpc {
+    my $self = shift;
+    my $xpc  = XML::LibXML::XPathContext->new;
+    $xpc->registerNs( 'ns', $self->namespace() );
+    return $xpc;
+}
+
 =head2 get_user_elements($xml)
 
     When passed an xml dom, this will find the user elements and pass convert them into an arrayref
@@ -84,8 +97,7 @@ sub new {
 sub get_user_elements {
     my $self   = shift;
     my $xmldoc = shift;
-    my $xpc    = XML::LibXML::XPathContext->new;
-    $xpc->registerNs( 'ns', $self->namespace() );
+    my $xpc    = $self->xpc();
 
     my $root = $xmldoc->documentElement();
     my @elements =
@@ -105,10 +117,8 @@ sub get_agencies {
 
     my $root = $xmldoc->documentElement();
 
-    my $from =
-      $xpc->find( '//ns:FromAgencyId', $root );
-    my $to =
-      $xpc->find( '//ns:ToAgencyId', $root );
+    my $from = $xpc->find( '//ns:FromAgencyId', $root );
+    my $to   = $xpc->find( '//ns:ToAgencyId',   $root );
     return ( $from, $to );
 }
 

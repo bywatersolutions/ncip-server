@@ -29,8 +29,7 @@ sub handle {
         my ($user_id) =
           $xmldoc->getElementsByTagNameNS( $self->namespace(),
             'UserIdentifierValue' );
-        my $xpc = XML::LibXML::XPathContext->new;
-        $xpc->registerNs( 'ns', $self->namespace() );
+        my $xpc = $self->xpc();
         unless ($user_id) {
 
             # We may get a password, username combo instead of userid

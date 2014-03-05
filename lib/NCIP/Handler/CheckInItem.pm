@@ -24,9 +24,9 @@ sub handle {
     my $xmldoc = shift;
     if ($xmldoc) {
         my $root = $xmldoc->documentElement();
+        my $xpc = $self->xpc();
         my $itemid =
-          $root->findnodes('CheckInItem/UniqueItemId/ItemIdentifierValue');
-        my @elements = $root->findnodes('CheckInItem/ItemElementType/Value');
+          $xpc->findnodes('//ns:ItemId',$root);
 
         # checkin the item
         my $branch='AS'; # where the hell do we get this from???
@@ -43,7 +43,7 @@ sub handle {
         }
         else {
 
-            $vars->{'elements'} = \@elements;
+            $vars->{'elements'} = $self->get_user_elements($xmldoc);
             $vars->{'checkin'}  = $checkin;
             $output = $self->render_output( 'response.tt', $vars );
         }

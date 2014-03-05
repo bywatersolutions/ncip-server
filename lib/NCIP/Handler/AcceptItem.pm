@@ -24,8 +24,7 @@ sub handle {
     my $xmldoc = shift;
     if ($xmldoc) {
         my $root = $xmldoc->documentElement();
-        my $xpc  = XML::LibXML::XPathContext->new;
-        $xpc->registerNs( 'ns', $self->namespace() );
+        my $xpc  = $self->xpc();
         my $itemid = $xpc->findnodes( '//ns:ItemId', $root );
 
         # checkin the item
