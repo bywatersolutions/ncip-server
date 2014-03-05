@@ -1,0 +1,1 @@
+<ItemId>[% barcode %]</ItemId>

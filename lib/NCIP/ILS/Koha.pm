@@ -155,13 +155,13 @@ sub acceptitem {
         return $result;
     }
     my ( $success, $messages, $issue, $borrower ) =
-      AddReturn( $barcode, $branch, $exemptfine, $dropbox );
+      AddReturn( $barcode, $branch, undef, undef );
     if ( $messages->{'NotIssued'} ) {
         $success = 1
           ; # we do this because we are only doing the return to trigger the reserve
     }
 
-    my $result = {
+    $result = {
         success         => $success,
         messages        => $messages,
         iteminformation => $issue,
