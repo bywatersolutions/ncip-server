@@ -1,4 +1,4 @@
-[% INCLUDE 'includes/header.inc' %]
+[%# INCLUDE 'includes/header.inc' %]
   <[% messagetype %]>
     [% IF processingerror %]
     <Problem>

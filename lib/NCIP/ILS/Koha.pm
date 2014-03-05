@@ -58,6 +58,7 @@ sub checkin {
         iteminformation => $issue,
         borrower        => $borrower
     };
+
     return $result;
 }
 
@@ -153,7 +154,20 @@ sub acceptitem {
         $result = { success => 0, messages => { NO_HOLD => 1 } };
         return $result;
     }
-    $result = $self->checkin( $barcode, $branchcode );
+    my ( $success, $messages, $issue, $borrower ) =
+      AddReturn( $barcode, $branch, $exemptfine, $dropbox );
+    if ( $messages->{'NotIssued'} ) {
+        $success = 1
+          ; # we do this because we are only doing the return to trigger the reserve
+    }
+
+    my $result = {
+        success         => $success,
+        messages        => $messages,
+        iteminformation => $issue,
+        borrower        => $borrower
+    };
+
     return $result;
 }
 1;
