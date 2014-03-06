@@ -12,7 +12,7 @@ any [ 'get', 'post' ] => '/' => sub {
         $xml = request->body;
     }
     my $content = $ncip->process_request($xml);
-    warn $content;
+#    warn $content;
     template 'main', { content => $content };
 };
 

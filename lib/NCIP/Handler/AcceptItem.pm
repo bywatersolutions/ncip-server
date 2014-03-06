@@ -25,9 +25,14 @@ sub handle {
     if ($xmldoc) {
         my $root = $xmldoc->documentElement();
         my $xpc  = $self->xpc();
-        my $itemid = $xpc->findnodes( '//ns:ItemId', $root );
+        my $itemid =
+          $xpc->findnodes( '//ns:ItemId/ItemIdentifierValue', $root );
+        my ($action)  = $xpc->findnodes( '//ns:RequestedActionType', $root );
+        my ($request) = $xpc->findnodes( '//ns:RequestId',           $root );
+        my $requestagency = $xpc->find( 'ns:AgencyId', $request );
+        my $requestid = $xpc->find( '//ns:RequestIdentifierValue', $request );
 
-        # checkin the item
+        # accept the item
         my $accepted = $self->ils->acceptitem($itemid);
         my $output;
         my $vars;
@@ -48,6 +53,9 @@ sub handle {
         }
         else {
             my $elements = $self->get_user_elements($xmldoc);
+            $vars->{'requestagency'} = $requestagency;
+            $vars->{'requestid'}     = $requestid;
+
             $vars->{'elements'} = $elements;
             $vars->{'accept'}   = $accepted;
             $output = $self->render_output( 'response.tt', $vars );
