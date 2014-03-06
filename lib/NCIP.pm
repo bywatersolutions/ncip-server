@@ -6,6 +6,7 @@ use XML::LibXML;
 use Try::Tiny;
 use Module::Load;
 use Template;
+use Log::Log4perl;
 
 use Object::Tiny qw{xmldoc config namespace ils};
 
@@ -33,7 +34,7 @@ sub new {
     my $config     = NCIP::Configuration->new($config_dir);
     $self->{config}    = $config;
     $self->{namespace} = $config->('NCIP.namespace.value');
-
+    Log::Log4perl->init($config_dir . "/log4perl.conf");
     # load the ILS dependent module
     my $module = 'NCIP::ILS::' . $config->('NCIP.ils.value');
     load $module || die "Can not load ILS module $module";
@@ -80,9 +81,10 @@ sub handle_initiation {
     my $self = shift;
     my $xml  = shift;
     my $dom;
+    my $log = Log::Log4perl->get_logger("NCIP");
     eval { $dom = XML::LibXML->load_xml( string => $xml ); };
     if ($@) {
-        warn "Invalid xml, caught error: $@";
+        $log->info("Invalid xml we can not parse it ");        
     }
     if ($dom) {
 
@@ -104,7 +106,7 @@ sub handle_initiation {
         }
     }
     else {
-        warn "We have no DOM";
+        $log->info("We have no DOM");
 
         return;
     }
