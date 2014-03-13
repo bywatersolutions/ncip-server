@@ -1,4 +1,7 @@
-<UserId>[% user.userdata.cardnumber %]</UserId>
+
+<UserId>
+<UserIdentifierValue>[% user.userdata.cardnumber %]</UserIdentifierValue>
+</UserId>
 [%# <UserFiscalAccount></UserFiscalAccount>
 LoanedItemsCount
 LoanedItem
@@ -8,6 +11,8 @@ RequestedItem
 <UserOptionalFields>
 [% FOREACH element IN elements %]
   [% IF element.textContent == 'User Address Information' %]
+     <UserAddressInformation>
+      <UserAddressRoleType>Primary Address</UserAddressRoleType>
      <PhysicalAddress>
        <StructuredAddress>
        <Line1>[% user.userdata.streetnumber %] [% user.userdata.address %]</Line1>
@@ -28,6 +33,7 @@ RequestedItem
        [% END %]
        </StructuredAddress>
      </PhysicalAddress>
+     </UserAddressInformation>
   [% END %]
   [% IF element.textContent == 'Name Information' %]
     <NameInformation>

@@ -19,11 +19,17 @@ package NCIP::ILS::Koha;
 use Modern::Perl;
 use Object::Tiny qw{ name };
 
+use MARC::Record;
+use MARC::Field;
+
 use C4::Members qw{ GetMemberDetails };
 use C4::Circulation qw { AddReturn CanBookBeIssued AddIssue };
 use C4::Context;
 use C4::Items qw { GetItem };
 use C4::Reserves qw {CanBookBeReserved AddReserve GetReservesFromItemnumber};
+use C4::Biblio qw {AddBiblio GetMarcFromKohaField};
+use C4::Barcodes::ValueBuilder;
+use C4::Items qw{AddItem};
 
 sub itemdata {
     my $self     = shift;
@@ -148,17 +154,116 @@ sub request {
 }
 
 sub acceptitem {
-    my $self    = shift;
-    my $barcode = shift;
+    my $self    = shift || die "Not called as a method, we must bail out";
+    my $barcode = shift || die "No barcode passed can not continue";
+    my $user    = shift;
+    my $action  = shift;
+    my $create  = shift;
+    my $iteminfo = shift;
     my $result;
+
+    $self->userenv();    # set userenvironment
+    my ( $biblionumber, $biblioitemnumber );
+    if ($create) {
+        my $record;
+        my $frameworkcode = 'FA';    # we should get this from config
+        warn "Create yo";
+        warn $iteminfo->{title};
+
+        # we must make the item first
+        # Autographics workflow is to make the item each time
+        if ( C4::Context->preference('marcflavour') eq 'UNIMARC' ) {
+
+            # TODO
+        }
+        elsif ( C4::Context->preference('marcflavour') eq 'NORMARC' ) {
+
+            #TODO
+        }
+        else {
+            # MARC21
+            # create a marc record
+            $record = MARC::Record->new();
+            $record->leader('     nac  22     1u 4500');
+            $record->insert_fields_ordered(
+                MARC::Field->new( '100', '1', '0', 'a' => $iteminfo->{author} ),
+                MARC::Field->new( '245', '1', '0', 'a' => $iteminfo->{title} ),
+                MARC::Field->new(
+                    '260', '1', '0',
+                    'b' => $iteminfo->{publisher},
+                    'c' => $iteminfo->{publicationdate}
+                ),
+                MARC::Field->new(
+                    '942', '1', '0', 'c' => $iteminfo->{mediumtype}
+                )
+            );
+
+        }
+
+        ( $biblionumber, $biblioitemnumber ) =
+          AddBiblio( $record, $frameworkcode );
+        my $itemnumber;
+
+        my %args;
+        ( $args{tag}, $args{subfield} ) =
+          GetMarcFromKohaField( "items.barcode", '' );
+        my ( $nextnum, $scr ) =
+          C4::Barcodes::ValueBuilder::incremental::get_barcode( \%args );
+        my $item = { 'barcode' => $nextnum };
+        ( $biblionumber, $biblioitemnumber, $itemnumber ) =
+          AddItem( $item, $biblionumber );
+        $barcode = $nextnum;
+    }
 
     # find hold and get branch for that, check in there
     my $itemdata = GetItem( undef, $barcode );
+    warn $itemdata->{'itemnumber'};
+
     my ( $reservedate, $borrowernumber, $branchcode, $reserve_id, $wait ) =
       GetReservesFromItemnumber( $itemdata->{'itemnumber'} );
-    unless ($reserve_id) {
-        $result = { success => 0, messages => { NO_HOLD => 1 } };
-        return $result;
+    warn "barcode $barcode";
+    # now we have to check the requested action
+    if ( $action =~ /^Hold For Pickup And Notify/ ) {
+        unless ($reserve_id) {
+            $branchcode = 'AS';    # set this properly
+                                   # no reserve, place one
+            if ($user) {
+                my $borrower = GetMemberDetails( undef, $user );
+                if ($borrower) {
+                    AddReserve(
+                        $branchcode,
+                        $borrower->{'borrowernumber'},
+                        $biblionumber,
+                        'a',
+                        [$biblioitemnumber],
+                        1,
+                        undef,
+                        undef,
+                        'Placed By ILL',
+                        '',
+                        $itemdata->{'itemnumber'},
+                        undef
+                    );
+                }
+
+                else {
+                    $result =
+                      { success => 0, messages => { NO_BORROWER => 1 } };
+                    return $result;
+                }
+            }
+            else {
+                $result =
+                  { success => 0, messages => { NO_HOLD_BORROWER => 1 } };
+                return $result;
+            }
+        }
+    }
+    else {
+        unless ($reserve_id) {
+            $result = { success => 0, messages => { NO_HOLD => 1 } };
+            return $result;
+        }
     }
     my ( $success, $messages, $issue, $borrower ) =
       AddReturn( $barcode, $branchcode, undef, undef );
@@ -171,7 +276,8 @@ sub acceptitem {
         success         => $success,
         messages        => $messages,
         iteminformation => $issue,
-        borrower        => $borrower
+        borrower        => $borrower,
+        newbarcode         => $barcode
     };
 
     return $result;

@@ -17,6 +17,8 @@
                 This item is already on loan to this borrower
               [% CASE 'NO_HOLD' %]
                 There is no hold on this item
+              [% CASE 'NO_HOLD_BORROWER' %]
+                 We can not place a hold, we have no borrower information
               [% END %]
                
           </Value>
