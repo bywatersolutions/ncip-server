@@ -22,7 +22,7 @@
               [% CASE 'Wrongbranch' %]
                  We are trying to check this item in at the wrong branch
               [% END %]
-               
+                          
           </Value>
         </ProcessingErrorType>
         [% END %]

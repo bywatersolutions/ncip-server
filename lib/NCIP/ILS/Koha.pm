@@ -76,6 +76,7 @@ sub checkin {
     my $exemptfine = undef;
     my $dropbox    = undef;
     $self->userenv();
+    warn $barcode;
     my ( $success, $messages, $issue, $borrower ) =
       AddReturn( $barcode, $branch, $exemptfine, $dropbox );
     my $result = {
@@ -249,6 +250,7 @@ sub acceptitem {
           GetMarcFromKohaField( "items.barcode", '' );
         my ( $nextnum, $scr ) =
           C4::Barcodes::ValueBuilder::incremental::get_barcode( \%args );
+          $nextnum=sprintf("%.0f",$nextnum);
         my $item = { 'barcode' => $nextnum };
         ( $biblionumber, $biblioitemnumber, $itemnumber ) =
           AddItem( $item, $biblionumber );
@@ -264,7 +266,7 @@ sub acceptitem {
     # now we have to check the requested action
     if ( $action =~ /^Hold For Pickup And Notify/ ) {
         unless ($reserve_id) {
-            $branchcode = 'AS';    # set this properly
+            $branchcode = 'CALG';    # set this properly
                                    # no reserve, place one
             if ($user) {
                 my $borrower = GetMemberDetails( undef, $user );
