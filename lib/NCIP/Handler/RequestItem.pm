@@ -34,7 +34,7 @@ sub handle {
           $xpc->findnodes( 'ns:RequestItem/UniqueItemId/ItemIdentifierValue',
             $root );
 
-        # checkout the item
+        # request the item
         my ( $error, $messages ) = $self->ils->request( $userid, $itemid );
         my $vars;
         my $output;

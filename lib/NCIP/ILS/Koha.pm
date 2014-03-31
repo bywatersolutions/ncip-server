@@ -26,7 +26,8 @@ use C4::Members qw{ GetMemberDetails };
 use C4::Circulation qw { AddReturn CanBookBeIssued AddIssue };
 use C4::Context;
 use C4::Items qw { GetItem };
-use C4::Reserves qw {CanBookBeReserved AddReserve GetReservesFromItemnumber};
+use C4::Reserves
+  qw {CanBookBeReserved AddReserve GetReservesFromItemnumber CancelReserve};
 use C4::Biblio qw {AddBiblio GetMarcFromKohaField};
 use C4::Barcodes::ValueBuilder;
 use C4::Items qw{AddItem};
@@ -140,17 +141,58 @@ sub renew {
 }
 
 sub request {
-    my $self           = shift;
-    my $biblionumber   = shift;
-    my $borrowernumber = shift;
-    if ( CanBookBeReserved( $borrowernumber, $biblionumber ) ) {
+    my $self      = shift;
+    my $carnumber = shift;
+    my $barcode   = shift;
+    my my $borrower = GetMemberDetails( undef, $cardnumber );
+    my $result;
+    unless ($borrower) {
+        $result = { success => 0, messages => { 'BORROWER_NOT_FOUND' => 1 } };
+        return $result;
+    }
+    my $Itemdata = GetItem( undef, $barcode );
+    unless ($itemdata) {
+        $result = { success => 0, messages => {'ITEM_NOT_FOUND'} };
+        return $result;
+    }
+    $self->userenv();
+    if (
+        CanBookBeReserved(
+            $borrower->{borrowernumber},
+            $itemdata->{biblionumber}
+        )
+      )
+    {
+        my $biblioitemnumber = $itemdata->{biblionumber};
+        my $branchcode       = 'AS';
 
         # Add reserve here
-        return ( undef, "Requested" );
+        AddReserve(
+            $branch,                   $borrower->{borrwerborrowernumber},
+            $itemdata->{biblionumber}, 'a',
+            [$biblioitemnumber],       1,
+            undef,                     undef,
+            'Placed By ILL',           '',
+            $itemdata->{'itemnumber'}, undef
+        );
+
+        $result = { success => 1, request_id => 'something' };
+        return $result;
     }
     else {
-        return ( 1, "Book can not be requested" );
+        $result = { success => 0, messages => { CANNOT_REQUEST => 1 } };
+        return $result;
+
     }
+}
+
+sub cancelrequest {
+    my $self      = shift;
+    my $requestid = shift;
+    CancelReserve( { reserve_id => $requestid } );
+
+    my $result = { success => 1 };
+    return $result;
 }
 
 sub acceptitem {
@@ -167,8 +209,6 @@ sub acceptitem {
     if ($create) {
         my $record;
         my $frameworkcode = 'FA';    # we should get this from config
-        warn "Create yo";
-        warn $iteminfo->{title};
 
         # we must make the item first
         # Autographics workflow is to make the item each time
@@ -217,11 +257,10 @@ sub acceptitem {
 
     # find hold and get branch for that, check in there
     my $itemdata = GetItem( undef, $barcode );
-    warn $itemdata->{'itemnumber'};
 
     my ( $reservedate, $borrowernumber, $branchcode, $reserve_id, $wait ) =
       GetReservesFromItemnumber( $itemdata->{'itemnumber'} );
-    warn "barcode $barcode";
+
     # now we have to check the requested action
     if ( $action =~ /^Hold For Pickup And Notify/ ) {
         unless ($reserve_id) {
@@ -277,7 +316,7 @@ sub acceptitem {
         messages        => $messages,
         iteminformation => $issue,
         borrower        => $borrower,
-        newbarcode         => $barcode
+        newbarcode      => $barcode
     };
 
     return $result;

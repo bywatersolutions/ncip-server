@@ -19,6 +19,8 @@
                 There is no hold on this item
               [% CASE 'NO_HOLD_BORROWER' %]
                  We can not place a hold, we have no borrower information
+              [% CASE 'Wrongbranch' %]
+                 We are trying to check this item in at the wrong branch
               [% END %]
                
           </Value>
