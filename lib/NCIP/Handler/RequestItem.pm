@@ -50,6 +50,7 @@ sub handle {
             my $elements = $self->get_user_elements($xmldoc);
             $vars->{'elements'} = $elements;
 
+            $vars->{'messages'} = $messages;
             $output = $self->render_output( 'response.tt', $vars );
         }
         return $output;

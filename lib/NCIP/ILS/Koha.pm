@@ -143,15 +143,15 @@ sub renew {
 
 sub request {
     my $self      = shift;
-    my $carnumber = shift;
+    my $cardnumber = shift;
     my $barcode   = shift;
-    my my $borrower = GetMemberDetails( undef, $cardnumber );
+    my $borrower = GetMemberDetails( undef, $cardnumber );
     my $result;
     unless ($borrower) {
         $result = { success => 0, messages => { 'BORROWER_NOT_FOUND' => 1 } };
         return $result;
     }
-    my $Itemdata = GetItem( undef, $barcode );
+    my $itemdata = GetItem( undef, $barcode );
     unless ($itemdata) {
         $result = { success => 0, messages => {'ITEM_NOT_FOUND'} };
         return $result;
@@ -169,15 +169,16 @@ sub request {
 
         # Add reserve here
         AddReserve(
-            $branch,                   $borrower->{borrwerborrowernumber},
+            $branchcode,                   $borrower->{borrwerborrowernumber},
             $itemdata->{biblionumber}, 'a',
             [$biblioitemnumber],       1,
             undef,                     undef,
             'Placed By ILL',           '',
             $itemdata->{'itemnumber'}, undef
         );
-
-        $result = { success => 1, request_id => 'something' };
+        my ( $reservedate, $borrowernumber, $branchcode, $reserve_id, $wait ) =
+              GetReservesFromItemnumber( $itemdata->{'itemnumber'} );
+        $result = { success => 1, messages => {request_id => $reserve_id };
         return $result;
     }
     else {
