@@ -76,7 +76,6 @@ sub checkin {
     my $exemptfine = undef;
     my $dropbox    = undef;
     $self->userenv();
-    warn $barcode;
     my ( $success, $messages, $issue, $borrower ) =
       AddReturn( $barcode, $branch, $exemptfine, $dropbox );
     my $result = {
@@ -165,7 +164,7 @@ sub request {
       )
     {
         my $biblioitemnumber = $itemdata->{biblionumber};
-        my $branchcode       = 'AS';
+        my $branchcode       = 'CALG';
 
         # Add reserve here
         AddReserve(
