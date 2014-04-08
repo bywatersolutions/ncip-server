@@ -27,7 +27,7 @@ use C4::Circulation qw { AddReturn CanBookBeIssued AddIssue };
 use C4::Context;
 use C4::Items qw { GetItem };
 use C4::Reserves
-  qw {CanBookBeReserved AddReserve GetReservesFromItemnumber CancelReserve};
+  qw {CanBookBeReserved AddReserve GetReservesFromItemnumber CancelReserve GetReservesFromBiblionumber};
 use C4::Biblio qw {AddBiblio GetMarcFromKohaField GetBiblioData};
 use C4::Barcodes::ValueBuilder;
 use C4::Items qw{AddItem};
@@ -146,6 +146,7 @@ sub request {
     my $barcode      = shift;
     my $biblionumber = shift;
     my $borrower     = GetMemberDetails( undef, $cardnumber );
+    warn $cardnumber;
     my $result;
     unless ($borrower) {
         $result = { success => 0, messages => { 'BORROWER_NOT_FOUND' => 1 } };
@@ -163,6 +164,7 @@ sub request {
         return $result;
     }
     $self->userenv();
+    warn  $borrower->{borrowernumber};
     if (
         CanBookBeReserved(
             $borrower->{borrowernumber},
@@ -172,22 +174,34 @@ sub request {
     {
         my $biblioitemnumber = $itemdata->{biblionumber};
         my $branchcode       = 'CALG';
-
         # Add reserve here
         AddReserve(
-            $branchcode,               $borrower->{borrwerborrowernumber},
+            $branchcode,               $borrower->{borrowernumber},
             $itemdata->{biblionumber}, 'a',
             [$biblioitemnumber],       1,
             undef,                     undef,
             'Placed By ILL',           '',
-            $itemdata->{'itemnumber'}, undef
+            $itemdata->{'itemnumber'} || undef, undef
         );
+        my $request_id;
+        if ($biblionumber){
+          warn "yo $biblionumber";
+         my $reserves = GetReservesFromBiblionumber({biblionumber => $itemdata->{biblionumber}});
+            use Data::Dumper;
+            warn Dumper $reserves;
+            $request_id=$reserves->[1]->{reserve_id};
+        }
+        else {
         my ( $reservedate, $borrowernumber, $branchcode2, $reserve_id, $wait ) =
           GetReservesFromItemnumber( $itemdata->{'itemnumber'} );
+          $request_id = $reserve_id;
+        }
+        warn $request_id;
         $result = {
             success  => 1,
-            messages => { request_id => $reserve_id }
+            messages => { request_id => $request_id }
         };
+        warn 
         return $result;
     }
     else {
