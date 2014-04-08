@@ -33,9 +33,10 @@ sub handle {
         my $itemid =
           $xpc->findnodes( 'ns:RequestItem/UniqueItemId/ItemIdentifierValue',
             $root );
-
+        my $biblionumber = $xpc->findnodes( 'ns://BibliographicRecordIdentifier',
+                      $root );
         # request the item
-        my ( $error, $messages ) = $self->ils->request( $userid, $itemid );
+        my ( $error, $messages ) = $self->ils->request( $userid, $itemid, $biblionumber );
         my $vars;
         my $output;
         my $vars->{'barcode'} = $itemid;

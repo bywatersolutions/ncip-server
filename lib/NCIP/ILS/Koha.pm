@@ -28,7 +28,7 @@ use C4::Context;
 use C4::Items qw { GetItem };
 use C4::Reserves
   qw {CanBookBeReserved AddReserve GetReservesFromItemnumber CancelReserve};
-use C4::Biblio qw {AddBiblio GetMarcFromKohaField};
+use C4::Biblio qw {AddBiblio GetMarcFromKohaField GetBiblioData};
 use C4::Barcodes::ValueBuilder;
 use C4::Items qw{AddItem};
 
@@ -141,16 +141,23 @@ sub renew {
 }
 
 sub request {
-    my $self       = shift;
-    my $cardnumber = shift;
-    my $barcode    = shift;
-    my $borrower   = GetMemberDetails( undef, $cardnumber );
+    my $self         = shift;
+    my $cardnumber   = shift;
+    my $barcode      = shift;
+    my $biblionumber = shift;
+    my $borrower     = GetMemberDetails( undef, $cardnumber );
     my $result;
     unless ($borrower) {
         $result = { success => 0, messages => { 'BORROWER_NOT_FOUND' => 1 } };
         return $result;
     }
-    my $itemdata = GetItem( undef, $barcode );
+    my $itemdata;
+    if ($barcode) {
+        $itemdata = GetItem( undef, $barcode );
+    }
+    else {
+        $itemdata = GetBiblioData($biblionumber);
+    }
     unless ($itemdata) {
         $result = { success => 0, messages => {'ITEM_NOT_FOUND'} };
         return $result;
