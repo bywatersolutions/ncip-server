@@ -27,21 +27,22 @@ sub handle {
         my $xpc  = XML::LibXML::XPathContext->new;
         $xpc->registerNs( 'ns', $self->namespace() );
 
-        my $userid =
-          $xpc->findnodes( 'ns:RequestItem/UniqueUserId/UserIdentifierValue',
-            $root );
-        my $itemid =
-          $xpc->findnodes( 'ns:RequestItem/UniqueItemId/ItemIdentifierValue',
-            $root );
-        my $biblionumber = $xpc->findnodes( '//ns:BibliographicRecordIdentifier',
-                      $root );
+        my ($userid) = $xpc->findnodes( '//ns:UserIdentifierValue', $root );
+        $userid = $userid->textContent() if $userid;
+
+        my ($itemid) = $xpc->findnodes( '//ns:ItemIdentifierValue', $root );
+        $itemid = $itemid->textContent() if $itemid;
+        my ($biblionumber) =
+          $xpc->findnodes( '//ns:BibliographicRecordIdentifier', $root );
+        $biblionumber = $biblionumber->textContent() if $biblionumber;
+
         # request the item
         my $result = $self->ils->request( $userid, $itemid, $biblionumber );
         my $vars;
         my $output;
-        $vars->{'barcode'} = $itemid;
+        $vars->{'barcode'}     = $itemid;
         $vars->{'messagetype'} = 'RequestItemResponse';
-        if (! $result->{'success'}) {
+        if ( !$result->{'success'} ) {
             $vars->{'processingerror'}        = 1;
             $vars->{'processingerrortype'}    = $messages;
             $vars->{'processingerrorelement'} = 'UniqueItemIdentifier';

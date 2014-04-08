@@ -182,7 +182,7 @@ sub request {
             'Placed By ILL',           '',
             $itemdata->{'itemnumber'}, undef
         );
-        my ( $reservedate, $borrowernumber, $branchcode, $reserve_id, $wait ) =
+        my ( $reservedate, $borrowernumber, $branchcode2, $reserve_id, $wait ) =
           GetReservesFromItemnumber( $itemdata->{'itemnumber'} );
         $result = {
             success  => 1,
