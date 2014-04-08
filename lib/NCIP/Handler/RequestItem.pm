@@ -33,15 +33,15 @@ sub handle {
         my $itemid =
           $xpc->findnodes( 'ns:RequestItem/UniqueItemId/ItemIdentifierValue',
             $root );
-        my $biblionumber = $xpc->findnodes( 'ns://BibliographicRecordIdentifier',
+        my $biblionumber = $xpc->findnodes( '//ns:BibliographicRecordIdentifier',
                       $root );
         # request the item
-        my ( $error, $messages ) = $self->ils->request( $userid, $itemid, $biblionumber );
+        my $result = $self->ils->request( $userid, $itemid, $biblionumber );
         my $vars;
         my $output;
-        my $vars->{'barcode'} = $itemid;
+        $vars->{'barcode'} = $itemid;
         $vars->{'messagetype'} = 'RequestItemResponse';
-        if ($error) {
+        if (! $result->{'success'}) {
             $vars->{'processingerror'}        = 1;
             $vars->{'processingerrortype'}    = $messages;
             $vars->{'processingerrorelement'} = 'UniqueItemIdentifier';
