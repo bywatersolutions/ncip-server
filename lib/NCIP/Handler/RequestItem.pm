@@ -44,7 +44,7 @@ sub handle {
         $vars->{'messagetype'} = 'RequestItemResponse';
         if ( !$result->{'success'} ) {
             $vars->{'processingerror'}        = 1;
-            $vars->{'processingerrortype'}    = $messages;
+            $vars->{'processingerrortype'}    = $result->{messages};
             $vars->{'processingerrorelement'} = 'UniqueItemIdentifier';
             $output = $self->render_output( 'problem.tt', $vars );
         }
@@ -52,7 +52,7 @@ sub handle {
             my $elements = $self->get_user_elements($xmldoc);
             $vars->{'elements'} = $elements;
 
-            $vars->{'messages'} = $messages;
+            $vars->{'messages'} = $result->{messages};
             $output = $self->render_output( 'response.tt', $vars );
         }
         return $output;
