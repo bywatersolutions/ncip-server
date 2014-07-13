@@ -24,14 +24,13 @@ sub handle {
     my $xmldoc = shift;
     if ($xmldoc) {
         my $root = $xmldoc->documentElement();
-        my $xpc  = XML::LibXML::XPathContext->new;
-        $xpc->registerNs( 'ns', $self->namespace() );
+        my $xpc  = $self->xpc();
 
         my $userid =
-          $xpc->findnodes( 'ns:CheckOutItem/UniqueUserId/UserIdentifierValue',
+          $xpc->findnodes( '//ns:UserIdentifierValue',
             $root );
         my $itemid =
-          $xpc->findnodes( 'ns:CheckOutItem/UniqueItemId/ItemIdentifierValue',
+          $xpc->findnodes( '//ns:ItemIdentifierValue',
             $root );
 
         # checkout the item
