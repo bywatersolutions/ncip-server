@@ -53,13 +53,14 @@ sub userdata {
 
 sub userenv {
     my $self    = shift;
+    my $branch = shift || 'AS';
     my @USERENV = (
         1,
         'test',
         'MASTERTEST',
         'Test',
         'Test',
-        'AS',    #branchcode need to set this properly
+         $branch,    #branchcode need to set this properly
         'Auckland',
         0,
     );
@@ -93,15 +94,14 @@ sub checkout {
     my $userid   = shift;
     my $barcode  = shift;
     my $borrower = GetMemberDetails( undef, $userid );
+    my $item = GetItem( undef, $barcode);
     my $error;
     my $confirm;
-    $self->userenv();
+    $self->userenv($item->{holdingbranch});
     if ($borrower) {
 
         ( $error, $confirm ) = CanBookBeIssued( $borrower, $barcode );
 
-  #( $issuingimpossible, $needsconfirmation ) =  CanBookBeIssued( $borrower,
-  #                      $barcode, $duedatespec, $inprocess, $ignore_reserves );
         if (%$error) {
 
             # Can't issue item, return error hash
