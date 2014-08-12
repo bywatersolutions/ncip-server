@@ -52,21 +52,23 @@ sub userdata {
 }
 
 sub userenv {
+    #this needs to come from config, on the new call
+
     my $self    = shift;
     my $branch = shift || 'AS';
     my @USERENV = (
-        1,
-        'test',
-        'MASTERTEST',
-        'Test',
-        'Test',
+        60730,
+        'NCIP',
+        '2996601200068930',
+        'NCIP',
+        'User',
          $branch,    #branchcode need to set this properly
         'Auckland',
-        0,
+        1,
     );
 
     C4::Context->_new_userenv('DUMMY_SESSION_ID');
-    C4::Context->set_userenv(@USERENV);
+    C4::Context::set_userenv(@USERENV);
     return;
 }
 
@@ -77,6 +79,10 @@ sub checkin {
     my $exemptfine = undef;
     my $dropbox    = undef;
     $self->userenv();
+    unless ($branch){
+        my $item = GetItem( undef, $barcode);
+        $branch = $item->{holdingbranch};
+    }
     my ( $success, $messages, $issue, $borrower ) =
       AddReturn( $barcode, $branch, $exemptfine, $dropbox );
     my $result = {
@@ -185,11 +191,10 @@ sub request {
         );
         my $request_id;
         if ($biblionumber){
-          warn "yo $biblionumber";
-         my $reserves = GetReservesFromBiblionumber({biblionumber => $itemdata->{biblionumber}});
-            use Data::Dumper;
-            warn Dumper $reserves;
+          my $reserves = GetReservesFromBiblionumber(
+                          { biblionumber => $itemdata->{biblionumber} } );
             $request_id=$reserves->[1]->{reserve_id};
+
         }
         else {
         my ( $reservedate, $borrowernumber, $branchcode2, $reserve_id, $wait ) =
