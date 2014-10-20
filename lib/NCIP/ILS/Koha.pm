@@ -289,7 +289,7 @@ sub acceptitem {
         my $item = {
             'barcode'       => $nextnum,
             'holdingbranch' => $branchcode,
-            'homebranch'    => $branchchode
+            'homebranch'    => $branchcode
         };
         ( $biblionumber, $biblioitemnumber, $itemnumber ) =
           AddItem( $item, $biblionumber );
