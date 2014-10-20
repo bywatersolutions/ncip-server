@@ -17,7 +17,7 @@
    "release_status" : "stable",
    "resources" : {
       "license" : [
-         "http://www.gnu.org/licenses/old-licenses/gpl-1.0.txt"
+         "http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt"
       ]
    },
    "version" : "0.01"

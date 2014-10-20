@@ -11,5 +11,5 @@ meta-spec:
   version: 1.4
 name: NCIP
 resources:
-  license: http://www.gnu.org/licenses/old-licenses/gpl-1.0.txt
+  license: http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 version: 0.01

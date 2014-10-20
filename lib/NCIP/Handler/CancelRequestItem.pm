@@ -28,15 +28,19 @@ sub handle {
         my $xpc       = $self->xpc();
         my $userid    = $xpc->findnodes( '//ns:UserIdentifierValue', $root );
         my $requestid = $xpc->findnodes( '//ns:RequestIdentifierValue', $root );
-        my ( $error, $messages ) = $self->ils->cancelrequest($requestid);
-        if ($error) {
+        my $result    = $self->ils->cancelrequest($requestid);
+        my $vars;
+        my $output;
+        $vars->{'messagetype'} = 'CancelRequestItemResponse';
+        if ( !$result->{'success'} ) {
             $vars->{'processingerror'}        = 1;
-            $vars->{'processingerrortype'}    = $messages;
+            $vars->{'processingerrortype'}    = $result->{'messages'};
             $vars->{'processingerrorelement'} = 'UniqueRequestIdentifier';
             $output = $self->render_output( 'problem.tt', $vars );
         }
         else {
             my $elements = $self->get_user_elements($xmldoc);
+            $vars->{'messages'} = $result->{'messages'};
             $vars->{'elements'} = $elements;
             $output = $self->render_output( 'response.tt', $vars );
         }

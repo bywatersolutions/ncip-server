@@ -1,4 +1,4 @@
 <RequestId>
-  <AgencyId>[% requestagency %]</AgencyId>
-  <RequestIdentifierValue>[% messages.request_id %]</RequestIdentifierValue>
+  <AgencyId>[% requestagency | xml %]</AgencyId>
+  <RequestIdentifierValue>[% messages.request_id | xml %]</RequestIdentifierValue>
 </RequestId>

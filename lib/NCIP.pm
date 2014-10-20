@@ -125,9 +125,9 @@ sub validate {
         return;
     };
 
-    # we could validate against the dtd here, might be good?
-    # my $dtd = XML::LibXML::Dtd->parse_string($dtd_str);
-    # $dom->validate($dtd);
+    # we could validate against the schema here, might be good?
+    # my $schema = XML::LibXML::Schema->new(string => $schema_str);
+    # eval { $schema->validate($dom); }
     # perhaps we could check the ncip version and validate that too
     return 1;
 }

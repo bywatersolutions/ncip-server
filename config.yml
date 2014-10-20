@@ -28,3 +28,6 @@ engines:
      start_tag: '[%'
      end_tag:   '%]'
 
+# default MIME type for the responses.
+# (See ANSI/NISO Z39.83-2-2012 Section 7.3, page 13.)
+default_mime_type: "application/xml; charset='utf-8'"

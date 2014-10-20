@@ -28,7 +28,7 @@ sub handle {
         my $itemid = $xpc->findnodes( '//ns:ItemIdentifierValue', $root );
 
         # checkin the item
-        my $branch = 'CALG';    # where the hell do we get this from???
+        my $branch = undef;    # where the hell do we get this from???
         my $checkin = $self->ils->checkin( $itemid, $branch );
         my $output;
         my $vars;

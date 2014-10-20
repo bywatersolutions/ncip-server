@@ -55,7 +55,7 @@ sub userenv {
     #this needs to come from config, on the new call
 
     my $self    = shift;
-    my $branch = shift || 'AS';
+    my $branch  = shift || 'AS';
     my @USERENV = (
         60730,
         'NCIP',
@@ -100,10 +100,11 @@ sub checkout {
     my $userid   = shift;
     my $barcode  = shift;
     my $borrower = GetMemberDetails( undef, $userid );
-    my $item = GetItem( undef, $barcode);
+    my $item     = GetItem( undef, $barcode );
     my $error;
     my $confirm;
-    $self->userenv($item->{holdingbranch});
+    $self->userenv( $item->{holdingbranch} );
+
     if ($borrower) {
 
         ( $error, $confirm ) = CanBookBeIssued( $borrower, $barcode );
@@ -152,7 +153,6 @@ sub request {
     my $barcode      = shift;
     my $biblionumber = shift;
     my $borrower     = GetMemberDetails( undef, $cardnumber );
-    warn $cardnumber;
     my $result;
     unless ($borrower) {
         $result = { success => 0, messages => { 'BORROWER_NOT_FOUND' => 1 } };
@@ -170,7 +170,6 @@ sub request {
         return $result;
     }
     $self->userenv();
-    warn  $borrower->{borrowernumber};
     if (
         CanBookBeReserved(
             $borrower->{borrowernumber},
@@ -180,6 +179,7 @@ sub request {
     {
         my $biblioitemnumber = $itemdata->{biblionumber};
         my $branchcode       = 'CALG';
+
         # Add reserve here
         AddReserve(
             $branchcode,               $borrower->{borrowernumber},
@@ -190,23 +190,20 @@ sub request {
             $itemdata->{'itemnumber'} || undef, undef
         );
         my $request_id;
-        if ($biblionumber){
-          my $reserves = GetReservesFromBiblionumber(
-                          { biblionumber => $itemdata->{biblionumber} } );
-            $request_id=$reserves->[1]->{reserve_id};
-
+        if ($biblionumber) {
+            my $reserves = GetReservesFromBiblionumber(
+                { biblionumber => $itemdata->{biblionumber} } );
         }
         else {
-        my ( $reservedate, $borrowernumber, $branchcode2, $reserve_id, $wait ) =
-          GetReservesFromItemnumber( $itemdata->{'itemnumber'} );
-          $request_id = $reserve_id;
+            my ( $reservedate, $borrowernumber, $branchcode2, $reserve_id,
+                $wait )
+              = GetReservesFromItemnumber( $itemdata->{'itemnumber'} );
+            $request_id = $reserve_id;
         }
-        warn $request_id;
         $result = {
             success  => 1,
             messages => { request_id => $request_id }
         };
-        warn 
         return $result;
     }
     else {
@@ -221,7 +218,7 @@ sub cancelrequest {
     my $requestid = shift;
     CancelReserve( { reserve_id => $requestid } );
 
-    my $result = { success => 1 };
+    my $result = { success => 1, messages => { request_id => $requestid } };
     return $result;
 }
 
@@ -279,7 +276,7 @@ sub acceptitem {
           GetMarcFromKohaField( "items.barcode", '' );
         my ( $nextnum, $scr ) =
           C4::Barcodes::ValueBuilder::incremental::get_barcode( \%args );
-          $nextnum=sprintf("%.0f",$nextnum);
+        $nextnum = sprintf( "%.0f", $nextnum );
         my $item = { 'barcode' => $nextnum };
         ( $biblionumber, $biblioitemnumber, $itemnumber ) =
           AddItem( $item, $biblionumber );
@@ -296,7 +293,7 @@ sub acceptitem {
     if ( $action =~ /^Hold For Pickup And Notify/ ) {
         unless ($reserve_id) {
             $branchcode = 'CALG';    # set this properly
-                                   # no reserve, place one
+                                     # no reserve, place one
             if ($user) {
                 my $borrower = GetMemberDetails( undef, $user );
                 if ($borrower) {

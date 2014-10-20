@@ -1,6 +1,6 @@
 <DateDue>[% datedue %]</DateDue>
 <UniqueItemId>
-<ItemIdentifierValue>[% barcode %]</ItemIdentifierValue>
+<ItemIdentifierValue>[% barcode | xml %]</ItemIdentifierValue>
 </UniqueItemId>
 <UserOptionalFields>
 </UserOptionalFields>

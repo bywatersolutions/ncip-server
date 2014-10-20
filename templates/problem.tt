@@ -34,12 +34,11 @@
         [% END %]
      [% END %]
         <ProcessingErrorElement>
-          <ElementName>[% processingerrorelement %]</ElementName>
-          <ProcessingErrorValue>[% barcode %]</ProcessingErrorValue>
+          <ElementName>[% processingerrorelement | xml %]</ElementName>
+          <ProcessingErrorValue>[% barcode | xml %]</ProcessingErrorValue>
         </ProcessingErrorElement>
       </ProcessingError> 
-      <ProblemDetail>[% error_detail %]</ProblemDetail>
+      <ProblemDetail>[% error_detail | xml %]</ProblemDetail>
     </Problem>
   </[% messagetype %]>
-</NCIPMessage>
 
