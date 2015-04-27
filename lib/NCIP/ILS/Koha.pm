@@ -279,21 +279,14 @@ sub acceptitem {
         ( $biblionumber, $biblioitemnumber ) =
           AddBiblio( $record, $frameworkcode );
         my $itemnumber;
-
-        my %args;
-        ( $args{tag}, $args{subfield} ) =
-          GetMarcFromKohaField( "items.barcode", '' );
-        my ( $nextnum, $scr ) =
-          C4::Barcodes::ValueBuilder::incremental::get_barcode( \%args );
-        $nextnum = sprintf( "%.0f", $nextnum );
+        my $barcode = 'ILL' . $biblionumber . time;
         my $item = {
-            'barcode'       => $nextnum,
+            'barcode'       => $barcode,
             'holdingbranch' => $branchcode,
             'homebranch'    => $branchcode
         };
         ( $biblionumber, $biblioitemnumber, $itemnumber ) =
           AddItem( $item, $biblionumber );
-        $barcode = $nextnum;
     }
 
     # find hold and get branch for that, check in there
