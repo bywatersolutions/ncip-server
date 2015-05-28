@@ -240,8 +240,8 @@ sub acceptitem {
     my $branchcode = shift;
     $branchcode =~ s/^\s+|\s+$//g;
     my $result;
-
     $self->userenv();    # set userenvironment
+    warn "user is $user";
     my ( $biblionumber, $biblioitemnumber );
     if ($create) {
         my $record;
@@ -286,24 +286,31 @@ sub acceptitem {
             'holdingbranch' => $branchcode,
             'homebranch'    => $branchcode
         };
+        warn "about to create item";
+        use Data::Dumper;
+        warn Dumper $item;
         ( $biblionumber, $biblioitemnumber, $itemnumber ) =
           AddItem( $item, $biblionumber );
     }
-
+    warn "item made";
     # find hold and get branch for that, check in there
     my $itemdata = GetItem( undef, $barcode );
-
+    warn Dumper $itemdata;
     my ( $reservedate, $borrowernumber, $branchcode2, $reserve_id, $wait ) =
       GetReservesFromItemnumber( $itemdata->{'itemnumber'} );
 
     # now we have to check the requested action
     if ( $action =~ /^Hold For Pickup And Notify/ ) {
+      warn "hold id = $reserve_id";
         unless ($reserve_id) {
-
+        warn "Check user";
             # no reserve, place one
             if ($user) {
                 my $borrower = GetMemberDetails( undef, $user );
+                warn "borrower";
+                warn Dumper $borrower;
                 if ($borrower) {
+                  warn "placing hold";
                     AddReserve(
                         $branchcode,
                         $borrower->{'borrowernumber'},
@@ -334,6 +341,7 @@ sub acceptitem {
         }
     }
     else {
+      warn "reserve id = $reserve_id";
         unless ($reserve_id) {
             $result = { success => 0, messages => { NO_HOLD => 1 } };
             return $result;
