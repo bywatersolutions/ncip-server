@@ -77,7 +77,7 @@ sub handle {
             $create = 1;
         }
         my $accepted =
-          $self->ils->acceptitem( $itemid, $borrowerid, $action, $create,
+          $self->ils->acceptitem( $itemid->[0]->textContent(), $borrowerid, $action, $create,
             $itemdata, $to->[0]->textContent() );
         my $output;
         my $vars;
