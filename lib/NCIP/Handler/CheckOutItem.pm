@@ -40,6 +40,7 @@ sub handle {
         my $output;
         $vars->{'barcode'}     = $itemid;
         $vars->{'messagetype'} = 'CheckOutItemResponse';
+        $vars->{'userid'}      = $userid;
         if ($error) {
             $vars->{'processingerror'}        = 1;
             $vars->{'processingerrortype'}    = $messages;
