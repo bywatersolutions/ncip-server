@@ -26,18 +26,18 @@ sub handle {
         my $root = $xmldoc->documentElement();
         my $xpc  = $self->xpc();
 
-        my $userid =
-          $xpc->findnodes( '//ns:UserIdentifierValue',
-            $root );
-        my $itemid =
-          $xpc->findnodes( '//ns:ItemIdentifierValue',
-            $root );
+        my $userid = $xpc->findnodes( '//ns:UserIdentifierValue', $root );
+        my $itemid = $xpc->findnodes( '//ns:ItemIdentifierValue', $root );
 
         # checkout the item
         my ( $error, $messages, $datedue ) =
           $self->ils->checkout( $userid, $itemid );
         my $vars;
         my $output;
+        my ( $from, $to ) = $self->get_agencies($xmldoc);
+        $vars->{'fromagency'} = $to;
+        $vars->{'toagency'}   = $from;
+
         $vars->{'barcode'}     = $itemid;
         $vars->{'messagetype'} = 'CheckOutItemResponse';
         $vars->{'userid'}      = $userid;

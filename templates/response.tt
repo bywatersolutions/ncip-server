@@ -1,12 +1,4 @@
    <[% messagetype %]>
-       <ResponseHeader>
-            <FromAgencyId>
-              <AgencyId>[% fromagency | trim%]</AgencyId>
-            </FromAgencyId>
-            <ToAgencyId>
-               <AgencyId>[% toagency | trim %]</AgencyId>
-            </ToAgencyId>
-        </ResponseHeader>
     [% myfile = "includes/$messagetype" _ ".inc" %]
     [% INCLUDE $myfile %]    
     </[% messagetype %]>
