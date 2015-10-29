@@ -209,7 +209,7 @@ sub request {
         if ($biblionumber) {
             my $reserves = GetReservesFromBiblionumber(
                 { biblionumber => $itemdata->{biblionumber} } );
-            $request_id = $reserves[-1]->{reserve_id};
+            $request_id = $reserves->[-1]->{reserve_id};
         }
         else {
             my ( $reservedate, $borrowernumber, $branchcode2, $reserve_id,
