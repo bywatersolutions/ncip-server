@@ -19,6 +19,8 @@ package NCIP::ILS::Koha;
 use Modern::Perl;
 use Object::Tiny qw{ name };
 
+use Data::Dumper;
+
 use MARC::Record;
 use MARC::Field;
 
@@ -30,7 +32,7 @@ use C4::Reserves
   qw {CanBookBeReserved AddReserve GetReservesFromItemnumber CancelReserve GetReservesFromBiblionumber};
 use C4::Biblio qw {AddBiblio GetMarcFromKohaField GetBiblioData};
 use C4::Barcodes::ValueBuilder;
-use C4::Items qw{AddItem};
+use C4::Items qw{AddItem GetItemsInfo};
 
 sub itemdata {
     my $self     = shift;
@@ -57,7 +59,7 @@ sub userenv {
     my $self    = shift;
     my $branch  = shift || 'AS';
     my @USERENV = (
-        60730,
+        106212,
         'NCIP',
         '2996601200068930',
         'NCIP',
@@ -78,13 +80,33 @@ sub checkin {
     my $branch     = shift;
     my $exemptfine = undef;
     my $dropbox    = undef;
+
+    warn "SELF: $self";
+    warn "BARCODE: $barcode";
+    warn "BRANCH: $branch";
+    warn "EXEMPT FINE: $exemptfine";
+    warn "DROPBOX: $dropbox";
+
+#    my $item = { barcode => $barcode, homebranch => $branch };
+#    C4::Items::_check_itembarcode($item);
+#    $barcode = $item->{barcode};
+
     $self->userenv();
     unless ($branch){
         my $item = GetItem( undef, $barcode);
         $branch = $item->{holdingbranch};
+        warn "NEW BRANCH: $branch";
     }
     my ( $success, $messages, $issue, $borrower ) =
       AddReturn( $barcode, $branch, $exemptfine, $dropbox );
+warn "SUCCESS: " . Data::Dumper::Dumper( $success );
+warn "MESSAGES: " . Data::Dumper::Dumper( $messages );
+warn "ISSUE: $issue";
+warn "BOR: $borrower";
+
+# Should we force the item to waiting? doesn't seem like a good idea
+#C4::Reserves::ModReserveStatus($item->{'itemnumber'}, 'W');
+
     my $result = {
         success         => $success,
         messages        => $messages,
@@ -179,7 +201,7 @@ sub request {
         }
         elsif ( $type eq 'ISBN' ) {
 
-            #deal with this
+            #FIXME deal with this
         }
     }
     unless ($itemdata) {
@@ -248,11 +270,20 @@ sub acceptitem {
     my $iteminfo   = shift;
     my $branchcode = shift;
     $branchcode =~ s/^\s+|\s+$//g;
+
+warn "ACCEPT ITEM";
+warn "BARCODE: $barcode";
+warn "USER: $user";
+warn "ACTION: $action";
+warn "CREATE: $create";
+warn "ITEM INFO: $iteminfo";
+warn "BRANCHCODE: $branchcode";
+
     my $result;
     $self->userenv();    # set userenvironment
-    warn "user is $user";
-    my ( $biblionumber, $biblioitemnumber );
+    my ( $biblionumber, $biblioitemnumber, $itemnumber );
     if ($create) {
+        warn "barcode is $barcode";
         my $record;
         my $frameworkcode = 'FA';    # we should get this from config
 
@@ -288,29 +319,53 @@ sub acceptitem {
 
         ( $biblionumber, $biblioitemnumber ) =
           AddBiblio( $record, $frameworkcode );
-        my $itemnumber;
+
         $barcode = 'ILL' . $biblionumber . time unless $barcode;
+
         my $item = {
             'barcode'       => $barcode,
             'holdingbranch' => $branchcode,
-            'homebranch'    => $branchcode
+            'homebranch'    => $branchcode,
+            'itemnotes_nonpublic' => 'Created for ILL', #FIXME: Why didn't this work?
         };
+
+        C4::Items::_check_itembarcode($item); # Prefix the barcode if needed
+        while ( GetItem( undef, $item->{barcode} ) ) {
+            # If the baroce already exists, just make up a new one
+            $item->{barcode} = 'ILL' . $biblionumber . time;
+        }
+
         warn "about to create item";
-        use Data::Dumper;
         warn Dumper $item;
+
         ( $biblionumber, $biblioitemnumber, $itemnumber ) =
           AddItem( $item, $biblionumber );
+
+        warn "BIBLIONUMBER: $biblionumber";
+        warn "ITEMNUMBER: $itemnumber";
     }
     warn "item made";
-    # find hold and get branch for that, check in there
-    my $itemdata = GetItem( undef, $barcode );
-    warn Dumper $itemdata;
+
+    my $itemdata;
+    if ( $itemnumber ) {
+        $itemdata = GetItem( $itemnumber );
+    } else {
+        # Prefix this barcode before calling GetItem, needed for Koha with barcode prefixes patch
+        my $item = { barcode => $barcode, homebranch => $branchcode };
+        C4::Items::_check_itembarcode($item);
+        $barcode = $item->{barcode};
+
+        # find hold and get branch for that, check in there
+        $itemdata = GetItem( undef, $barcode );
+    }
+    warn "ITEM DATA: " . Dumper $itemdata;
+
     my ( $reservedate, $borrowernumber, $branchcode2, $reserve_id, $wait ) =
       GetReservesFromItemnumber( $itemdata->{'itemnumber'} );
 
     # now we have to check the requested action
     if ( $action =~ /^Hold For Pickup And Notify/ ) {
-      warn "hold id = $reserve_id";
+        warn "hold id = $reserve_id";
         unless ($reserve_id) {
         warn "Check user";
             # no reserve, place one
@@ -335,7 +390,6 @@ sub acceptitem {
                         undef
                     );
                 }
-
                 else {
                     $result =
                       { success => 0, messages => { NO_BORROWER => 1 } };
@@ -350,14 +404,15 @@ sub acceptitem {
         }
     }
     else {
-      warn "reserve id = $reserve_id";
+        warn "reserve id = $reserve_id";
         unless ($reserve_id) {
             $result = { success => 0, messages => { NO_HOLD => 1 } };
             return $result;
         }
     }
+
     my ( $success, $messages, $issue, $borrower ) =
-      AddReturn( $barcode, $branchcode, undef, undef );
+      AddReturn( $itemdata->{barcode}, $branchcode, undef, undef );
     if ( $messages->{'NotIssued'} ) {
         $success = 1
           ; # we do this because we are only doing the return to trigger the reserve
@@ -368,7 +423,7 @@ sub acceptitem {
         messages        => $messages,
         iteminformation => $issue,
         borrower        => $borrower,
-        newbarcode      => $barcode
+        newbarcode      => $itemdata->{barcode},
     };
 
     return $result;

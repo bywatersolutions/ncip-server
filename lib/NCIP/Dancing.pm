@@ -11,6 +11,7 @@ any [ 'get', 'post' ] => '/' => sub {
     if ( request->is_post ) {
         $xml = request->body;
     }
+warn "XML: $xml";
     my $content = $ncip->process_request($xml);
 #    warn $content;
     template 'main', { content => $content };

@@ -85,11 +85,13 @@ sub handle_initiation {
     eval { $dom = XML::LibXML->load_xml( string => $xml ); };
     if ($@) {
         $log->info("Invalid xml we can not parse it ");        
+        warn $@;
     }
     if ($dom) {
 
         # should check validity with validate at this point
         if ( $strict_validation && !$self->validate($dom) ) {
+            warn "FAILS VALIDATION";
 
             # we want strict validation, bail out if dom doesnt validate
 #            warn " Not valid xml";
@@ -107,6 +109,7 @@ sub handle_initiation {
     }
     else {
         $log->info("We have no DOM");
+        warn "We have no DOM";
 
         return;
     }

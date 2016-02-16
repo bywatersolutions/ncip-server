@@ -27,7 +27,7 @@
                  We can not place a request, we have no item information
               [% CASE 'ITEMNOTSAMEBRANCH' %]
                  Circulation rules stop this borrower from checking out this item, the borrower and item are not from the same branch
-              [% CASE 'BRANCH_NOT_FOUND']
+              [% CASE 'BRANCH_NOT_FOUND' %]
                  We have no branch code
               [% END %]
                           

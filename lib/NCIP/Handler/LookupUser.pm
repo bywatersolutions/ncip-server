@@ -76,7 +76,7 @@ sub handle {
 
         # if we have blank user, we need to return that
         # and can skip looking for elementtypes
-        if ( $user->userdata->{'borrowernumber'} eq '' ) {
+        if ( !$user->userdata || $user->userdata->{'borrowernumber'} eq '' ) {
             $vars->{'messagetype'}  = 'LookupUserResponse';
             $vars->{'error_detail'} = "Borrower not found";
             my $output = $self->render_output( 'problem.tt', $vars );

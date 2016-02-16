@@ -105,7 +105,7 @@ sub get_user_elements {
     unless ( $elements[0] ) {
         @elements = $xpc->findnodes( '//ns:UserElementType', $root );
     }
-    warn @elements;
+    warn "USER ELEMENTS: " . Data::Dumper::Dumper( \@elements );
     return \@elements;
 }
 
@@ -127,6 +127,8 @@ sub render_output {
     my $templatename = shift;
 
     my $vars     = shift;
+warn "NAME: $templatename";
+warn "INCLUDE PATH: " . $self->templates;
     my $template = Template->new(
         {
             INCLUDE_PATH => $self->templates,
@@ -134,7 +136,13 @@ sub render_output {
         }
     );
     my $output;
-    $template->process( $templatename, $vars, \$output );
+    $template->process( $templatename, $vars, \$output ) || do {
+    my $error = $template->error();
+    print "error type: ", $error->type(), "\n";
+    print "error info: ", $error->info(), "\n";
+    print $error, "\n";
+};
+warn "OUTPUT: $output";
     return $output;
 }
 1;
