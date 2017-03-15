@@ -29,10 +29,11 @@ use C4::Circulation qw { AddReturn CanBookBeIssued AddIssue };
 use C4::Context;
 use C4::Items qw { GetItem };
 use C4::Reserves
-  qw {CanBookBeReserved AddReserve GetReservesFromItemnumber CancelReserve GetReservesFromBiblionumber};
+  qw {CanBookBeReserved AddReserve GetReservesFromItemnumber CancelReserve GetReservesFromBiblionumber CanItemBeReserved};
 use C4::Biblio qw {AddBiblio GetMarcFromKohaField GetBiblioData};
 use C4::Barcodes::ValueBuilder;
 use C4::Items qw{AddItem GetItemsInfo};
+use Koha::Items;
 
 sub itemdata {
     my $self     = shift;
@@ -81,28 +82,13 @@ sub checkin {
     my $exemptfine = undef;
     my $dropbox    = undef;
 
-    warn "SELF: $self";
-    warn "BARCODE: $barcode";
-    warn "BRANCH: $branch";
-    warn "EXEMPT FINE: $exemptfine";
-    warn "DROPBOX: $dropbox";
-
-#    my $item = { barcode => $barcode, homebranch => $branch };
-#    C4::Items::_check_itembarcode($item);
-#    $barcode = $item->{barcode};
-
     $self->userenv();
     unless ($branch){
         my $item = GetItem( undef, $barcode);
         $branch = $item->{holdingbranch};
-        warn "NEW BRANCH: $branch";
     }
     my ( $success, $messages, $issue, $borrower ) =
       AddReturn( $barcode, $branch, $exemptfine, $dropbox );
-warn "SUCCESS: " . Data::Dumper::Dumper( $success );
-warn "MESSAGES: " . Data::Dumper::Dumper( $messages );
-warn "ISSUE: $issue";
-warn "BOR: $borrower";
 
 # Should we force the item to waiting? doesn't seem like a good idea
 #C4::Reserves::ModReserveStatus($item->{'itemnumber'}, 'W');
@@ -191,54 +177,82 @@ sub request {
         $result = { success => 0, messages => { 'BORROWER_NOT_FOUND' => 1 } };
         return $result;
     }
-    my $itemdata;
-    if ($barcode) {
-        $itemdata = GetItem( undef, $barcode );
+ 
+    my $item;
+
+    if ($barcode) { # Find specific item requested
+        $item = GetItem( undef, $barcode );
+
+        # Autographics will send a request for items from a specific library
+        # we don't want to deal with items from any other library
+        $item = undef unless $item->{homebranch} eq $branchcode; 
+
+        # Autographics needs this item to be available for hold fulfillment *now*
+        my ( $issuingimpossible, $needsconfirmation ) =  CanBookBeIssued( $borrower, $item->{barcode} );
+        $item = undef if ( keys %$issuingimpossible || keys %$needsconfirmation  );
+
+        $item = undef unless CanItemBeReserved( $borrower->{borrowernumber}, $item->{itemnumber} ) eq 'OK';
     }
-    else {
+
+    unless ($item) { # Fallback to finding another item
+        my @items;
+
         if ( $type eq 'SYSNUMBER' ) {
-            $itemdata = GetBiblioData($biblionumber);
+            @items = Koha::Items->search({ biblionumber => $biblionumber });
         }
         elsif ( $type eq 'ISBN' ) {
-
             #FIXME deal with this
         }
+
+warn "ITEMS: @items: " . scalar @items;
+        foreach my $i ( @items ) {
+            $item = $i->unblessed();
+
+            # Autographics will send a request for items from a specific library
+            # we don't want to deal with items from any other library
+            $item = undef unless $item->{homebranch} eq $branchcode; 
+
+            if ( $item ) {
+                # Autographics needs this item to be available for hold fulfillment *now*
+                my ( $issuingimpossible, $needsconfirmation ) =  CanBookBeIssued( $borrower, $item->{barcode} );
+                $item = undef if ( keys %$issuingimpossible || keys %$needsconfirmation  );
+            }
+
+            if ( $item ) {
+                $item = undef unless CanItemBeReserved( $borrower->{borrowernumber}, $item->{itemnumber} ) eq 'OK';
+            }
+
+            last if $item; # We found an item that is available and holdable, we can stop looking now
+        }
     }
-    unless ($itemdata) {
+
+
+    unless ($item) {
         $result = { success => 0, messages => {'ITEM_NOT_FOUND'} };
         return $result;
     }
+
     $self->userenv();
+    
     if (
         CanBookBeReserved(
             $borrower->{borrowernumber},
-            $itemdata->{biblionumber}
+            $item->{biblionumber}
         )
       )
     {
-        my $biblioitemnumber = $itemdata->{biblionumber};
+        my $biblioitemnumber = $item->{biblionumber}; # FIXME: This isn't always true
 
         # Add reserve here
-        AddReserve(
+        my $request_id = AddReserve(
             $branchcode,               $borrower->{borrowernumber},
-            $itemdata->{biblionumber}, 'a',
+            $item->{biblionumber},     'a',
             [$biblioitemnumber],       1,
             undef,                     undef,
             'Placed By ILL',           '',
-            $itemdata->{'itemnumber'} || undef, undef
+            $item->{'itemnumber'},     undef
         );
-        my $request_id;
-        if ($biblionumber) {
-            my $reserves = GetReservesFromBiblionumber(
-                { biblionumber => $itemdata->{biblionumber} } );
-            $request_id = $reserves->[-1]->{reserve_id};
-        }
-        else {
-            my ( $reservedate, $borrowernumber, $branchcode2, $reserve_id,
-                $wait )
-              = GetReservesFromItemnumber( $itemdata->{'itemnumber'} );
-            $request_id = $reserve_id;
-        }
+
         $result = {
             success  => 1,
             messages => { request_id => $request_id }
@@ -271,19 +285,10 @@ sub acceptitem {
     my $branchcode = shift;
     $branchcode =~ s/^\s+|\s+$//g;
 
-warn "ACCEPT ITEM";
-warn "BARCODE: $barcode";
-warn "USER: $user";
-warn "ACTION: $action";
-warn "CREATE: $create";
-warn "ITEM INFO: $iteminfo";
-warn "BRANCHCODE: $branchcode";
-
     my $result;
     $self->userenv();    # set userenvironment
     my ( $biblionumber, $biblioitemnumber, $itemnumber );
     if ($create) {
-        warn "barcode is $barcode";
         my $record;
         my $frameworkcode = 'FA';    # we should get this from config
 
@@ -335,16 +340,10 @@ warn "BRANCHCODE: $branchcode";
             $item->{barcode} = 'ILL' . $biblionumber . time;
         }
 
-        warn "about to create item";
-        warn Dumper $item;
-
         ( $biblionumber, $biblioitemnumber, $itemnumber ) =
           AddItem( $item, $biblionumber );
 
-        warn "BIBLIONUMBER: $biblionumber";
-        warn "ITEMNUMBER: $itemnumber";
     }
-    warn "item made";
 
     my $itemdata;
     if ( $itemnumber ) {
@@ -358,28 +357,21 @@ warn "BRANCHCODE: $branchcode";
         # find hold and get branch for that, check in there
         $itemdata = GetItem( undef, $barcode );
     }
-    warn "ITEM DATA: " . Dumper $itemdata;
 
     my ( $reservedate, $borrowernumber, $branchcode2, $reserve_id, $wait ) =
       GetReservesFromItemnumber( $itemdata->{'itemnumber'} );
 
     # now we have to check the requested action
     if ( $action =~ /^Hold For Pickup And Notify/ ) {
-        warn "hold id = $reserve_id";
         unless ($reserve_id) {
-        warn "Check user";
             # no reserve, place one
             if ($user) {
                 my $borrower = GetMemberDetails( undef, $user );
-                warn "borrower";
-                warn Dumper $borrower;
                 if ($borrower) {
-                  warn "placing hold";
                     AddReserve(
                         $branchcode,
                         $borrower->{'borrowernumber'},
                         $biblionumber,
-                        'a',
                         [$biblioitemnumber],
                         1,
                         undef,
@@ -404,7 +396,6 @@ warn "BRANCHCODE: $branchcode";
         }
     }
     else {
-        warn "reserve id = $reserve_id";
         unless ($reserve_id) {
             $result = { success => 0, messages => { NO_HOLD => 1 } };
             return $result;
