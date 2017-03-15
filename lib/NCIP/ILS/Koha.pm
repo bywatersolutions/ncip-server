@@ -246,7 +246,7 @@ warn "ITEMS: @items: " . scalar @items;
         # Add reserve here
         my $request_id = AddReserve(
             $branchcode,               $borrower->{borrowernumber},
-            $item->{biblionumber},     'a',
+            $item->{biblionumber},
             [$biblioitemnumber],       1,
             undef,                     undef,
             'Placed By ILL',           '',
