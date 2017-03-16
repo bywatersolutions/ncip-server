@@ -30,9 +30,9 @@ use C4::Context;
 use C4::Items qw { GetItem };
 use C4::Reserves
   qw {CanBookBeReserved AddReserve GetReservesFromItemnumber CancelReserve GetReservesFromBiblionumber CanItemBeReserved};
-use C4::Biblio qw {AddBiblio GetMarcFromKohaField GetBiblioData};
+use C4::Biblio qw { AddBiblio GetMarcFromKohaField GetBiblioData };
 use C4::Barcodes::ValueBuilder;
-use C4::Items qw{AddItem GetItemsInfo};
+use C4::Items qw{ AddItem GetItemsInfo };
 use Koha::Items;
 
 sub itemdata {
@@ -60,14 +60,14 @@ sub userenv {
     my $self    = shift;
     my $branch  = shift || 'AS';
     my @USERENV = (
-        106212,
-        'NCIP',
-        '2996601200068930',
-        'NCIP',
-        'User',
-         $branch,    #branchcode need to set this properly
-        'Auckland',
-        1,
+        106212, # usernum
+        'NCIP', # userid
+        '2996601200068930', # usercnum
+        'NCIP', # userfirstname
+        'User', # usersurname
+         $branch, # userbranch
+         $branch, # userbranchname
+         1, # userflags
     );
 
     C4::Context->_new_userenv('DUMMY_SESSION_ID');
