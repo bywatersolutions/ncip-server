@@ -71,7 +71,7 @@ sub userenv {
     );
 
     C4::Context->_new_userenv('DUMMY_SESSION_ID');
-    C4::Context::set_userenv(@USERENV);
+    C4::Context->set_userenv(@USERENV);
     return;
 }
 
