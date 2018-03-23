@@ -26,14 +26,14 @@ PORT="3001"
 WORKERS="2"
 REQUESTS="50000"
 
-HOME_DIR="/home/koha"
+HOME_DIR="/path/to/dir/containing/ncip-server"
 MYAPP="ncip-server"
 MYAPP_PATH="$HOME_DIR/ncip-server"
 PIDFILE="$HOME_DIR/ncip-server.pid"
 STATUSFILE="$HOME_DIR/ncip-server.status"
 ERRORLOG="$HOME_DIR/ncip-server.log"
 APP_PL="$MYAPP_PATH/bin/ncip_dancing.pl"
-KOHA_LIB="/home/koha/kohaclone"
+KOHA_LIB="/usr/share/koha/lib/"
 
 STARMAN="/usr/bin/starman"
 PLACKUP="/usr/bin/plackup"
@@ -41,8 +41,8 @@ DAEMON="/usr/local/bin/start_server"
 
 DAEMON_OPTS="--daemonize --port $PORT --pid-file $PIDFILE --status-file $STATUSFILE --log-file $ERRORLOG -- "
 
-STARMAN_OPTS="$PLACKUP -I $MYAPP_PATH/lib -I $KOHA_LIB -E $ENVIRONMENT -s Starman --workers $WORKERS --max-requests $REQUESTS -a $APP_PL"
-GAZELLE_OPTS="$PLACKUP -I $MYAPP_PATH/lib -I $KOHA_LIB -E $ENVIRONMENT -s Gazelle --workers $WORKERS --max-reqs-per-child $REQUESTS -a $APP_PL"
+STARMAN_OPTS="$PLACKUP -I $MYAPP_PATH -I $MYAPP_PATH/lib -I $KOHA_LIB -E $ENVIRONMENT -s Starman --workers $WORKERS --max-requests $REQUESTS -a $APP_PL"
+GAZELLE_OPTS="$PLACKUP -I $MYAPP_PATH -I $MYAPP_PATH/lib -I $KOHA_LIB -E $ENVIRONMENT -s Gazelle --workers $WORKERS --max-reqs-per-child $REQUESTS -a $APP_PL"
 
 if [ $HANDLER == 'starman' ]
         then
