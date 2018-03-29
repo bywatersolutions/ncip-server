@@ -110,6 +110,7 @@ RequestedItem
 
             <UserPrivilege>
                 <AgencyUserPrivilegeType>STATUS</AgencyUserPrivilegeType>
+                <ValidToDate>[% user.userdata.dateexpiry %]</ValidToDate>
                 <UserPrivilegeStatus>
                     [%- FILTER collapse -%]
                         <UserPrivilegeStatusType>[%- FILTER collapse -%]
