@@ -92,3 +92,42 @@ ProxyPassReverse /ncip  http://127.0.0.1:3000 retry=0
 ```bash
 sudo /etc/init.d/ncip-server start
 ```
+
+
+## Installation via Docker
+
+### Clone the NCIP server git repo
+
+```bash
+git clone https://github.com/bywatersolutions/ncip-server.git
+```
+
+### Build the docker image
+
+```bash
+docker build -t ncip -f docker/Dockerfile .
+```
+
+### Make a copy of the config file and edit it
+
+```bash
+cp docker/files/config.yml.template /var/lib/koha/<instance>/ncip-config.yml
+```
+
+### Start the container
+```bash
+docker run -d --net="host" --mount type=bind,source=/usr/share/koha/lib/,target=/kohalib --mount type=bind,source=/etc/koha/sites/<instance>/koha-conf.xml,target=/koha-conf.xml --mount type=bind,source=/var/lib/koha/<instance>/ncip-config.yml,target=/app/config.yml --name koha-ncip  ncip
+```
+
+* Bind `/usr/share/koha/lib/,target=/kohalib` or `kohaclone` ( for git installs ) to `kohalib` and the `koha-conf.xml` to `/koha-conf.xml`
+* Bind the `config.yml.template` copy to `/app/config.yml`
+
+### Maintenance
+
+#### Restarting the ncip server
+
+If you've followed the directions above, it should be as simple as
+
+```bash
+docker restart koha-ncip
+```
