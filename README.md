@@ -116,7 +116,7 @@ cp docker/files/config.yml.template /var/lib/koha/<instance>/ncip-config.yml
 
 ### Start the container
 ```bash
-docker run -d --net="host" --mount type=bind,source=/usr/share/koha/lib/,target=/kohalib --mount type=bind,source=/etc/koha/sites/<instance>/koha-conf.xml,target=/koha-conf.xml --mount type=bind,source=/var/lib/koha/<instance>/ncip-config.yml,target=/app/config.yml --name koha-ncip  ncip
+docker run -d --net="host" --restart=always --mount type=bind,source=/usr/share/koha/lib/,target=/kohalib --mount type=bind,source=/etc/koha/sites/<instance>/koha-conf.xml,target=/koha-conf.xml --mount type=bind,source=/var/lib/koha/<instance>/ncip-config.yml,target=/app/config.yml --name koha-ncip ncip
 ```
 
 * Bind `/usr/share/koha/lib/,target=/kohalib` or `kohaclone` ( for git installs ) to `kohalib` and the `koha-conf.xml` to `/koha-conf.xml`
