@@ -96,6 +96,13 @@ sudo /etc/init.d/ncip-server start
 
 ## Installation via Docker
 
+### Run using image from Docker Hub
+```bash
+docker run -d --net="host" --restart=always --mount type=bind,source=/usr/share/koha/lib/,target=/kohalib --mount type=bind,source=/etc/koha/sites/<instance>/koha-conf.xml,target=/koha-conf.xml --mount type=bind,source=/var/lib/koha/<instance>/ncip-config.yml,target=/app/config.yml --name koha-ncip kylemhall/koha-ncip-server:latest
+```
+
+*OR*
+
 ### Clone the NCIP server git repo
 
 ```bash
