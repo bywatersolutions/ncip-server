@@ -511,11 +511,11 @@ sub request {
       }
       unless $patron;
 
-    #FIXME: Maybe this should be configurable?
-    # If no branch is given, fall back to patron home library
     $branchcode ||= q{};
     $branchcode =~ s/^\s+|\s+$//g;
-    $branchcode ||= $patron->branchcode;
+    $branchcode ||= $patron->branchcode; # If no branchcode or invalid branchcode is given, use patron home branch
+    $branchcode = $patron->branchcode unless Koha::Libraries->search( { branchcode => $branchcode } )->count;
+
     return {
         success  => 0,
         problems => [
