@@ -16,7 +16,7 @@ script:
   - docker build --pull -f docker/Dockerfile --cache-from "$IMAGE_NAME" --tag "$IMAGE_NAME" .
 
 after_script:
-  - echo "VERSION: ${VERSION}"
+  - echo "VERSION ${version}"
   - docker images
 
 before_deploy:
