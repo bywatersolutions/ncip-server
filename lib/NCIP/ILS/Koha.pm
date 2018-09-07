@@ -768,7 +768,21 @@ sub acceptitem {
     my $itemtype =
       $iteminfo->{itemtype} || $fieldslib->{$field}{$subfield}{defaultvalue} || $item_itemtype;
 
-    unless ($branchcode) {
+    if ($branchcode) {
+        my $valid = Koha::Libraries->search({ branchcode => $branchcode })->count();
+        if ( !$valid ) {
+            return {
+                success  => 0,
+                problems => [
+                    {
+                        problem_type => 'Pickup Library Invalid',
+                        problem_detail =>
+                          'Invalid pickup library specified in AcceptItem message. PickupLocation must match a Koha branchcode',
+                    }
+                ]
+            };
+        }
+    } else {
         my @branches = Koha::Libraries->search();
         if ( @branches > 1 ) {
             return {
@@ -783,7 +797,6 @@ sub acceptitem {
             };
         }
         else {
-            #            $branchcode = $branches->[0]->{branchcode};
             $branchcode = $branches[0]->{branchcode};
         }
     }
