@@ -760,9 +760,8 @@ sub acceptitem {
     my $item_location            = $config->{item_location}            || q{};
     my $trap_hold_on_accept_item = $config->{trap_hold_on_accept_item} // 1;
 
-    # Don't use the framework here, it may not have a definition, use the default framework instead
-    my ( $field, $subfield ) = GetMarcFromKohaField('biblioitems.itemtype');
-
+    my ( $field, $subfield ) =
+      GetMarcFromKohaField( 'biblioitems.itemtype', $frameworkcode );
     my $fieldslib =
       C4::Biblio::GetMarcStructure( 1, $frameworkcode, { unsafe => 1 } );
     my $itemtype =
