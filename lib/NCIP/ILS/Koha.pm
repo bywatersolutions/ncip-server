@@ -762,6 +762,9 @@ sub acceptitem {
 
     my ( $field, $subfield ) =
       GetMarcFromKohaField( 'biblioitems.itemtype', $frameworkcode );
+    ( $field, $subfield ) =
+      GetMarcFromKohaField( 'biblioitems.itemtype' ) unless $field && $subfield;
+
     my $fieldslib =
       C4::Biblio::GetMarcStructure( 1, $frameworkcode, { unsafe => 1 } );
     my $itemtype =
