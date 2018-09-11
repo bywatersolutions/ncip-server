@@ -141,6 +141,6 @@ docker restart koha-ncip
 
 ### Troubleshooting
 
-## Error: Server response is `Dancer::Response` instead of NCIP XML
+#### Error: Server response is `Dancer::Response` instead of NCIP XML
 
 The most likely cause of this problem is an incorrect template path in the NCIP server config file. The template path must be a pull ( not relative ) path pointing to the NCIP server templates directory.
