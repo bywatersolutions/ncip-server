@@ -754,11 +754,12 @@ sub acceptitem {
     my $always_generate_barcode  = $config->{always_generate_barcode}  || 0;
     my $barcode_prefix           = $config->{barcode_prefix}           || q{};
     my $replacement_price        = $config->{replacement_price}        || q{};
-    my $item_callnumber          = $config->{item_callnumber}          || q{};
     my $item_itemtype            = $config->{item_itemtype}            || q{};
     my $item_ccode               = $config->{item_ccode}               || q{};
     my $item_location            = $config->{item_location}            || q{};
     my $trap_hold_on_accept_item = $config->{trap_hold_on_accept_item} // 1;
+
+    my $item_callnumber = $iteminfo->{itemcallnumber} || $config->{item_callnumber} || q{};
 
     my ( $field, $subfield ) =
       GetMarcFromKohaField( 'biblioitems.itemtype', $frameworkcode );

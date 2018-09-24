@@ -63,7 +63,8 @@ koha:
   # Set a default replacement price for items
   replacement_price: 125.00
 
-  # Set a defaults for items
+  ## Set defaults for items ##
+  # Used if AcceptItem/ItemOptionalFields/ItemDescription/CallNumber doesn't exist
   #item_callnumber: 'ILL'
   #item_itemtype: 'ITYPE'
   #item_ccode: 'CCODE'
