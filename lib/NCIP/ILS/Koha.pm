@@ -296,14 +296,14 @@ sub checkout {
                     problem_element => 'UserIdentifierValue',
                     problem_value   => $userid,
                     problem_detail  => $reasons->{GNA} ? 'Gone no address'
-                    : $reasons->{LOST}               ? 'Card lost'
-                    : $reasons->{DBARRED}            ? 'User restricted'
-                    : $reasons->{EXPIRED}            ? 'User expired'
-                    : $reasons->{DEBT}               ? 'User has debt'
-                    : $reasons->{USERBLOCKEDOVERDUE} ? 'User has overdue items'
+                    : $reasons->{LOST}                 ? 'Card lost'
+                    : $reasons->{DBARRED}              ? 'User restricted'
+                    : $reasons->{EXPIRED}              ? 'User expired'
+                    : $reasons->{DEBT}                 ? 'User has debt'
                     : $reasons->{USERBLOCKEDNOENDDATE} ? 'User restricted'
                     : $reasons->{AGE_RESTRICTION}      ? 'Age restriction'
-                    :                                    'Reason unkown'
+                    : $reasons->{USERBLOCKEDOVERDUE}   ? 'User has overdue items'
+                    :                                  'Reason unkown'
                 }
               )
               if $reasons->{GNA}
@@ -311,9 +311,10 @@ sub checkout {
               || $reasons->{DBARRED}
               || $reasons->{EXPIRED}
               || $reasons->{DEBT}
-              || $reasons->{USERBLOCKEDOVERDUE}
-              || $reasons->{USERBLOCKEDOVERDUEDATE}
-              || $reasons->{AGE_RESTRICTION};
+              || $reasons->{USERBLOCKEDNOENDDATE}
+              || $reasons->{AGE_RESTRICTION}
+              || ( $reasons->{USERBLOCKEDOVERDUE}
+                && C4::Context->preference("OverduesBlockCirc") eq 'block' );
 
             push(
                 @problems,
