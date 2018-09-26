@@ -108,7 +108,7 @@ sub userdata {
     if ( $patron->is_debarred ) {
         $block_status = 1; # UserPrivilegeStatus => Restricted
     }
-    elsif ( C4::Context->preference('OverduesBlockCirc') && $patron->has_overdues ) {
+    elsif ( C4::Context->preference('OverduesBlockCirc') eq 'block' && $patron->has_overdues ) {
         $block_status = -1; # UserPrivilegeStatus => Delinquent
     }
     else {
