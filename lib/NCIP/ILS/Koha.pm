@@ -252,6 +252,7 @@ sub checkout {
         my $reasons = { %$error, %$confirm };
 
         delete $reasons->{DEBT} if C4::Context->preference('AllowFineOverride');
+	delete $reasons->{USERBLOCKEDOVERDUE} unless C4::Context->preference("OverduesBlockCirc") eq 'block';
 
         if (%$reasons) {
             my @problems;
@@ -313,8 +314,7 @@ sub checkout {
               || $reasons->{DEBT}
               || $reasons->{USERBLOCKEDNOENDDATE}
               || $reasons->{AGE_RESTRICTION}
-              || ( $reasons->{USERBLOCKEDOVERDUE}
-                && C4::Context->preference("OverduesBlockCirc") eq 'block' );
+              || $reasons->{USERBLOCKEDOVERDUE};
 
             push(
                 @problems,
