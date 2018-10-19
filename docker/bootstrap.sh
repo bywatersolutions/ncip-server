@@ -1,3 +1,5 @@
+#!/bin/bash
+
 docker run -d --restart=always -p 3000:4000 \
               --mount type=bind,source=/usr/share/koha/lib/,target=/kohalib \
               --mount type=bind,source=/etc/koha/sites/$INSTANCE/koha-conf.xml,target=/koha-conf.xml \
