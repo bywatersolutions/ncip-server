@@ -1,1 +1,1 @@
-docker run --net="host" --mount type=bind,source=$PERL5LIB,target=/kohalib --mount type=bind,source=$KOHA_CONF,target=/koha-conf.xml --mount type=bind,source=/var/run/mysqld/mysqld.sock,target=/var/run/mysqld/mysqld.sock ncip
+docker run --restart="always" --net="host" --mount type=bind,source=$PERL5LIB,target=/kohalib --mount type=bind,source=$KOHA_CONF,target=/koha-conf.xml --mount type=bind,source=/var/run/mysqld/mysqld.sock,target=/var/run/mysqld/mysqld.sock ncip
