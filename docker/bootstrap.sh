@@ -5,7 +5,8 @@ if [[ -z "$INSTANCE" ]]; then
     exit 1
 fi
 
-docker run -d --restart=always -p 3000:4000 \
+docker run -d --restart=always \
+              -p 127.0.0.1:4000:3000 \
               --mount type=bind,source=/usr/share/koha/lib/,target=/kohalib \
               --mount type=bind,source=/etc/koha/sites/$INSTANCE/koha-conf.xml,target=/koha-conf.xml \
               --mount type=bind,source=/etc/koha/sites/$INSTANCE/ncip-config.yml,target=/app/config.yml \
