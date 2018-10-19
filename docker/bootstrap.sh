@@ -5,6 +5,11 @@ if [[ -z "$INSTANCE" ]]; then
     exit 1
 fi
 
+if [ ! -f /etc/koha/sites/$INSTANCE/ncip-config.yml ]; then
+    echo "NCIP config not found, downloading default config file as /etc/koha/sites/$INSTANCE/ncip-config.yml";
+    curl https://github.com/bywatersolutions/ncip-server/blob/master/docker/files/config.yml.template -o /etc/koha/sites/$INSTANCE/ncip-config.yml
+fi
+
 docker run -d --restart=always \
               -p 127.0.0.1:4000:3000 \
               --mount type=bind,source=/usr/share/koha/lib/,target=/kohalib \
