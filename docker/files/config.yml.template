@@ -37,7 +37,7 @@ koha:
   framework: 'FA'
 
   # Optional setting to force the item created to have a given home/holding branch
-  item_branchcode: 'MPL'
+  #item_branchcode: 'MPL'
 
   # If enabled, NCIP will always generate a new barcode even if the requested barcode is not used via AcceptItem
   always_generate_barcode: 0
@@ -56,12 +56,12 @@ koha:
   trap_hold_on_checkin: 1
 
   # Sets the itemtype based on ItemOptionalFields/Format, format is "ItemFormat: KohaItemType"
-  itemtype_map:
-    DVD: ILL1WK
-    CD: ILL1WK
+  #itemtype_map:
+  #  DVD: ILL1WK
+  #  CD: ILL1WK
 
   # Set a default replacement price for items
-  replacement_price: 125.00
+  #replacement_price: 125.00
 
   # Set a defaults for items
   #item_callnumber: 'ILL'
