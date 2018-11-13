@@ -80,9 +80,11 @@ sub handle {
 
                 my $item_description =
                   $xpc->find( '//ItemDescription', $item_info->[0] );
-                my $itemcallnumber = $xpc->find( '//CallNumber', $item_description->[0] );
-                if ( $itemcallnumber->[0] ) {
-                    $itemdata->{itemcallnumber} = $itemcallnumber->[0]->textContent();
+                if ($item_description) {
+                    my $itemcallnumber = $xpc->find( '//CallNumber', $item_description->[0] );
+                    if ( $itemcallnumber->[0] ) {
+                        $itemdata->{itemcallnumber} = $itemcallnumber->[0]->textContent();
+                    }
                 }
             }
 
@@ -138,9 +140,11 @@ sub handle {
 
                 my $item_description =
                   $xpc->find( '//ns:ItemDescription', $item_info->[0] );
-                my $itemcallnumber = $xpc->find( '//ns:CallNumber', $item_description->[0] );
-                if ( $itemcallnumber->[0] ) {
-                    $itemdata->{itemcallnumber} = $itemcallnumber->[0]->textContent();
+                if ( $item_description ) {
+                    my $itemcallnumber = $xpc->find( '//ns:CallNumber', $item_description->[0] );
+                    if ( $itemcallnumber->[0] ) {
+                        $itemdata->{itemcallnumber} = $itemcallnumber->[0]->textContent();
+                    }
                 }
             }
         }
