@@ -109,6 +109,8 @@ sub handle_initiation {
             return ( undef, '2' ); # Hard code default of NCIP version 2
         }
         my ( $request_type, $ncip_version ) = $self->parse_request($dom);
+	warn "REQUEST TYPE: $request_type";
+	warn "NCIP VERSION: $ncip_version";
 
         # do whatever we should do to initiate, then hand back request_type
         if ($request_type) {
@@ -146,7 +148,7 @@ sub parse_request {
     my $self = shift;
     my $dom  = shift;
     my $nodes =
-      $dom->getElementsByTagNameNS( $self->namespace(), 'NCIPMessage' );
+      $dom->getElementsByTagName( 'NCIPMessage' );
 
     if ($nodes) {
         my $version = 1;
