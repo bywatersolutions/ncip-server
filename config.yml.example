@@ -80,3 +80,6 @@ koha:
   # If this option is enabled, items created by AcceptItem will use AcceptItem/RequestId/RequestIdentifierValue
   # as the barcode instead of AcceptItem/ItemId/ItemIdentifierValue
   #request_identifier_value_as_barcode: 1
+
+  # Default ValidToDate format is '%Y-%d-%m'
+  #format_ValidToDate: '%Y-%d-%mT%H-%M-%S'

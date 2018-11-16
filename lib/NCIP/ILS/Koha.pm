@@ -26,7 +26,6 @@ use C4::Auth qw{
 };
 
 #  IsMemberBlocked
-use Koha::Patrons;
 use C4::Circulation qw{
   AddReturn
   CanBookBeIssued
@@ -60,6 +59,7 @@ use C4::Items qw{
   ModItemTransfer
 };
 use Koha::Database;
+use Koha::DateUtils qw{ dt_from_string };
 use Koha::Holds;
 use Koha::Items;
 use Koha::Libraries;
@@ -118,6 +118,8 @@ sub userdata {
     my $patron_hashref = $patron->unblessed;
 
     $patron_hashref->{restricted} = $block_status;
+
+    $patron_hashref->{dateexpiry_dt} = dt_from_string( $patron_hashref->{dateexpiry} );
 
     return $patron_hashref;
 }

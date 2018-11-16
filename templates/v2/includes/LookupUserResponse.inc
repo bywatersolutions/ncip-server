@@ -1,3 +1,4 @@
+[%- SET format_ValidToDate = config.format_ValidToDate || '%Y-%d-%m' -%]
 <UserId>
     [%- SWITCH config.lookup_user_id -%]
     [%- CASE 'same' -%]
@@ -110,7 +111,7 @@ RequestedItem
 
             <UserPrivilege>
                 <AgencyUserPrivilegeType>STATUS</AgencyUserPrivilegeType>
-                <ValidToDate>[% user.userdata.dateexpiry %]</ValidToDate>
+                <ValidToDate>[% user.userdata.dateexpiry_dt.strftime(format_ValidToDate) %]</ValidToDate>
                 <UserPrivilegeStatus>
                     [%- FILTER collapse -%]
                         <UserPrivilegeStatusType>[%- FILTER collapse -%]
