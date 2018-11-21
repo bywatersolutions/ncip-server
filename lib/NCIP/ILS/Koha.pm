@@ -849,8 +849,8 @@ sub acceptitem {
 
         }
 
-        ( $biblionumber, $biblioitemnumber ) =
-          AddBiblio( $record, $frameworkcode );
+        $ENV{"OVERRIDE_SYSPREF_BiblioAddsAuthorities"} = 0; # Never auto-link incoming biblio
+        ( $biblionumber, $biblioitemnumber ) = AddBiblio( $record, $frameworkcode );
 
         if ($barcode_prefix) {
             $barcode = $barcode_prefix . $barcode;
