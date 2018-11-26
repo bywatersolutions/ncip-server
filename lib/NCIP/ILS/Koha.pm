@@ -249,7 +249,7 @@ sub checkout {
 
     if ($patron) {
         my ( $error, $confirm ) =
-          CanBookBeIssued( $patron->unblessed, $barcode, $date_due );
+          CanBookBeIssued( $patron, $barcode, $date_due );
 
         my $reasons = { %$error, %$confirm };
 
