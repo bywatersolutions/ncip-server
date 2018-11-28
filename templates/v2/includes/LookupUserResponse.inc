@@ -1,4 +1,4 @@
-[%- SET format_ValidToDate = config.format_ValidToDate || '%Y-%d-%m' -%]
+[%- SET format_ValidToDate = config.format_ValidToDate || '%Y-%m-%d' -%]
 <UserId>
     [%- SWITCH config.lookup_user_id -%]
     [%- CASE 'same' -%]
