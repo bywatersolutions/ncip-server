@@ -37,7 +37,7 @@ RequestedItem
                 <UserAddressRoleType>Home</UserAddressRoleType>
                 <PhysicalAddress>
                     <StructuredAddress>
-                        <Line1>[% user.userdata.streetnumber | xml %] [% user.userdata.address | xml %]</Line1>
+                        <Line1>[% FILTER collapse %][% user.userdata.streetnumber | xml %] [% user.userdata.address | xml %][% END %]</Line1>
 
                         [%- IF user.userdata.address2 -%]
                             <Line2>[% user.userdata.address2 | xml %]</Line2>
