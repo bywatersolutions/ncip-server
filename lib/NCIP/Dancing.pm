@@ -18,7 +18,7 @@ any [ 'get', 'post' ] => '/' => sub {
     my $log  = Log::Log4perl->get_logger("NCIP");
 
     $log->debug("MESSAGE INCOMING");
-    $log->debug("INCOMING PARAMS: ") . Data::Dumper::Dumper scalar params;
+    $log->debug("INCOMING PARAMS: " . Data::Dumper::Dumper( scalar params ) );
 
     my $xml = param 'xml';
     $xml ||= param 'XForms:Model';
@@ -26,6 +26,7 @@ any [ 'get', 'post' ] => '/' => sub {
         $xml = request->body;
     }
 
+    $xml ||= q{};
     $log->debug("RAW XML: **$xml**");
     $log->debug("FORMATTED XML: \n" . xml_tidy( $xml ) );
 

@@ -14,5 +14,6 @@ requires 'Starman', '0.4014';
 requires 'Template';
 requires 'Term::ReadLine';
 requires 'Try::Tiny';
+requires 'XML::Hash';
 requires 'XML::LibXML';
 requires 'XML::Tidy::Tiny', '0.02';
