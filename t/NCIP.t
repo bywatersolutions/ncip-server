@@ -35,7 +35,8 @@ EOT
 
 # handle_initiation is called as part of the process_request, but best to test
 # anyway
-ok( !$ncip->handle_initiation($xmlbad), 'Bad xml' );
+my ( $code, $version ) = $ncip->handle_initiation($xmlbad);
+is( $code, undef, 'NCIP::handle_initiation returns undef code for bad xml' );
 
 my $lookupitem = read_file('t/sample_data/LookupItem.xml');
 
