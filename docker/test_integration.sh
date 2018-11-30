@@ -50,9 +50,16 @@ export KOHA_MAJOR=${VER_PARTS[0]}
 export KOHA_MINOR=${VER_PARTS[1]}
 If the minor version is even, assume we are on master
 if [ $((KOHA_MINOR%2)) -eq 0 ]; then export KOHA_BRANCH='master'; else export KOHA_BRANCH="$KOHA_MAJOR.$KOHA_MINOR"; fi
-echo $KOHA_MAJOR
-echo $KOHA_MINOR
-echo $KOHA_BRANCH
+echo "MAJOR: $KOHA_MAJOR"
+echo "MINOR: $KOHA_MINOR"
+echo "BRANCH: $KOHA_BRANCH"
+
+SYNC_REPO=$(echo `pwd`)
+export SYNC_REPO=$(echo `pwd`)
+echo "SYNC_REPO: $SYNC_REPO"
+echo "SYNC REPO CONTENTS: $(ls -alh $SYNC_REPO)"
+NCIP_CONF=$(echo $NCIP_CLONE/"docker/files/config.yml.template")
+
 cd .. # Now set up koha-testing-docker
 ls -alh
 pwd
@@ -61,6 +68,9 @@ git clone https://gitlab.com/koha-community/koha-testing-docker.git
 cd koha-testing-docker
 git checkout origin/${KOHA_BRANCH} # Check out the correct koha-testing-docker branch
 cp env/defaults.env .env
+echo "CWD: $(pwd)";
+echo "LS: $(ls -alh)";
+echo "ENV: $(cat .env)";
 docker-compose build
 #sudo sysctl -w vm.max_map_count=262144
 export KOHA_INTRANET_URL="http://127.0.0.1:8081"
@@ -74,30 +84,43 @@ echo "SLEEPING"
 sleep 120
 echo "WAKING UP"
 
-export KOHA_CONTAINER_ID=$(docker ps --filter "name=koha-testing-docker_koha_run" -q)
-echo "KOHA CONTAINER"
-echo $KOHA_CONTAINER_ID
+echo "DOCKER PS: $(docker ps)"
+export KOHA_CONTAINER_ID=$(docker ps --filter "name=docker_koha_run_1" -q)
+echo "KOHA CONTAINER $KOHA_CONTAINER_ID"
 
-#docker exec -it $KOHA_CONTAINER_ID cp /etc/koha/sites/kohadev/koha-conf.xml /kohadevbox/koha/.
-docker exec $KOHA_CONTAINER_ID cat /etc/koha/sites/kohadev/koha-conf.xml > koha-conf.xml 2>&1
-sleep 5
-echo "KOHA CONF";
-cat koha-conf.xml
+#docker exec $KOHA_CONTAINER_ID cat /etc/koha/sites/kohadev/koha-conf.xml > koha-conf.xml 2>&1
+docker cp $KOHA_CONTAINER_ID:/etc/koha/sites/kohadev/koha-conf.xml koha-conf.xml
+KOHA_CONF_PATH="$(pwd)/koha-conf.xml"
+echo "KOHA CONF: $KOHA_CONF_PATH";
+cat $KOHA_CONF_PATH
 
-KOHA_CONF_DIR=$(echo `pwd`/"koha-conf.xml")
-echo "KOHA CONF: $KOHA_CONF";
-KOHACLONE=$(echo `pwd`/"kohaclone")
-echo "KOHACLONE: $KOHACLONE";
-NCIP_CONF=$(echo `pwd`/"files/config.yml.template")
+echo "SYNC_REPO: $SYNC_REPO"
+echo "$(ls $SYNC_REPO)";
+echo "KOHA_CONF_PATH: $KOHA_CONF_PATH"
+echo "$(ls $KOHA_CONF_PATH)"
+echo "NCIP_CONF: $NCIP_CONF"
+echo "$(ls $NCIP_CONF)"
 
+echo "DOCKER NETWORKS:"
+echo $(docker network ls)
+
+KOHA_DOCKER_NET=$(docker network ls -q -f "name=koha")
+
+echo "STARTING NCIP CONTAINER"
 NCIP_CONTAINER_ID=$(docker run -d \
-        --net="koha-testing-docker_kohanet" \
-        --mount type=bind,source=$KOHACLONE,target=/kohalib \
-        --mount type=bind,source=$KOHA_CONF_DIR,target=/koha-conf.xml \
+        --net="$KOHA_DOCKER_NET" \
+        --mount type=bind,source=$SYNC_REPO,target=/kohalib \
+        --mount type=bind,source=$KOHA_CONF_PATH,target=/koha-conf.xml \
         --mount type=bind,source=$NCIP_CONF,target=/app/config.yml \
         ncip-test-build /app/docker/loop_forever.sh)
 
+echo "RUNNING NCIP UNIT TESTS"
 docker exec -t $NCIP_CONTAINER_ID prove t/01-NCIP.t
+if [ "$?" == "0" ]
+then
+    echo "UNIT TEST FAILURE!"
+    exit 1
+fi
 
 if [ "$interactive" == true ]
 then
@@ -113,4 +136,3 @@ rm -f koha-testing-docker
 rm -rf kohaclone
 rm -rf .env
 rm -rf koha-conf.xml
-
