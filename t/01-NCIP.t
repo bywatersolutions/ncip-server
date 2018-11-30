@@ -2,7 +2,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 use Dancer::Test;
 use File::Slurp;
@@ -66,7 +66,8 @@ my $patron_1 = $builder->build_object(
             surname      => 'Hall',
             firstname    => 'Kyle',
             categorycode => $patron_category->{categorycode},
-            cardnumber   => '123456789'
+            cardnumber   => '123456789',
+	    dateexpiry   => '2032-12-31',
         }
     }
 );
@@ -77,3 +78,4 @@ $dom = $dom_converter->fromXMLStringtoHash( $response->content );
 is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserId}->{UserIdentifierValue}->{text}, '123456789', 'LookupUserResponse has correct cardnumber' );
 is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{NameInformation}->{PersonalNameInformation}->{StructuredPersonalUserName}->{GivenName}->{text}, 'Kyle', 'LookupUserResponse has correct first name' );
 is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{NameInformation}->{PersonalNameInformation}->{StructuredPersonalUserName}->{Surname}->{text}, 'Hall', 'LookupUserResponse has correct last name' );
+is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{UserPrivilege}->[2]->{ValidToDate}->{text}, '2032-12-31', 'LookupUserResponse has correct ValidToDate date and default format' );
