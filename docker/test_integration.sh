@@ -1,5 +1,38 @@
 #!/bin/bash
 
+function usage()
+{
+    echo "usage: test_integration.sh -v <version> [-i] | [-h]"
+    echo "  -v --version     : The version of Koha to test against"
+    echo "  -i --interactive : Leave containers running until a key is pressed"
+}
+
+interactive=
+version=
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -v | --version )        shift
+                                version=$1
+                                ;;
+        -i | --interactive )    interactive=true
+                                ;;
+        -h | --help )           usage
+                                exit
+                                ;;
+        * )                     usage
+                                exit 1
+    esac
+    shift
+done
+
+# Version is a required parameter
+if [ -z "$version" ]
+then
+    usage
+    exit 1
+fi
+
 cd ..
 NCIP_CLONE=$(pwd)
 docker build --pull -f docker/Dockerfile --tag ncip-test-build .
@@ -65,6 +98,11 @@ NCIP_CONTAINER_ID=$(docker run -d \
         ncip-test-build /app/docker/loop_forever.sh)
 
 docker exec -t $NCIP_CONTAINER_ID prove t/01-NCIP.t
+
+if [ "$interactive" == true ]
+then
+    read -p "Press any key to shut down containers and clean up... " -n1 -s
+fi
 
 # POST RUN CLEANUP
 docker rm -f $NCIP_CONTAINER_ID
