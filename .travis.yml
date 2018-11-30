@@ -1,6 +1,5 @@
 sudo: required
-services:
-  - docker
+
 env:
   global:
     - IMAGE_NAME=bywater/koha-ncip-server
@@ -8,24 +7,38 @@ env:
     # REGISTRY_PASS=...
     - secret: "dsfkjdf78ewr23rju32j323288ewuiwf87dsfhjser87sef87dsfiudsfhj"
 
-before_script:
-  - version="$TRAVIS_COMMIT"
-  - docker pull "$IMAGE_NAME" || true
+jobs:
+  include:
+    - stage: run integration tests
+      services:
+        - docker
 
-script:
-  - docker build --pull -f docker/Dockerfile --cache-from "$IMAGE_NAME" --tag "$IMAGE_NAME" .
+      script:
+        - cd docker
+        - ./test_integration.sh -v v18.05.50
 
-after_script:
-  - echo "VERSION ${version}"
-  - docker images
+    - stage: build docker image
+      services:
+        - docker
 
-before_deploy:
-  - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
-  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
-  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${version}"
+      before_script:
+        - version="$TRAVIS_COMMIT"
+        - docker pull "$IMAGE_NAME" || true
 
-deploy:
-  provider: script
-  script: docker push "${IMAGE_NAME}:latest" && docker push "${IMAGE_NAME}:${version}"
-  on:
-    branch: master
+      script:
+        - docker build --pull -f docker/Dockerfile --cache-from "$IMAGE_NAME" --tag "$IMAGE_NAME" .
+
+      after_script:
+        - echo "VERSION ${version}"
+        - docker images
+
+      before_deploy:
+        - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
+        - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
+        - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${version}"
+
+      deploy:
+        provider: script
+        script: docker push "${IMAGE_NAME}:latest" && docker push "${IMAGE_NAME}:${version}"
+        on:
+          branch: master
