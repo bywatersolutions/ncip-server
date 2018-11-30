@@ -2,7 +2,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 9;
+use Test::More tests => 12;
 
 use Dancer::Test;
 use File::Slurp;
@@ -12,6 +12,7 @@ use lib 'lib';
 
 # From NCIP
 use NCIP::Dancing;
+use Dancer ':syntax';
 
 # From Koha
 use Koha::Database;
@@ -65,6 +66,7 @@ my $patron_1 = $builder->build_object(
         value => {
             surname      => 'Hall',
             firstname    => 'Kyle',
+	    userid       => 'khall',
             categorycode => $patron_category->{categorycode},
             cardnumber   => '123456789',
 	    dateexpiry   => '2032-12-31',
@@ -73,9 +75,34 @@ my $patron_1 = $builder->build_object(
 );
 
 my $lookupuser = read_file('t/sample_data/LookupUser.xml') || die "Cant open file";
+
+### Set defaults ###
+config->{koha}->{lookup_user_id} = 'cardnumber';
+config->{koha}->{format_ValidToDate} = undef;
+
+### Test lookup_user_id ###
 $response = dancer_response( POST => '/', { body => $lookupuser } );
 $dom = $dom_converter->fromXMLStringtoHash( $response->content );
-is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserId}->{UserIdentifierValue}->{text}, '123456789', 'LookupUserResponse has correct cardnumber' );
+is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserId}->{UserIdentifierValue}->{text}, '123456789', 'LookupUserResponse returns cardnumber for lookup_user_id => cardnumber' );
 is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{NameInformation}->{PersonalNameInformation}->{StructuredPersonalUserName}->{GivenName}->{text}, 'Kyle', 'LookupUserResponse has correct first name' );
 is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{NameInformation}->{PersonalNameInformation}->{StructuredPersonalUserName}->{Surname}->{text}, 'Hall', 'LookupUserResponse has correct last name' );
 is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{UserPrivilege}->[2]->{ValidToDate}->{text}, '2032-12-31', 'LookupUserResponse has correct ValidToDate date and default format' );
+
+config->{koha}->{lookup_user_id} = 'userid';
+$response = dancer_response( POST => '/', { body => $lookupuser } );
+$dom = $dom_converter->fromXMLStringtoHash( $response->content );
+is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserId}->{UserIdentifierValue}->{text}, 'khall', 'LookupUserResponse returns userid for lookup_user_id => userid' );
+
+config->{koha}->{lookup_user_id} = 'same';
+$response = dancer_response( POST => '/', { body => $lookupuser } );
+$dom = $dom_converter->fromXMLStringtoHash( $response->content );
+is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserId}->{UserIdentifierValue}->{text}, '123456789', 'LookupUserResponse returns cardnumber for lookup_user_id => same, cardnumber sent in query' );
+
+# Reset lookup_user_id
+config->{koha}->{lookup_user_id} = 'cardnumber';
+
+### Test format_ValidToDate ###
+config->{koha}->{format_ValidToDate} = '%Y-%d-%mT%H-%M-%S';
+$response = dancer_response( POST => '/', { body => $lookupuser } );
+$dom = $dom_converter->fromXMLStringtoHash( $response->content );
+is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{UserPrivilege}->[2]->{ValidToDate}->{text}, '2032-31-12T00-00-00', 'LookupUserResponse has correct ValidToDate date and default format' );
