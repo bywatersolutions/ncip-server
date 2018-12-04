@@ -85,7 +85,7 @@ sleep 120
 echo "WAKING UP"
 
 echo "DOCKER PS: $(docker ps)"
-export KOHA_CONTAINER_ID=$(docker ps --filter "name=docker_koha_run_1" -q)
+export KOHA_CONTAINER_ID=$(docker ps --filter "name=docker_koha_run" -q)
 echo "KOHA CONTAINER $KOHA_CONTAINER_ID"
 
 #docker exec $KOHA_CONTAINER_ID cat /etc/koha/sites/kohadev/koha-conf.xml > koha-conf.xml 2>&1
