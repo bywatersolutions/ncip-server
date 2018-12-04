@@ -29,8 +29,9 @@ any [ 'get', 'post' ] => '/' => sub {
     $xml ||= q{};
     $log->debug("RAW XML: **$xml**");
 
+    $xml = xml_tidy( $xml ); # Tidy before puts DOCTYPE on it's own line for stripping out easily
     $xml =~ s/<!DOCTYPE.*>//g; # Get rid of DOCTYPE stanzas, our parser chokes on them
-    $xml = xml_tidy( $xml );
+    $xml = xml_tidy( $xml ); # Tidy after because why not ;)
     $log->debug("FORMATTED XML: $xml");
 
     my $content = $ncip->process_request( $xml, config );
