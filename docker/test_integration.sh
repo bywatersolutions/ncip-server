@@ -116,23 +116,28 @@ NCIP_CONTAINER_ID=$(docker run -d \
 
 echo "RUNNING NCIP UNIT TESTS"
 docker exec -t $NCIP_CONTAINER_ID prove t/01-NCIP.t
-if [ "$?" == "0" ]
+if [ $? == 0 ]
 then
-    echo "UNIT TEST FAILURE!"
-    exit 1
+    echo "TESTS SUCCESSFUL!"
+else
+    echo "TEST FAILURE!"
+    if [ "$interactive" != true ]
+    then
+        exit 1
+    fi
 fi
 
 if [ "$interactive" == true ]
 then
     read -p "Press any key to shut down containers and clean up... " -n1 -s
+    # POST RUN CLEANUP
+    docker rm -f $NCIP_CONTAINER_ID
+    cd koha-testing-docker
+    docker-compose down
+    cd ..
+    rm -f koha-testing-docker
+    rm -rf kohaclone
+    rm -rf .env
+    rm -rf koha-conf.xml
 fi
 
-# POST RUN CLEANUP
-docker rm -f $NCIP_CONTAINER_ID
-cd koha-testing-docker
-docker-compose down
-cd ..
-rm -f koha-testing-docker
-rm -rf kohaclone
-rm -rf .env
-rm -rf koha-conf.xml
