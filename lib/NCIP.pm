@@ -56,8 +56,6 @@ sub process_request {
     my $xml    = shift;
     my $config = shift;
 
-    $xml =~ s|<!DOCTYPE NCIPMessage PUBLIC "-//NISO//NCIP DTD Version 1//EN" "http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd">\n||g;
-
     my ( $request_type, $ncip_version ) = $self->handle_initiation($xml);
     $self->{ncip_protocol_version} = $ncip_version;
 
