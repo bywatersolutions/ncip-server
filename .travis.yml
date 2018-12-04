@@ -15,7 +15,7 @@ jobs:
 
       script:
         - cd docker
-        - ./test_integration.sh -v v18.05.50
+        - ./test_integration.sh -v v18.05.05
 
     - stage: build docker image
       services:
