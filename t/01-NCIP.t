@@ -2,7 +2,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 12;
+use Test::More tests => 8;
 
 use Dancer::Test;
 use File::Slurp;
@@ -80,29 +80,54 @@ my $lookupuser = read_file('t/sample_data/LookupUser.xml') || die "Cant open fil
 config->{koha}->{lookup_user_id} = 'cardnumber';
 config->{koha}->{format_ValidToDate} = undef;
 
-### Test lookup_user_id ###
-$response = dancer_response( POST => '/', { body => $lookupuser } );
-$dom = $dom_converter->fromXMLStringtoHash( $response->content );
-is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserId}->{UserIdentifierValue}->{text}, '123456789', 'LookupUserResponse returns cardnumber for lookup_user_id => cardnumber' );
-is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{NameInformation}->{PersonalNameInformation}->{StructuredPersonalUserName}->{GivenName}->{text}, 'Kyle', 'LookupUserResponse has correct first name' );
-is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{NameInformation}->{PersonalNameInformation}->{StructuredPersonalUserName}->{Surname}->{text}, 'Hall', 'LookupUserResponse has correct last name' );
-is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{UserPrivilege}->[2]->{ValidToDate}->{text}, '2032-12-31', 'LookupUserResponse has correct ValidToDate date and default format' );
+subtest 'LookupUser: Test setting "lookup_user_id"' => sub {
+    plan tests => 6;
 
-config->{koha}->{lookup_user_id} = 'userid';
-$response = dancer_response( POST => '/', { body => $lookupuser } );
-$dom = $dom_converter->fromXMLStringtoHash( $response->content );
-is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserId}->{UserIdentifierValue}->{text}, 'khall', 'LookupUserResponse returns userid for lookup_user_id => userid' );
+    $response = dancer_response( POST => '/', { body => $lookupuser } );
+    $dom = $dom_converter->fromXMLStringtoHash( $response->content );
+    is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserId}->{UserIdentifierValue}->{text}, '123456789', 'LookupUserResponse returns cardnumber for lookup_user_id => cardnumber' );
+    is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{NameInformation}->{PersonalNameInformation}->{StructuredPersonalUserName}->{GivenName}->{text}, 'Kyle', 'LookupUserResponse has correct first name' );
+    is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{NameInformation}->{PersonalNameInformation}->{StructuredPersonalUserName}->{Surname}->{text}, 'Hall', 'LookupUserResponse has correct last name' );
+    is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{UserPrivilege}->[2]->{ValidToDate}->{text}, '2032-12-31', 'LookupUserResponse has correct ValidToDate date and default format' );
 
-config->{koha}->{lookup_user_id} = 'same';
-$response = dancer_response( POST => '/', { body => $lookupuser } );
-$dom = $dom_converter->fromXMLStringtoHash( $response->content );
-is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserId}->{UserIdentifierValue}->{text}, '123456789', 'LookupUserResponse returns cardnumber for lookup_user_id => same, cardnumber sent in query' );
+    config->{koha}->{lookup_user_id} = 'userid';
+    $response = dancer_response( POST => '/', { body => $lookupuser } );
+    $dom = $dom_converter->fromXMLStringtoHash( $response->content );
+    is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserId}->{UserIdentifierValue}->{text}, 'khall', 'LookupUserResponse returns userid for lookup_user_id => userid' );
 
-# Reset lookup_user_id
-config->{koha}->{lookup_user_id} = 'cardnumber';
+    config->{koha}->{lookup_user_id} = 'same';
+    $response = dancer_response( POST => '/', { body => $lookupuser } );
+    $dom = $dom_converter->fromXMLStringtoHash( $response->content );
+    is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserId}->{UserIdentifierValue}->{text}, '123456789', 'LookupUserResponse returns cardnumber for lookup_user_id => same, cardnumber sent in query' );
 
-### Test format_ValidToDate ###
-config->{koha}->{format_ValidToDate} = '%Y-%d-%mT%H-%M-%S';
-$response = dancer_response( POST => '/', { body => $lookupuser } );
-$dom = $dom_converter->fromXMLStringtoHash( $response->content );
-is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{UserPrivilege}->[2]->{ValidToDate}->{text}, '2032-31-12T00-00-00', 'LookupUserResponse has correct ValidToDate date and default format' );
+    # Reset lookup_user_id
+    config->{koha}->{lookup_user_id} = 'cardnumber';
+};
+
+subtest 'LookupUser: Test setting "format_ValidToDate"' => sub {
+    plan tests => 1;
+
+    config->{koha}->{format_ValidToDate} = '%Y-%d-%mT%H-%M-%S';
+    $response = dancer_response( POST => '/', { body => $lookupuser } );
+    $dom = $dom_converter->fromXMLStringtoHash( $response->content );
+    is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{UserPrivilege}->[2]->{ValidToDate}->{text}, '2032-31-12T00-00-00', 'LookupUserResponse has correct ValidToDate date and default format' );
+
+    # Reset format_ValidToDate
+    config->{koha}->{format_ValidToDate} = undef;
+};
+
+subtest 'Test ability to strip DOCTYPE lines' => sub {
+    plan tests => 4;
+
+    # Minify xml
+    $lookupuser =~ s/>\s+</></g;
+    $lookupuser =~ s/[\r\n]+$//g;
+    print "MINIFIED LookupUser: $lookupuser\n";
+
+    $response = dancer_response( POST => '/', { body => $lookupuser } );
+    $dom = $dom_converter->fromXMLStringtoHash( $response->content );
+    is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserId}->{UserIdentifierValue}->{text}, '123456789', 'LookupUserResponse returns cardnumber for lookup_user_id => cardnumber' );
+    is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{NameInformation}->{PersonalNameInformation}->{StructuredPersonalUserName}->{GivenName}->{text}, 'Kyle', 'LookupUserResponse has correct first name' );
+    is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{NameInformation}->{PersonalNameInformation}->{StructuredPersonalUserName}->{Surname}->{text}, 'Hall', 'LookupUserResponse has correct last name' );
+    is( $dom->{NCIPMessage}->{LookupUserResponse}->{UserOptionalFields}->{UserPrivilege}->[2]->{ValidToDate}->{text}, '2032-12-31', 'LookupUserResponse has correct ValidToDate date and default format' );
+};
