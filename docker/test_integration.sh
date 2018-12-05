@@ -40,7 +40,7 @@ cd docker
 
 export LOCAL_USER_ID="$(id -u)" # Needed for koha-testing-docker
 
-git clone --depth 1 git://git.koha-community.org/koha.git -b 'v18.05.06' kohaclone
+git clone --depth 1 git://git.koha-community.org/koha.git -b "${version}" kohaclone
 cd kohaclone
 # Grab the Koha version from Koha.pm
 export KOHA_VER="$(cat Koha.pm | grep '$VERSION =')" && export KOHA_VER=${KOHA_VER%\"*} && export KOHA_VER=${KOHA_VER##*\"} && echo $KOHA_VER
