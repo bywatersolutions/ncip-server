@@ -9,13 +9,13 @@ env:
 
 jobs:
   include:
-    - stage: run integration tests
-      services:
-        - docker
-
-      script:
-        - cd docker
-        - ./test_integration.sh -v v17.11.12
+#   - stage: run integration tests
+#     services:
+#       - docker
+#
+#     script:
+#       - cd docker
+#       - ./test_integration.sh -v v17.11.12
 
     - stage: build docker image
       services:
@@ -34,11 +34,11 @@ jobs:
 
       before_deploy:
         - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
-        - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
+        - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:v17.11-latest"
         - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${version}"
 
       deploy:
         provider: script
-        script: docker push "${IMAGE_NAME}:v17.11-latest" && docker push "${IMAGE_NAME}:v17.11-${version}"
+        script: docker push "${IMAGE_NAME}:v17.11-latest" && docker push "${IMAGE_NAME}:${version}"
         on:
           branch: master
