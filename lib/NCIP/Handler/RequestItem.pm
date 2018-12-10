@@ -82,6 +82,8 @@ sub handle {
                 {
                     message_type => 'RequestItemResponse',
                     problems     => $data->{problems},
+                    from_agency  => $to,
+                    to_agency    => $from,
                 }
 
             );

@@ -66,7 +66,8 @@ sub handle {
                 {
                     message_type => 'DeleteItemResponse',
                     problems     => $deletion->{problems},
-
+                    from_agency  => $to,
+                    to_agency    => $from,
                 }
             );
         }

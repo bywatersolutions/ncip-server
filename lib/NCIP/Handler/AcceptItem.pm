@@ -178,6 +178,8 @@ sub handle {
                 {
                     message_type => 'AcceptItemResponse',
                     problems     => $data->{problems},
+                    from_agency    => $to,
+                    to_agency      => $from,
                 },
                 $self->{ncip_version},
             );

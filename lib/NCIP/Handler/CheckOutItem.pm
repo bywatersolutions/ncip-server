@@ -66,6 +66,8 @@ sub handle {
                 {
                     message_type => 'CheckOutItemResponse',
                     problems     => $data->{problems},
+                    from_agency  => $to,
+                    to_agency    => $from,
                 }
             );
         }

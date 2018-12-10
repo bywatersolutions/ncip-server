@@ -153,7 +153,9 @@ sub handle {
                             problem_element => 'UserId',
                             problem_value   => $user_id,
                         }
-                    ]
+                    ],
+                    from_agency  => $to,
+                    to_agency    => $from,
                 }
             );
         }

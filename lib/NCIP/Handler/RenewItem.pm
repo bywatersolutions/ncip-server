@@ -28,6 +28,8 @@ sub handle {
         my $userid   = $xpc->findnodes( '//ns:UserIdentifierValue', $root );
         my $itemid   = $xpc->findnodes( '//ns:ItemIdentifierValue', $root );
 
+        my ( $from, $to ) = $self->get_agencies($xmldoc);
+
         my $data = $self->ils->renew( $itemid, $userid );
 
         if ( $data->{success} ) {
@@ -36,6 +38,8 @@ sub handle {
                 'response.tt',
                 {
                     message_type => 'RenewItemResponse',
+                    from_agency  => $to,
+                    to_agency    => $from,
                     barcode      => $itemid,
                     userid       => $userid,
                     elements     => \@elements,
@@ -49,6 +53,8 @@ sub handle {
                 {
                     message_type => 'RenewItemResponse',
                     problems     => $data->{problems},
+                    from_agency  => $to,
+                    to_agency    => $from,
                 }
             );
         }
