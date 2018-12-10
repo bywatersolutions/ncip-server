@@ -5,15 +5,20 @@ function usage()
     echo "usage: test_integration.sh -v <version> [-i] | [-h]"
     echo "  -v --version     : The version of Koha to test against"
     echo "  -i --interactive : Leave containers running until a key is pressed"
+    echo "  -m --mount       : Mount this directory is /external in the container"
 }
 
 interactive=
 version=
+mount=
 
 while [ "$1" != "" ]; do
     case $1 in
         -v | --version )        shift
                                 version=$1
+                                ;;
+        -m | --mount )        shift
+                                mount=$1
                                 ;;
         -i | --interactive )    interactive=true
                                 ;;
@@ -93,8 +98,8 @@ echo "KOHA CONTAINER $KOHA_CONTAINER_ID"
 #docker exec $KOHA_CONTAINER_ID cat /etc/koha/sites/kohadev/koha-conf.xml > koha-conf.xml 2>&1
 docker cp $KOHA_CONTAINER_ID:/etc/koha/sites/kohadev/koha-conf.xml koha-conf.xml
 KOHA_CONF_PATH="$(pwd)/koha-conf.xml"
-echo "KOHA CONF: $KOHA_CONF_PATH";
-cat $KOHA_CONF_PATH
+#echo "KOHA CONF: $KOHA_CONF_PATH";
+#cat $KOHA_CONF_PATH
 
 echo "SYNC_REPO: $SYNC_REPO"
 echo "$(ls $SYNC_REPO)";
@@ -108,12 +113,20 @@ echo $(docker network ls)
 
 KOHA_DOCKER_NET=$(docker network ls -q -f "name=koha")
 
+MOUNTPOINT=""
+if [ -z "$mount" ]
+then
+    MOUNTPOINT="--mount type=bind,source=$mount,target=/external"
+fi
+
 echo "STARTING NCIP CONTAINER"
 NCIP_CONTAINER_ID=$(docker run -d \
+        --rm
         --net="$KOHA_DOCKER_NET" \
         --mount type=bind,source=$SYNC_REPO,target=/kohalib \
         --mount type=bind,source=$KOHA_CONF_PATH,target=/koha-conf.xml \
         --mount type=bind,source=$NCIP_CONF,target=/app/config.yml \
+        $MOUNTPOINT \
         ncip-test-build /app/docker/loop_forever.sh)
 
 echo "RUNNING NCIP UNIT TESTS"
@@ -142,4 +155,3 @@ then
     rm -rf .env
     rm -rf koha-conf.xml
 fi
-
