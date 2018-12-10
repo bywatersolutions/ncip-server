@@ -130,7 +130,7 @@ NCIP_CONTAINER_ID=$(docker run -d \
         ncip-test-build /app/docker/loop_forever.sh)
 
 echo "RUNNING NCIP UNIT TESTS"
-docker exec -t $NCIP_CONTAINER_ID prove -v t/01-NCIP.t
+docker exec -t $NCIP_CONTAINER_ID prove -r -v t
 if [ $? == 0 ]
 then
     echo "TESTS SUCCESSFUL!"
