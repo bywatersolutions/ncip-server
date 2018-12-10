@@ -32,5 +32,6 @@ ok( my $server_params = $config->('NCIP.server-params'), 'Get server-params' );
 
 is( $server_params->{'min_servers'}, 1, 'Do we have a minimum of one server' );
 
-ok ($config->find_service('127.0.0.1','6001','tcp'),'Testing find_service');
+ok( $config->find_service( '127.0.0.1', '6001', 'tcp' ),
+    'Testing find_service' );
 

@@ -11,7 +11,7 @@
       </ToAgencyId>
     </InitiationHeader>
     <AuthenticationInput>
-      <AuthenticationInputData>123456789</AuthenticationInputData>
+      <AuthenticationInputData>[% user_identifier %]</AuthenticationInputData>
       <AuthenticationDataFormatType>Text</AuthenticationDataFormatType>
       <AuthenticationInputType>Barcode Id</AuthenticationInputType>
     </AuthenticationInput>

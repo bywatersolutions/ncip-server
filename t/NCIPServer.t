@@ -5,14 +5,12 @@ use warnings;
 use lib 'lib';
 
 use Test::More tests => 3;
-BEGIN { use_ok('NCIPServer') };
+BEGIN { use_ok('NCIPServer') }
 
-ok(my $server = NCIPServer->new({config_dir => 't/config_sample'}));
-
+ok( my $server = NCIPServer->new( { config_dir => 't/config_sample' } ) );
 
 # internal routines not called except by run, but we should test them
-ok($server->configure_hook());
-
+ok( $server->configure_hook() );
 
 # use Data::Dumper;
 # print Dumper $server;
