@@ -16,18 +16,27 @@
 
     [%- FOREACH p IN problems -%]
         <Problem>
-            <ProblemType>[% p.problem_type | xml %]</ProblemType>
-            [%- IF p.problem_detail -%]
-                <ProblemDetail>[% p.problem_detail | xml %]</ProblemDetail>
-            [%- END -%]
+            <ProcessingError>
 
-            [%- IF p.problem_element -%]
-                <ProblemElement>[% p.problem_element | xml %]</ProblemElement>
-            [%- END -%]
+                <ProcessingErrorType>
+                    <Scheme>http://www.niso.org/ncip/v1_0/schemes/processingerrortype/lookupuserprocessingerror.scm</Scheme>
+                    <Value>[% p.problem_type | xml %]</Value>
+                </ProcessingErrorType>
 
-            [%- IF p.problem_value -%]
-                <ProblemValue>[% p.problem_value | xml %]</ProblemValue>
-            [%- END -%]
+                [% IF p.problem_element || p.problem_value %]
+                    <ProcessingErrorElement>
+                        <ElementName>[% p.problem_element | xml %]</ElementName>
+                        <ProcessingErrorValue>[% p.problem_value | xml %]</ProblemValue>
+                    </ProcessingErrorElement>
+                [% END %]
+
+                [%- IF p.problem_detail -%]
+                    <ProcessingErrorDetail>
+                        <Value>[% p.problem_detail | xml %]</Value>
+                    </ProcessingErrorDetail>
+                [%- END -%]
+
+            <ProcessingError>
         </Problem>
     [%- END -%]
 </[%- message_type -%]>
