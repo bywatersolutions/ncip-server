@@ -36,7 +36,7 @@
                     </ProcessingErrorDetail>
                 [%- END -%]
 
-            <ProcessingError>
+            </ProcessingError>
         </Problem>
     [%- END -%]
 </[%- message_type -%]>
