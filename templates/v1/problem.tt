@@ -26,7 +26,7 @@
                 [% IF p.problem_element || p.problem_value %]
                     <ProcessingErrorElement>
                         <ElementName>[% p.problem_element | xml %]</ElementName>
-                        <ProcessingErrorValue>[% p.problem_value | xml %]</ProblemValue>
+                        <ProcessingErrorValue>[% p.problem_value | xml %]</ProcessingErrorValue>
                     </ProcessingErrorElement>
                 [% END %]
 
