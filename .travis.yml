@@ -34,12 +34,11 @@ jobs:
 
       before_deploy:
         - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
-        - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
-        - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${version}"
+        - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:v18.11-latest"
 
       deploy:
         provider: script
-        script: docker push "${IMAGE_NAME}:v18.11-latest" && docker push "${IMAGE_NAME}:${version}"
+        script: docker push "${IMAGE_NAME}:v18.11-latest"
         on:
           tags: false
           all_branches: true
