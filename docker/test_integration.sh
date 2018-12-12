@@ -80,8 +80,13 @@ docker-compose run koha &disown
 
 cd .. # Now copy koha-conf.xml to somewhere the NCIP server can read it
 
-echo "SLEEPING"
-sleep 120
+echo "SLEEPING 3 MINUTES"
+sleep 60
+echo "1 MINUTE DONE"
+sleep 60
+echo "2 MINUTES DONE"
+sleep 60
+echo "3 MINUTES DONE"
 echo "WAKING UP"
 
 echo "DOCKER PS: $(docker ps)"
