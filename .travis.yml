@@ -15,7 +15,7 @@ jobs:
 
       script:
         - cd docker
-        - ./test_integration.sh -v v18.05.05
+        - ./test_integration.sh -v v18.11.00
 
     - stage: build docker image
       services:
@@ -39,7 +39,7 @@ jobs:
 
       deploy:
         provider: script
-        script: docker push "${IMAGE_NAME}:latest" && docker push "${IMAGE_NAME}:${version}"
+        script: docker push "${IMAGE_NAME}:v18.11-latest" && docker push "${IMAGE_NAME}:${version}"
         on:
           tags: false
           all_branches: true
