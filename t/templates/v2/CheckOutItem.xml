@@ -13,5 +13,6 @@
       <AgencyId>ILLSERVICE</AgencyId>
       <RequestIdentifierValue>ROW-11227579</RequestIdentifierValue>
     </RequestId>
+    <DesiredDateDue>2032-12-30T13:54:19Z</DesiredDateDue>
   </CheckOutItem>
 </NCIPMessage>
