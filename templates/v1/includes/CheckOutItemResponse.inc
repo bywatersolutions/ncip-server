@@ -1,3 +1,4 @@
+[%- SET format_DateDue = config.format_DateDue || '%Y-%m-%dT%H:%M:%S' -%]
 <ResponseHeader>
     <FromAgencyId>
         <UniqueAgencyId>
@@ -26,4 +27,4 @@
     </UniqueAgencyId>
     <UserIdentifierValue>[% userid | xml %]</UserIdentifierValue>
 </UniqueUserId>
-<DateDue>[% datedue %]</DateDue>
+<DateDue>[% datedue.strftime(format_DateDue) %]</DateDue>
