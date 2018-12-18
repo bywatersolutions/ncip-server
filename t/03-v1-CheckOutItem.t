@@ -72,7 +72,7 @@ $item_1->holdingbranch( $library->id );
 $item_1->update();
 
 subtest 'Test CheckOutItem with valid user and item' => sub {
-    plan tests => 2;
+    plan tests => 3;
 
     my $ncip_message;
     $tt->process('v1/CheckOutItem.xml', {
@@ -94,6 +94,13 @@ subtest 'Test CheckOutItem with valid user and item' => sub {
         $item_1->barcode,
         'CheckOutItemResponse returns correct item barcode'
     );
+
+    is(
+	$dom->{NCIPMessage}->{CheckOutItemResponse}->{DateDue}->{text},
+	'2032-12-30T00:00:00',
+	'CheckOutItemResponse returns correct date due'
+    );
+
 };
 
 subtest 'Test CheckOutItem with existing checkout' => sub {
