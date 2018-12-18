@@ -2,7 +2,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 use Dancer::Test;
 use Template;
@@ -74,6 +74,8 @@ $item_1->update();
 subtest 'Test CheckOutItem with valid user and item' => sub {
     plan tests => 3;
 
+    config->{koha}->{format_DateDue} = undef;
+
     my $ncip_message;
     $tt->process('v1/CheckOutItem.xml', {
         user_identifier => $patron_1->cardnumber,
@@ -102,6 +104,44 @@ subtest 'Test CheckOutItem with valid user and item' => sub {
     );
 
 };
+
+my ( $do, $msg ) = C4::Circulation::AddReturn( $item_1->barcode, $item_1->homebranch, 1 );
+
+subtest 'Test configuration option format_DateDue' => sub {
+    plan tests => 3;
+
+    config->{koha}->{format_DateDue} = 'DATE %Y-%d-%m';
+
+    my $ncip_message;
+    $tt->process('v1/CheckOutItem.xml', {
+        user_identifier => $patron_1->cardnumber,
+        item_identifier => $item_1->barcode,
+    }, \$ncip_message) || die $tt->error(), "\n";
+
+    $response = dancer_response( POST => '/', { body => $ncip_message } );
+    $dom = $dom_converter->fromXMLStringtoHash( $response->content );
+
+    is(
+        $dom->{NCIPMessage}->{CheckOutItemResponse}->{UniqueUserId}->{UserIdentifierValue}->{text},
+        $patron_1->cardnumber,
+        'format_DateDue CheckOutItemResponse returns correct patron cardnumber'
+    );
+
+    is(
+        $dom->{NCIPMessage}->{CheckOutItemResponse}->{UniqueItemId}->{ItemIdentifierValue}->{text},
+        $item_1->barcode,
+        'format_DateDue CheckOutItemResponse returns correct item barcode'
+    );
+
+    is(
+	$dom->{NCIPMessage}->{CheckOutItemResponse}->{DateDue}->{text},
+	'DATE 2032-30-12',
+	'format_DateDue CheckOutItemResponse returns correct date due'
+    );
+
+    config->{koha}->{format_DateDue} = undef;
+};
+
 
 subtest 'Test CheckOutItem with existing checkout' => sub {
     plan tests => 4;
