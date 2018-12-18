@@ -1,3 +1,4 @@
+[%- SET format_DateDue = config.format_DateDue || '%Y-%m-%dT%H:%M:%S' -%]
 <ItemId>
     <AgencyId>[% from_agency | trim%]</AgencyId>
     <ItemIdentifierType>Barcode Id</ItemIdentifierType>
@@ -8,4 +9,4 @@
     <UserIdentifierType>Barcode Id</UserIdentifierType>
     <UserIdentifierValue>[% userid | xml %]</UserIdentifierValue>
 </UserId>
-<DateDue>[% datedue %]</DateDue>
+<DateDue>[% datedue.strftime(format_DateDue) %]</DateDue>
