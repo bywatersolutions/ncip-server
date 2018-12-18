@@ -22,6 +22,9 @@ our @ISA = qw(NCIP::Handler);
 sub handle {
     my $self   = shift;
     my $xmldoc = shift;
+
+    my $config = $self->{config}->{koha};
+
     if ($xmldoc) {
         my $root = $xmldoc->documentElement();
         my $xpc  = $self->xpc();
@@ -57,6 +60,7 @@ sub handle {
                     userid       => $userid,
                     elements     => $elements,
                     datedue      => $data->{date_due},
+                    config       => $config,
                 }
             );
         }
