@@ -377,8 +377,7 @@ sub checkout {
         }
         else {
             my $issue = AddIssue( $patron->unblessed, $barcode, $date_due );
-            $date_due = $issue->date_due();
-            $date_due =~ s/ /T/;
+            $date_due = dt_from_string( $issue->date_due() );
             return {
                 success    => 1,
                 date_due   => $date_due,
