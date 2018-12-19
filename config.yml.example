@@ -82,8 +82,8 @@ koha:
   #request_identifier_value_as_barcode: 1
 
   # Default LookupUserResponse ValidToDate format is '%Y-%d-%m', below is the correct date/time format according to the NCIP spec
-  format_ValidToDate: '%Y-%m-%dT%H:%M:%SZ'
+  format_ValidToDate: '%Y-%m-%dT%H:%M:%S'
 
   # Default CheckOutItemResponse DateDue format is '%Y-%d-%mT%H:%M:%S', below is the correct date/time format according to the NCIP spec
   # format_ValidToDate and format_DateDue should probably be set to the same format unless otherwise specified by the ILL broker
-  format_DateDue: '%Y-%m-%dT%H:%M:%SZ'
+  format_DateDue: '%Y-%m-%dT%H:%M:%S'
