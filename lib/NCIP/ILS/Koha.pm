@@ -755,7 +755,7 @@ sub acceptitem {
     my $item_branchcode          = $config->{item_branchcode}          || $branchcode;
     my $always_generate_barcode  = $config->{always_generate_barcode}  || 0;
     my $barcode_prefix           = $config->{barcode_prefix}           || q{};
-    my $replacement_price        = $config->{replacement_price}        || q{};
+    my $replacement_price        = $config->{replacement_price}        || undef;
     my $item_itemtype            = $config->{item_itemtype}            || q{};
     my $item_ccode               = $config->{item_ccode}               || q{};
     my $item_location            = $config->{item_location}            || q{};
