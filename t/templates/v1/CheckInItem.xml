@@ -1,0 +1,29 @@
+<!DOCTYPE NCIPMessage PUBLIC "-//NISO//NCIP DTD Version 1.0//EN" "http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd">
+<NCIPMessage version="http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd">
+    <CheckInItem>
+        <InitiationHeader>
+            <FromAgencyId>
+                <UniqueAgencyId>
+                    <Scheme datatype="string">http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd?target=get_scheme_values&amp;scheme=UniqueAgencyId</Scheme>
+                    <Value datatype="string">ILL SYSTEM</Value>
+                </UniqueAgencyId>
+            </FromAgencyId>
+            <ToAgencyId>
+                <UniqueAgencyId>
+                    <Scheme datatype="string">http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd?target=get_scheme_values&amp;scheme=UniqueAgencyId</Scheme>
+                    <Value datatype="string">60UNIV_INST</Value>
+                </UniqueAgencyId>
+            </ToAgencyId>
+            <ApplicationProfileType>
+                <Scheme datatype="string">http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd?target=get_scheme_values&amp;scheme=UniqueAgencyId</Scheme>
+                <Value datatype="string">ILL BROKER</Value>
+            </ApplicationProfileType>
+        </InitiationHeader>
+        <MandatedAction>
+            <DateEventOccurred datatype="dateTime">2011-01-28T03:15:26Z</DateEventOccurred>
+        </MandatedAction>
+        <UniqueItemId>
+            <ItemIdentifierValue datatype="string">[% item_identifier %]</ItemIdentifierValue>
+        </UniqueItemId>
+    </CheckInItem>
+</NCIPMessage>
