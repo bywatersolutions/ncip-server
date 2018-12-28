@@ -1,46 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?><!DOCTYPE NCIPMessage PUBLIC "-//NISO//NCIP DTD Version 1//EN" "http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd">
-<NCIPMessage version="http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd">
+<?xml version="1.0" encoding="UTF-8" ?>
+<NCIPMessage version="http://www.niso.org/schemas/ncip/v2_0/ncip_v2_0.xsd" xmlns="http://www.niso.org/2008/ncip">
   <AcceptItem>
-    <InitiationHeader>
-      <FromAgencyId>
-        <UniqueAgencyId>
-          <Scheme>http://www.auto-graphics.com/ncip/schemes/uniqueagencyid/agencynames.scm</Scheme>
-          <Value>CPomAG:massvc:FLO-WHEELOCK</Value>
-        </UniqueAgencyId>
-      </FromAgencyId>
-      <ToAgencyId>
-        <UniqueAgencyId>
-          <Scheme>http://schema.flo.org/ncip/ag</Scheme>
-          <Value>FLO-WHEELOCK</Value>
-        </UniqueAgencyId>
-      </ToAgencyId>
-    </InitiationHeader>
-    <UniqueRequestId>
-      <UniqueAgencyId>
-        <Scheme>http://schema.flo.org/ncip/ag</Scheme>
-        <Value>FLO-WHEELOCK</Value>
-      </UniqueAgencyId>
-      <RequestIdentifierValue>250</RequestIdentifierValue>
-    </UniqueRequestId>
-    <RequestedActionType>
-      <Scheme>http://www.niso.org/ncip/v1_0/imp1/schemes/requestedactiontype/requestedactiontype.scm</Scheme>
-      <Value>Hold For Pickup And Notify</Value>
-    </RequestedActionType>
-    <UniqueUserId>
-      <UniqueAgencyId>
-        <Scheme>http://schema.flo.org/ncip/ag</Scheme>
-        <Value>FLO-WHEELOCK</Value>
-      </UniqueAgencyId>
-      <UserIdentifierValue>4444</UserIdentifierValue>
-    </UniqueUserId>
-    <UniqueItemId>
-      <UniqueAgencyId>
-        <Scheme>http://schema.flo.org/ncip/ag</Scheme>
-        <Value>FLO-WHEELOCK</Value>
-      </UniqueAgencyId>
-      <ItemIdentifierValue>0113801584633</ItemIdentifierValue>
-    </UniqueItemId>
-    <DateForReturn>2013-11-13T23:59:00</DateForReturn>
+    <RequestId>
+      <AgencyId>KOHA</AgencyId>
+      <RequestIdentifierValue>KOHA-123456789</RequestIdentifierValue>
+    </RequestId>
+    <RequestedActionType>Hold For Pickup</RequestedActionType>
+    <UserId>
+      <AgencyId>KOHA</AgencyId>
+      <UserIdentifierValue>[% patron_cardnumber %]</UserIdentifierValue>
+    </UserId>
+    <ItemId>
+      <AgencyId>PPU</AgencyId>
+      <ItemIdentifierValue>345678912</ItemIdentifierValue>
+    </ItemId>
     <ItemOptionalFields>
       <BibliographicDescription>
         <Author>Guertin, Mike.</Author>
@@ -63,5 +36,6 @@
         <CallNumber>694.2 .G84 2001</CallNumber>
       </ItemDescription>
     </ItemOptionalFields>
+    <PickupLocation>[% pickup_location %]</PickupLocation>
   </AcceptItem>
 </NCIPMessage>
