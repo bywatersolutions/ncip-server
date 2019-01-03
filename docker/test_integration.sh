@@ -42,15 +42,19 @@ cd docker
 
 export LOCAL_USER_ID="$(id -u)" # Needed for koha-testing-docker
 
-git clone --depth 1 git://git.koha-community.org/koha.git -b "${version}" kohaclone
+git clone --depth 5 git://git.koha-community.org/koha.git -b "${version}" kohaclone
 cd kohaclone
+echo "KOHACLONE CONTENTS"
+echo $(ls)
+echo "GIT SHOW HEAD"
+echo $(git log HEAD~1..HEAD)
 # Grab the Koha version from Koha.pm
 export KOHA_VER="$(cat Koha.pm | grep '$VERSION =')" && export KOHA_VER=${KOHA_VER%\"*} && export KOHA_VER=${KOHA_VER##*\"} && echo $KOHA_VER
 IFS='.' read -ra VER_PARTS <<< "$KOHA_VER"
 
 export KOHA_MAJOR=${VER_PARTS[0]}
 export KOHA_MINOR=${VER_PARTS[1]}
-If the minor version is even, assume we are on master
+# If the minor version is even, assume we are on master
 if [ $((KOHA_MINOR%2)) -eq 0 ]; then export KOHA_BRANCH='master'; else export KOHA_BRANCH="$KOHA_MAJOR.$KOHA_MINOR"; fi
 echo "MAJOR: $KOHA_MAJOR"
 echo "MINOR: $KOHA_MINOR"
