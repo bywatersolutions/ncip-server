@@ -25,13 +25,12 @@ sub handle {
     my $xmldoc = shift;
 
     my $config = $self->{config}->{koha};
+    my $ns = $self->{ncip_version} == 1 ? q{} : q{ns:};
 
     if ($xmldoc) {
 
         # Given our xml document, lets find our userid
-        my ($user_id) =
-          $xmldoc->getElementsByTagNameNS( $self->namespace(),
-            'UserIdentifierValue' );
+        my ($user_id) = $xmldoc->getElementsByTagNameNS( $self->namespace(), 'UserIdentifierValue' );
 
         my $xpc = $self->xpc();
 
@@ -41,17 +40,16 @@ sub handle {
             # We may get a password, username combo instead of userid
             # Need to deal with that also
             my $root = $xmldoc->documentElement();
-            my @authtypes =
-              $xpc->findnodes( '//ns:AuthenticationInput', $root );
+            my @authtypes = $xpc->findnodes( '//' . $ns . 'AuthenticationInput', $root );
 
             my $barcode;
 
             foreach my $node (@authtypes) {
-                my $class =
-                  $xpc->findnodes( './ns:AuthenticationInputType', $node );
+                my $class = $xpc->findnodes( './' . $ns . 'AuthenticationInputType/Value', $node );
+                $class ||= $xpc->findnodes( './' . $ns . 'AuthenticationInputType', $node );
 
-                my $value =
-                  $xpc->findnodes( './ns:AuthenticationInputData', $node );
+                my $value = $xpc->findnodes( './' . $ns . 'AuthenticationInputData/Value', $node );
+                $value ||= $xpc->findnodes( './' . $ns . 'AuthenticationInputData', $node );
 
                 if ( $class->[0]->textContent eq 'Barcode Id' ) {
                     $barcode = $value->[0]->textContent;
