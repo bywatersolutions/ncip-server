@@ -2,7 +2,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 use Dancer::Test;
 use Template;
@@ -78,7 +78,9 @@ my $patron_1 = $builder->build_object(
         }
     }
 );
-$patron_1->set_password( $user_password );
+my $digest = Koha::AuthUtils::hash_password( $user_password );
+is( $patron_1->update_password( $patron_1->userid, $digest ), 1, "Password was updated successfully" );
+$patron_1->_result()->discard_changes();
 
 my $lookupuser;
 $tt->process('v1/LookupUser.xml', {
