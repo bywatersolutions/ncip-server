@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NCIPMessage version="http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd">
+   <LookupUser>
+      <InitiationHeader>
+         <FromAgencyId>
+            <UniqueAgencyId>
+               <Scheme>/ncip/v1_0/koha</Scheme>
+               <Value>KOHA</Value>
+            </UniqueAgencyId>
+         </FromAgencyId>
+         <ToAgencyId>
+            <UniqueAgencyId>
+               <Scheme>/ncip/v1_0/koha</Scheme>
+               <Value>KOHA</Value>
+            </UniqueAgencyId>
+         </ToAgencyId>
+      </InitiationHeader>
+      <AuthenticationInput>
+         <AuthenticationInputData>[% user_identifier %]</AuthenticationInputData>
+         <AuthenticationDataFormatType>
+            <Scheme>http://www.iana.org/assignments/media-types</Scheme>
+            <Value>Text</Value>
+         </AuthenticationDataFormatType>
+         <AuthenticationInputType>
+            <Scheme>http://www.niso.org/ncip/v1_0/imp1/schemes/authenticationinputtype/authenticationinputtype.scm</Scheme>
+            <Value>Barcode Id</Value>
+         </AuthenticationInputType>
+      </AuthenticationInput>
+      <AuthenticationInput>
+         <AuthenticationInputData>[% user_password %]</AuthenticationInputData>
+         <AuthenticationDataFormatType>
+            <Scheme>http://www.iana.org/assignments/media-types</Scheme>
+            <Value>Text</Value>
+         </AuthenticationDataFormatType>
+         <AuthenticationInputType>
+            <Scheme>http://www.niso.org/ncip/v1_0/imp1/schemes/authenticationinputtype/authenticationinputtype.scm</Scheme>
+            <Value>PIN</Value>
+         </AuthenticationInputType>
+      </AuthenticationInput>
+      <UserElementType>
+         <Scheme>http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm</Scheme>
+         <Value>Name Information</Value>
+      </UserElementType>
+      <UserElementType>
+         <Scheme>http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm</Scheme>
+         <Value>User Address Information</Value>
+      </UserElementType>
+      <UserElementType>
+         <Scheme>http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm</Scheme>
+         <Value>User Privilege</Value>
+      </UserElementType>
+      <UserElementType>
+         <Scheme>http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm</Scheme>
+         <Value>Block Or Trap</Value>
+      </UserElementType>
+   </LookupUser>
+</NCIPMessage>
