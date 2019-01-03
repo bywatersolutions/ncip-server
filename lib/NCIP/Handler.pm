@@ -106,16 +106,18 @@ sub xpc {
 =cut
 
 sub get_user_elements {
-    my $self   = shift;
-    my $xmldoc = shift;
-    my $xpc    = $self->xpc();
+    my ( $self, $xmldoc ) = @_;
+
+    my $xpc = $self->xpc();
+    my $ns = $self->{ncip_version} == 1 ? q{} : q{ns:};
 
     my $root = $xmldoc->documentElement();
     my @elements =
-      $xpc->findnodes( '//ns:LookupUser/UserElementType/Value', $root );
+      $xpc->findnodes( '//' . $ns . 'LookupUser/UserElementType/Value', $root );
     unless ( $elements[0] ) {
-        @elements = $xpc->findnodes( '//ns:UserElementType', $root );
+        @elements = $xpc->findnodes( '//' . $ns . 'UserElementType', $root );
     }
+
     return \@elements;
 }
 
