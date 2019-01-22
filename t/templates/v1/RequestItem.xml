@@ -1,0 +1,33 @@
+<NCIPMessage version="http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd">
+    <ItemRequested>
+        <InitiationHeader>
+            <FromAgencyId>
+                <UniqueAgencyId>
+                    <Scheme datatype="string">http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd?target=get_scheme_values&scheme=UniqueAgencyId</Scheme>
+                    <Value datatype="string">ILL SYSTEM</Value>
+                </UniqueAgencyId>
+            </FromAgencyId>
+            <ToAgencyId>
+                <UniqueAgencyId>
+                    <Scheme datatype="string">http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd?target=get_scheme_values&scheme=UniqueAgencyId</Scheme>
+                    <Value datatype="string">60UNIV_INST</Value>
+                </UniqueAgencyId>
+            </ToAgencyId>
+        </InitiationHeader>
+        <UniqueUserId>
+            <UserIdentifierValue datatype="string">any value</UserIdentifierValue>
+        </UniqueUserId>
+        <UniqueItemId>
+            <ItemIdentifierValue datatype="string">item_barcode</ItemIdentifierValue>
+        </UniqueItemId>
+        <RequestType>
+            <Scheme datatype="string">http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd?target=get_scheme_values&scheme=RequestType</Scheme>
+            <Value datatype="string">hold</Value>
+        </RequestType>
+        <RequestScopeType>
+            <Scheme datatype="string">http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd?target=get_scheme_values&scheme=RequestScopeTypes</Scheme>
+            <Value datatype="string">item</Value>
+        </RequestScopeType>
+        <DateOfUserRequest datatype="dateTime">2011-01-28T00:23:46Z</DateOfUserRequest>
+    </ItemRequested>
+</NCIPMessage>
