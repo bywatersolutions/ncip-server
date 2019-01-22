@@ -603,8 +603,8 @@ sub request {
 
     my $can_reserve =
       $itemnumber
-      ? CanItemBeReserved( $borrowernumber, $itemnumber )
-      : CanBookBeReserved( $borrowernumber, $biblionumber );
+      ? CanItemBeReserved( $borrowernumber, $itemnumber )->{status}
+      : CanBookBeReserved( $borrowernumber, $biblionumber )->{status};
 
     if ( $can_reserve eq 'OK' ) {
         my $request_id = AddReserve(
