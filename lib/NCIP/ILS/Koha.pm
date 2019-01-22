@@ -601,10 +601,19 @@ sub request {
     my $borrowernumber = $patron->borrowernumber;
     my $itemnumber     = $itemdata->{itemnumber};
 
-    my $can_reserve =
-      $itemnumber
-      ? CanItemBeReserved( $borrowernumber, $itemnumber )->{status}
-      : CanBookBeReserved( $borrowernumber, $biblionumber )->{status};
+    my $can_reserve;
+    eval {
+        $can_reserve =
+          $itemnumber
+          ? CanItemBeReserved( $borrowernumber, $itemnumber )->{status}
+          : CanBookBeReserved( $borrowernumber, $biblionumber )->{status};
+    };
+    if ( $@ ) {
+        $can_reserve =
+          $itemnumber
+          ? CanItemBeReserved( $borrowernumber, $itemnumber )
+          : CanBookBeReserved( $borrowernumber, $biblionumber );
+    }
 
     if ( $can_reserve eq 'OK' ) {
         my $request_id = AddReserve(
