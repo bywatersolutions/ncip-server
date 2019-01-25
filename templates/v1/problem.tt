@@ -30,11 +30,13 @@
                     </ProcessingErrorElement>
                 [% END %]
 
+                <!--
                 [%- IF p.problem_detail -%]
                     <ProcessingErrorDetail>
                         <Value>[% p.problem_detail | xml %]</Value>
                     </ProcessingErrorDetail>
                 [%- END -%]
+                -->
 
             </ProcessingError>
         </Problem>
