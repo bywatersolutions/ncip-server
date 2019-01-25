@@ -146,7 +146,7 @@ subtest 'Test CheckInItem without checkout' => sub {
 
     is(
         $dom->{NCIPMessage}->{CheckInItemResponse}->{Problem}->{ProcessingError}->{ProcessingErrorDetail}->{Value}->{text},
-	'There is no record of the check out of the item.',
-        'CheckInItemResponse returns correct problem type for item not checked out by a patron, no_error_on_return_without_checkout = 0, trap_hold_on_checkin = 0'
+	undef,
+        'CheckInItemResponse returns *no* problem type for NCIP v1'
     );
 };

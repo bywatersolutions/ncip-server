@@ -157,8 +157,8 @@ subtest 'Test CheckOutItem with existing checkout' => sub {
 
     is(
         $dom->{NCIPMessage}->{CheckOutItemResponse}->{Problem}->{ProcessingError}->{ProcessingErrorDetail}->{Value}->{text},
-        'Check out cannot proceed because the desired resource cannot be provided',
-        'CheckOutItemResponse returns correct problem detail'
+	undef,
+        'CheckOutItemResponse returns *no* problem detail for NCIP v1'
     );
 
     is(
@@ -195,8 +195,8 @@ subtest 'Test CheckOutItem with invalid item' => sub {
 
     is(
         $dom->{NCIPMessage}->{CheckOutItemResponse}->{Problem}->{ProcessingError}->{ProcessingErrorDetail}->{Value}->{text},
-        'Item is not known.',
-        'CheckOutItemResponse returns correct problem detail'
+	undef,
+        'CheckOutItemResponse returns *no* problem detail for NCIP v1'
     );
 
     is(
@@ -234,8 +234,8 @@ subtest 'Test CheckOutItem with invalid user' => sub {
 
     is(
         $dom->{NCIPMessage}->{CheckOutItemResponse}->{Problem}->{ProcessingError}->{ProcessingErrorDetail}->{Value}->{text},
-        'User is not known',
-        'CheckOutItemResponse returns correct problem detail'
+	undef,
+        'CheckOutItemResponse returns *no* problem detail for NCIP v1'
     );
 
     is(
