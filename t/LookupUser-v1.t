@@ -78,7 +78,7 @@ my $patron_1 = $builder->build_object(
         }
     }
 );
-$patron_1->set_password( $user_password );
+$patron_1->set_password( { password => $user_password, skip_validation => 1 } );
 
 my $lookupuser;
 $tt->process('v1/LookupUser.xml', {
