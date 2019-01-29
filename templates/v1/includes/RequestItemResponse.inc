@@ -1,27 +1,27 @@
 <ResponseHeader>
     <FromAgencyId>
         <UniqueAgencyId>
-            <Scheme>texasgroup.worldcat.org/ncip/v1_0/ncip2/alpine</Scheme>
+            <Scheme>/ncip/v1_0/koha</Scheme>
             <Value>[% from_agency %]</Value>
         </UniqueAgencyId>
     </FromAgencyId>
     <ToAgencyId>
         <UniqueAgencyId>
-            <Scheme>texasgroup.worldcat.org/ncip/v1_0/ncip2/alpine</Scheme>
+            <Scheme>/ncip/v1_0/koha</Scheme>
             <Value>[% to_agency %]</Value>
         </UniqueAgencyId>
     </ToAgencyId>
 </ResponseHeader>
 <UniqueRequestId>
     <UniqueAgencyId>
-        <Scheme>texasgroup.worldcat.org/ncip/v1_0/ncip2/alpine</Scheme>
+        <Scheme>/ncip/v1_0/koha</Scheme>
         <Value>[% requestagency | xml %]</Value>
     </UniqueAgencyId>
     <RequestIdentifierValue>[% request_id | xml %]</RequestIdentifierValue>
 </UniqueRequestId>
 <UniqueUserId>
     <UniqueAgencyId>
-        <Scheme>texasgroup.worldcat.org/ncip/v1_0/ncip2/alpine</Scheme>
+        <Scheme>/ncip/v1_0/koha</Scheme>
         <Value>[% from_agency %]</Value>
     </UniqueAgencyId>
     <UserIdentifierValue>[% from_agency %]</UserIdentifierValue>
