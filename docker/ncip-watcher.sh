@@ -2,13 +2,14 @@
 
 usage()
 {
-    echo "usage: ncip-watcher.sh -c <container name> -p <patron identifier> -a <server address>"
+    echo "usage: ncip-watcher.sh -c <container name> -p <patron identifier>"
 }
 
 
 ADDRESS=
 CONTAINER=
 PATRON=
+VERBOSE=0
 
 while [ "$1" != "" ]; do
     case $1 in
@@ -22,6 +23,8 @@ while [ "$1" != "" ]; do
         -p | --patron )         shift
                                 PATRON=$1
                                 ;;
+        -v | --verbose )        VERBOSE=1
+                                ;;
         -h | --help )           usage
                                 exit
                                 ;;
@@ -32,7 +35,9 @@ while [ "$1" != "" ]; do
 done
 
 if [ "$ADDRESS" != "" ]; then
-    echo "Connecting to address '$ADDRESS'"
+    if [ $VERBOSE == 1 ]; then
+        echo "Connecting to address '$ADDRESS'"
+    fi
 else
     echo "Parameter -a --address is required";
     usage
@@ -40,7 +45,9 @@ else
 fi
 
 if [ "$CONTAINER" != "" ]; then
-    echo "Checking container '$CONTAINER'"
+    if [ $VERBOSE == 1 ]; then
+        echo "Checking container '$CONTAINER'"
+    fi
 else
     echo "Parameter -c --container is required";
     usage
@@ -48,14 +55,16 @@ else
 fi
 
 if [ "$PATRON" != "" ]; then
-    echo "using patron '$PATRON'"
+    if [ $VERBOSE == 1 ]; then
+        echo "using patron '$PATRON'"
+    fi
 else
     echo "Parameter -p --patron is required";
     usage
     exit 1
 fi
 
-curl -X POST -d "<?xml version='1.0' encoding='utf-8'?>
+output=$(curl -X POST -d "<?xml version='1.0' encoding='utf-8'?>
 <NCIPMessage version='http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd' xmlns='http://www.niso.org/2008/ncip'>
   <LookupUser>
     <InitiationHeader>
@@ -77,4 +86,15 @@ curl -X POST -d "<?xml version='1.0' encoding='utf-8'?>
     <UserElementType>User Privilege</UserElementType>
   </LookupUser>
 </NCIPMessage>
-" $ADDRESS | grep "<UserIdentifierValue>$PATRON</UserIdentifierValue>" || docker restart $CONTAINER
+" $ADDRESS 2>&1 )
+
+if [[ $output == *"<UserIdentifierValue>$PATRON</UserIdentifierValue>"* ]]; then
+    if [ $VERBOSE == 1 ]; then
+        echo "Received valid response from server."
+    fi
+else
+    echo "Received invalid response"
+    echo $output
+    echo "Restarting $CONTAINER"
+    docker restart $CONTAINER
+fi
