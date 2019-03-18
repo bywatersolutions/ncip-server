@@ -2,7 +2,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 use Dancer::Test;
 use Template;
@@ -135,4 +135,23 @@ subtest 'Test RequestItem with invalid user and valid item' => sub {
     is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemValue}->{text}, 'INVALID_PATRON_CARDNUMBER', "RequestItemResponse for invalid item returns correct ProblemValue" );
     is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemElement}->{text}, 'UserIdentifierValue', "RequestItemResponse for invalid item returns correct ProblemElement" );
     is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemType}->{text}, 'Unknown User', "RequestItemResponse for invalid item returns correct ProblemType" );
+};
+
+subtest 'Test RequestItem with invalid user and valid item' => sub {
+    plan tests => 4;
+
+    my $ncip_message;
+    $tt->process('v2/RequestItem.xml', {
+        user_identifier => $patron_1->cardnumber,
+	biblionumber    => $item_1->biblionumber,
+	pickup_branchcode => 'INVALID_BRANCHCODE',
+    }, \$ncip_message) || die $tt->error(), "\n";
+
+    $response = dancer_response( POST => '/', { body => $ncip_message } );
+    $dom = $dom_converter->fromXMLStringtoHash( $response->content );
+
+    is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemDetail}->{text}, 'The library from which the item is requested is not known.', "RequestItemResponse for invalid item returns correct ProblemDetail" );
+    is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemValue}->{text}, 'INVALID_BRANCHCODE', "RequestItemResponse for invalid item returns correct ProblemValue" );
+    is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemElement}->{text}, 'ToAgencyId', "RequestItemResponse for invalid item returns correct ProblemElement" );
+    is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemType}->{text}, 'Unknown Agency', "RequestItemResponse for invalid item returns correct ProblemType" );
 };
