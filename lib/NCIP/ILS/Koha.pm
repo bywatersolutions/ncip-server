@@ -36,7 +36,6 @@ use C4::Circulation qw{
 };
 use C4::Context;
 use C4::Items qw{
-  GetItem
   DelItem
 };
 use C4::Reserves qw{
@@ -69,29 +68,31 @@ sub itemdata {
     my $self    = shift;
     my $barcode = shift;
 
-    my $item = GetItem( undef, $barcode );
+    my $item = Koha::Items->find( { barcode => $barcode } );
 
     if ($item) {
-        my $biblio = GetBiblioData( $item->{biblionumber} );
-        $item->{biblio} = $biblio;
+	my $item_hashref = $item->unblessed();
 
-        my $record = GetMarcBiblio({ biblionumber => $item->{biblionumber}});
-        $item->{record} = $record;
+        my $biblio = GetBiblioData( $item_hashref->{biblionumber} );
+        $item_hashref->{biblio} = $biblio;
+
+        my $record = GetMarcBiblio({ biblionumber => $item_hashref->{biblionumber}});
+        $item_hashref->{record} = $record;
 
         my $itemtype = Koha::Database->new()->schema()->resultset('Itemtype')
-          ->find( $item->{itype} );
-        $item->{itemtype} = $itemtype;
+          ->find( $item_hashref->{itype} );
+        $item_hashref->{itemtype} = $itemtype;
 
-        my $hold = GetReserveStatus( $item->{itemnumber} );
-        $item->{hold} = $hold;
+        my $hold = GetReserveStatus( $item_hashref->{itemnumber} );
+        $item_hashref->{hold} = $hold;
 
-        my @holds = Koha::Holds->search( { biblionumber =>  $item->{biblionumber} } );
-        $item->{holds} = \@holds;
+        my @holds = Koha::Holds->search( { biblionumber =>  $item_hashref->{biblionumber} } );
+        $item_hashref->{holds} = \@holds;
 
-        my @transfers = GetTransfers( $item->{itemnumber} );
-        $item->{transfers} = \@transfers;
+        my @transfers = GetTransfers( $item_hashref->{itemnumber} );
+        $item_hashref->{transfers} = \@transfers;
 
-        return $item;
+        return $item_hashref;
     }
 }
 
@@ -154,8 +155,8 @@ sub checkin {
     $self->userenv();
 
     unless ($branch) {
-        my $item = GetItem( undef, $barcode );
-        $branch = $item->{holdingbranch};
+	my $item = Koha::Items->find( { barcode => $barcode } );
+        $branch = $item->holdingbranch if $item;
     }
 
     my ( $success, $messages, $issue, $borrower ) =
@@ -243,9 +244,8 @@ sub checkout {
     my $patron = Koha::Patrons->find( { cardnumber => $userid } );
     $patron ||= Koha::Patrons->find( { userid => $userid } );
 
-    my $item = GetItem( undef, $barcode );
-
-    $self->userenv( $item->{holdingbranch} );
+    my $item = Koha::Items->find( { barcode => $barcode } );
+    $self->userenv( $item->holdingbranch ) if $item;
 
     if ($patron) {
         my ( $error, $confirm ) =
@@ -418,7 +418,7 @@ sub renew {
       }
       unless $patron;
 
-    my $item = GetItem( undef, $barcode );
+    my $item = Koha::Items->find( { barcode => $barcode } );
     return {
         success  => 0,
         problems => [
@@ -433,7 +433,7 @@ sub renew {
       unless $item;
 
     my ( $ok, $error ) =
-      CanBookBeRenewed( $patron->borrowernumber, $item->{itemnumber} );
+      CanBookBeRenewed( $patron->borrowernumber, $item->itemnumber );
 
     $error //= q{};
 
@@ -481,7 +481,7 @@ sub renew {
       if $error;    # Generic message for all other reasons
 
     my $datedue =
-      AddRenewal( $patron->borrowernumber, $item->{itemnumber} );
+      AddRenewal( $patron->borrowernumber, $item->itemnumber );
 
     return {
         success => 1,
@@ -532,7 +532,7 @@ sub request {
       }
       unless $branchcode;
 
-    my $itemdata = $barcode ? GetItem( undef, $barcode ) : undef;
+    my $item = $barcode ? Koha::Items->find( { barcode => $barcode } ) : undef;
 
     if ($barcode) {
         return {
@@ -546,12 +546,12 @@ sub request {
                 }
             ]
           }
-          unless $itemdata;
+          unless $item;
     }
 
-    unless ($itemdata) {
+    unless ($item) {
         if ( $type eq 'SYSNUMBER' ) {
-            $itemdata = GetBiblioData($biblionumber);
+	    my $biblio = Koha::Biblios->find( $biblionumber );
 
             return {
                 success  => 0,
@@ -564,7 +564,7 @@ sub request {
                     }
                 ]
               }
-              unless $itemdata;
+              unless $biblio;
         }
         elsif ( $type eq 'ISBN' ) {
             return {
@@ -599,7 +599,7 @@ sub request {
     $self->userenv();
 
     my $borrowernumber = $patron->borrowernumber;
-    my $itemnumber     = $itemdata->{itemnumber};
+    my $itemnumber     = $item ? $item->itemnumber : undef;
 
     my $can_reserve =
       $itemnumber
@@ -861,7 +861,7 @@ sub acceptitem {
 
         $barcode = $barcode_prefix . $biblionumber . time
           unless $barcode;     # Reasonable gurantee of uniqueness
-        while ( GetItem( undef, $barcode ) )
+        while ( Koha::Items->find( { barcode => $barcode } ) )
         {    # If the barcode already exists, just make up a new one
             $barcode = $barcode_prefix . $biblionumber . time;
         }
