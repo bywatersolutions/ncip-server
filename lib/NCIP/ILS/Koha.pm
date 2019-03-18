@@ -518,19 +518,21 @@ sub request {
     $branchcode ||= q{};
     $branchcode =~ s/^\s+|\s+$//g;
     $branchcode ||= $patron->branchcode;
+    my $branch = Koha::Libraries->find( $branchcode );
     return {
         success  => 0,
         problems => [
             {
                 #FIXME: probably no the most apropo type
                 # but unable to find a better one
-                problem_type => 'Unknown Agency',
-                problem_detail =>
-                  'The library from which the item is requested is not known.',
+                problem_type    => 'Unknown Agency',
+                problem_detail  => 'The library from which the item is requested is not known.',
+                problem_element => 'ToAgencyId',
+                problem_value   => $branchcode,
             }
         ]
       }
-      unless $branchcode;
+      unless $branch;
 
     my $itemdata = $barcode ? GetItem( undef, $barcode ) : undef;
 
