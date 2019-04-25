@@ -4,6 +4,8 @@ MAINTAINER Kyle M Hall <kyle@bywatersolutions.com>
 ENV PERL5LIB /kohalib
 ENV KOHA_CONF /koha-conf.xml
 ENV NCIP_PORT 3000
+ENV MAX_WORKERS 2
+ENV MAX_REQS_PER_CHILD 500
 
 RUN apt-get -y update \
     && apt-get -y install wget gnupg2 coreutils cpanminus make \
@@ -26,4 +28,4 @@ COPY docker/files/log4perl.conf.template t/config_sample/log4perl.conf
 RUN cpanm -n Module::Install
 RUN cpanm -n --installdeps .
 
-CMD plackup -s Gazelle --port $NCIP_PORT --max-reqs-per-child 50000 -E production -a bin/ncip_dancing.pl
+CMD plackup -s Gazelle --port $NCIP_PORT --max-workers $MAX_WORKERS --max-reqs-per-child $MAX_REQS_PER_CHILD -E production -a bin/ncip_dancing.pl
