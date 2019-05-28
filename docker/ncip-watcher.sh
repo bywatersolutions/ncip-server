@@ -64,7 +64,7 @@ else
     exit 1
 fi
 
-output=$(curl -X POST -d "<?xml version='1.0' encoding='utf-8'?>
+output=$(curl --max-time 15 -X POST -d "<?xml version='1.0' encoding='utf-8'?>
 <NCIPMessage version='http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd' xmlns='http://www.niso.org/2008/ncip'>
   <LookupUser>
     <InitiationHeader>
@@ -96,5 +96,5 @@ else
     echo "Received invalid response"
     echo $output
     echo "Restarting $CONTAINER"
-    docker restart $CONTAINER
+    docker restart $CONTAINER &
 fi
