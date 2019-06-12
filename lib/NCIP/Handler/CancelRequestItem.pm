@@ -33,15 +33,31 @@ sub handle {
 
         my $elements = $self->get_user_elements($xmldoc);
 
-        # NCIP::ILS::Koha::cancelrequest doesn't return errors
-        # no need to deal with them
-        return $self->render_output(
-            'response.tt',
-            {
-                message_type => 'CancelRequestItemResponse',
-                request_id   => $data->{request_id},
-            }
-        );
+        if ($data->{success}) {
+            return $self->render_output(
+                'response.tt',
+                {
+                    message_type => 'CancelRequestItemResponse',
+                    request_id   => $requestid,
+                }
+            );
+        }
+        else {
+            return $self->render_output(
+                'problem.tt',
+                {
+                    message_type => 'CancelRequestItemResponse',
+                    problems     => [
+                        {
+                            problem_type    => 'Unknown Request',
+                            problem_detail  => 'Request is not known.',
+                            problem_element => 'RequestIdentifierValue',
+                            problem_value   => $requestid,
+                        }
+                    ]
+                }
+            );
+        }
     }
 }
 
