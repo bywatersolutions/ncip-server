@@ -740,11 +740,15 @@ sub cancelrequest {
     my $self       = shift;
     my $request_id = shift;
 
+    my $success = 0;
+
     my $hold = Koha::Holds->find( $request_id );
-    $hold->cancel();
+    if ( $hold ) {
+        $success = $hold->cancel();
+    }
 
     return {
-        success    => 1,
+        success    => $success,
         request_id => $request_id,
     };
 }
