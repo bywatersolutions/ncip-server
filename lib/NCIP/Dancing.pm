@@ -1,10 +1,10 @@
 package NCIP::Dancing;
 
+use Cwd qw/realpath/;
 use Dancer ':syntax';
 use FindBin;
-use Cwd qw/realpath/;
-use XML::Tidy::Tiny qw(xml_tidy);
 use Log::Log4perl;
+use XML::Tidy;
 
 use NCIP;
 
@@ -29,19 +29,17 @@ any [ 'get', 'post' ] => '/' => sub {
     $xml ||= q{};
     $log->debug("RAW XML: **$xml**");
 
-    $xml = xml_tidy( $xml ); # Tidy before puts DOCTYPE on it's own line for stripping out easily
-    $xml =~ s/<!DOCTYPE.*>//g; # Get rid of DOCTYPE stanzas, our parser chokes on them
-    $xml = xml_tidy( $xml ); # Tidy after because why not ;)
-    $log->debug("FORMATTED XML: $xml");
+    # Tidy's and validates XML. Gets rid of DOCTYPE stanzas, our parser chokes on them
+    $xml = XML::Tidy->new( xml  => $xml )->tidy()->toString();
+    $log->debug("FORMATTED: $xml");
 
     my $content = $ncip->process_request( $xml, config );
 
     $log->debug("NCIP::Dancing: Finished processing request");
     $log->debug("NCIP::Dancing: About to generate XML response");
 
-    my $xml_response = template 'main',
-      { content => $content, ncip_version => $ncip->{ncip_protocol_version} };
-    $xml_response = xml_tidy($xml_response);
+    my $xml_response = template 'main', { content => $content, ncip_version => $ncip->{ncip_protocol_version} };
+    $xml_response = XML::Tidy->new( xml  => $xml_response )->tidy()->toString();
 
     $log->debug("XML RESPONSE: \n$xml_response");
 
