@@ -16,4 +16,4 @@ requires 'Term::ReadLine';
 requires 'Try::Tiny';
 requires 'XML::Hash';
 requires 'XML::LibXML';
-requires 'XML::Tidy::Tiny', '0.02';
+requires 'XML::Tidy', '1.20';
