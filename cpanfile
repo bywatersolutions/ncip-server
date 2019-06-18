@@ -12,7 +12,6 @@ requires 'Object::Tiny', '1.08';
 requires 'Server::Starter', '0.32';
 requires 'Starman', '0.4014';
 requires 'Template';
-requires 'Term::ReadLine';
 requires 'Try::Tiny';
 requires 'XML::Hash';
 requires 'XML::LibXML';
