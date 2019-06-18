@@ -30,7 +30,7 @@ any [ 'get', 'post' ] => '/' => sub {
     $log->debug("RAW XML: **$xml**");
 
     # Tidy's and validates XML. Gets rid of DOCTYPE stanzas, our parser chokes on them
-    $xml = XML::Tidy->new( xml  => $xml )->tidy()->toString();
+    $xml = XML::Tidy->new( xml  => $xml )->tidy()->toString() if $xml;
     $log->debug("FORMATTED: $xml");
 
     my $content = $ncip->process_request( $xml, config );
@@ -39,7 +39,7 @@ any [ 'get', 'post' ] => '/' => sub {
     $log->debug("NCIP::Dancing: About to generate XML response");
 
     my $xml_response = template 'main', { content => $content, ncip_version => $ncip->{ncip_protocol_version} };
-    $xml_response = XML::Tidy->new( xml  => $xml_response )->tidy()->toString();
+    $xml_response = XML::Tidy->new( xml  => $xml_response )->tidy()->toString() if $xml_response;
 
     $log->debug("XML RESPONSE: \n$xml_response");
 
