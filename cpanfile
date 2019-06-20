@@ -16,3 +16,4 @@ requires 'Try::Tiny';
 requires 'XML::Hash';
 requires 'XML::LibXML';
 requires 'XML::Tidy', '1.20';
+requires 'XML::Tidy::Tiny', '0.02';
