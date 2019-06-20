@@ -4,6 +4,7 @@ use Cwd qw/realpath/;
 use Dancer ':syntax';
 use FindBin;
 use Log::Log4perl;
+use XML::Tidy::Tiny qw(xml_tidy);
 use XML::Tidy;
 
 use NCIP;
@@ -39,7 +40,7 @@ any [ 'get', 'post' ] => '/' => sub {
     $log->debug("NCIP::Dancing: About to generate XML response");
 
     my $xml_response = template 'main', { content => $content, ncip_version => $ncip->{ncip_protocol_version} };
-    $xml_response = XML::Tidy->new( xml  => $xml_response )->tidy()->toString() if $xml_response;
+    $xml_response = xml_tidy($xml_response);
 
     $log->debug("XML RESPONSE: \n$xml_response");
 
