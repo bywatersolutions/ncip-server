@@ -788,6 +788,9 @@ sub acceptitem {
     my $itemtype =
       $iteminfo->{itemtype} || $fieldslib->{$field}{$subfield}{defaultvalue} || $item_itemtype;
 
+    my $patron = Koha::Patrons->find( { cardnumber => $userid } );
+    $patron ||= Koha::Patrons->find( { userid => $userid } );
+
     if ($branchcode) {
         my $valid = Koha::Libraries->search({ branchcode => $branchcode })->count();
         if ( !$valid ) {
@@ -823,6 +826,7 @@ sub acceptitem {
 
     $self->userenv();    # set userenvironment
     my ( $itemnumber, $biblionumber, $biblioitemnumber );
+
     if ($create) {
         my $record;
 
@@ -881,6 +885,10 @@ sub acceptitem {
             $barcode = $barcode_prefix . $biblionumber . time;
         }
 
+        if ( $item_branchcode eq '__PATRON_BRANCHCODE__' ) {
+            $item_branchcode = $patron->branchcode;
+        }
+
         my $item = {
             barcode          => $barcode,
             holdingbranch    => $item_branchcode,
@@ -899,9 +907,6 @@ sub acceptitem {
     my $holds = $item->current_holds;
     my $first_hold = $holds->next;
     my $reserve_id = $first_hold ? $first_hold->reserve_id : undef;
-
-    my $patron = Koha::Patrons->find( { cardnumber => $userid } );
-    $patron ||= Koha::Patrons->find( { userid => $userid } );
 
     # Now we have to check the requested action
     if ( $action =~ /^Hold For Pickup/ || $action =~ /^Circulate/ ) {
