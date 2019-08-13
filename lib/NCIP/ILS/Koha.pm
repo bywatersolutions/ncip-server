@@ -844,7 +844,7 @@ sub acceptitem {
             # MARC21
             # create a marc record
             $record = MARC::Record->new();
-            $record->leader('     nac  22     1u 4500');
+            $record->leader('     nac a22     1u 4500');
             $record->insert_fields_ordered(
                 MARC::Field->new(
                     '100', '1', '0', 'a' => $iteminfo->{author}
