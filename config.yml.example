@@ -87,3 +87,6 @@ koha:
   # Default CheckOutItemResponse DateDue format is '%Y-%d-%mT%H:%M:%S', below is the correct date/time format according to the NCIP spec
   # format_ValidToDate and format_DateDue should probably be set to the same format unless otherwise specified by the ILL broker
   format_DateDue: '%Y-%m-%dT%H:%M:%S'
+
+  # Set to 1 for any and all records created by NCIP ( via AcceptItem messages ) to not show up in OPAC search results
+  suppress_in_opac: ""
