@@ -760,6 +760,7 @@ sub acceptitem {
     my $item_ccode               = $config->{item_ccode}               || q{};
     my $item_location            = $config->{item_location}            || q{};
     my $trap_hold_on_accept_item = $config->{trap_hold_on_accept_item} // 1;
+    my $suppress_in_opac         = $config->{suppress_in_opac}         || q{};
 
     my $item_callnumber = $iteminfo->{itemcallnumber} || $config->{item_callnumber} || q{};
 
@@ -843,13 +844,14 @@ sub acceptitem {
                     'c' => $iteminfo->{publicationdate}
                 ),
                 MARC::Field->new(
-                    '942', '1', '0', 'c' => $iteminfo->{mediumtype}
+                    '942', '1', '0',
+                    'c' => $iteminfo->{mediumtype},
+                    'n' => $suppress_in_opac,
                 ),
                 MARC::Field->new(
                     $field, '', '', $subfield => $itemtype
                 ),
             );
-
         }
 
         $ENV{"OVERRIDE_SYSPREF_BiblioAddsAuthorities"} = 0; # Never auto-link incoming biblio
