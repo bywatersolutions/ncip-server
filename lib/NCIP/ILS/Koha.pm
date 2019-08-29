@@ -513,6 +513,23 @@ sub request {
       }
       unless $patron;
 
+    my $max_outstanding    = C4::Context->preference("maxoutstanding");
+    my $amount_outstanding = $patron->account->balance;
+    if ( $amount_outstanding && ( $amount_outstanding > $max_outstanding ) ) {
+        my $amount = sprintf "%.02f", $amount_outstanding;
+        return {
+            success  => 0,
+            problems => [
+                {
+                    problem_type    => 'User Blocked',
+                    problem_detail  => 'User owes too much.',
+                    problem_element => 'UserIdentifierValue',
+                    problem_value   => $userid,
+                }
+            ]
+        };
+    }
+
     #FIXME: Maybe this should be configurable?
     # If no branch is given, fall back to patron home library
     $branchcode ||= q{};

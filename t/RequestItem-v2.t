@@ -2,7 +2,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 use Dancer::Test;
 use Template;
@@ -15,6 +15,8 @@ use NCIP::Dancing;
 use Dancer ':syntax';
 
 # From Koha
+use C4::Context;
+use C4::Accounts;
 use Koha::Database;
 use Koha::Libraries;
 use Koha::Patrons;
@@ -154,4 +156,27 @@ subtest 'Test RequestItem with invalid user and valid item' => sub {
     is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemValue}->{text}, 'INVALID_BRANCHCODE', "RequestItemResponse for invalid item returns correct ProblemValue" );
     is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemElement}->{text}, 'ToAgencyId', "RequestItemResponse for invalid item returns correct ProblemElement" );
     is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemType}->{text}, 'Unknown Agency', "RequestItemResponse for invalid item returns correct ProblemType" );
+};
+
+subtest 'Test RequestItem with valid user and valid item' => sub {
+    plan tests => 2;
+
+    C4::Context->set_preference('maxoutstanding', 1);
+    C4::Accounts::manualinvoice( $patron_1->id, undef, 'Test fee', 'M', '999.99', 'Test fee note' );
+
+    my $ncip_message;
+    $tt->process('v2/RequestItem.xml', {
+        user_identifier => $patron_1->cardnumber,
+	biblionumber    => $item_1->biblionumber,
+	pickup_branchcode => $item_1->holdingbranch,
+    }, \$ncip_message) || die $tt->error(), "\n";
+
+    $response = dancer_response( POST => '/', { body => $ncip_message } );
+    $dom = $dom_converter->fromXMLStringtoHash( $response->content );
+
+    my $problem_type = $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemType}->{text};
+    ok( $problem_type, "User Blocked" );
+
+    my $problem_detail = $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemDetail}->{text};
+    ok( $problem_detail, "User owes too much." );
 };
