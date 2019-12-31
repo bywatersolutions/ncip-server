@@ -168,7 +168,7 @@ subtest 'Test RequestItem with valid user and valid item' => sub {
         {
             interface => 'commandline',
             amount      => '999.99',
-            type        => 'MANUAL',
+            type        => 'manual_debit',
             description => "Test fee",
             note        => "Test fee note",
         }
