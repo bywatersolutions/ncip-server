@@ -162,7 +162,17 @@ subtest 'Test RequestItem with valid user and valid item' => sub {
     plan tests => 2;
 
     C4::Context->set_preference('maxoutstanding', 1);
-    C4::Accounts::manualinvoice( $patron_1->id, undef, 'Test fee', 'M', '999.99', 'Test fee note' );
+
+    my $account = $patron_1->account;
+    my $accountline = $account->add_debit(
+        {
+            interface => 'commandline',
+            amount      => '999.99',
+            type        => 'MANUAL',
+            description => "Test fee",
+            note        => "Test fee note",
+        }
+    );
 
     my $ncip_message;
     $tt->process('v2/RequestItem.xml', {
