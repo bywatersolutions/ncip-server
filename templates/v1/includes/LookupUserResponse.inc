@@ -144,6 +144,18 @@ RequestedItem
                 </UserPrivilegeStatus>
             </UserPrivilege>
         [%- END -%]
+
+        [%- IF user.userdata.restricted != 0 -%]
+            <BlockOrTrap>
+                <UniqueAgencyId>
+                    <Value>[% from_agency %]</Value>
+                </UniqueAgencyId>
+                <BlockOrTrapType>
+                    <Value>Block Check Out</Value>
+                </BlockOrTrapType>
+            </BlockOrTrap>
+        [% END %]
+
     [%- END -%]
 
     [%- IF do_not_include_user_identifier_primary_key -%]
