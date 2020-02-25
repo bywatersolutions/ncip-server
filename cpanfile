@@ -1,6 +1,7 @@
 requires 'Config::Merge', '1.04';
 requires 'Cwd';
 requires 'Dancer', '1.3202';
+requires 'Email::MessageID';
 requires 'FindBin';
 requires 'Gazelle', '0.46';
 requires 'Getopt::Long';
