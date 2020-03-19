@@ -1011,6 +1011,11 @@ sub delete_item {
     my $biblio = Koha::Biblios->find( $item->biblionumber );
 
     if ($item) {
+        # Cancel holds related to this particular item,
+        # there should only be one in practice
+        my @holds = Koha::Holds->search({ itemnumber => $item->id });
+        $_->cancel for @holds;
+
         $success = DelItem(
             { itemnumber => $item->id, biblionumber => $item->biblionumber } );
 
