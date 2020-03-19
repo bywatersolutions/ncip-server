@@ -627,17 +627,14 @@ sub request {
 
     if ( $can_reserve eq 'OK' ) {
         my $request_id = AddReserve(
-            $branchcode,
-            $borrowernumber,
-            $biblionumber,
-            my $bibitems,
-            my $priority = 1,
-            my $resdate,
-            my $expdate,
-            my $notes = 'Placed By ILL',
-            my $title,
-            my $checkitem = $itemnumber,
-            my $found,
+            {
+                branchcode     => $branchcode,
+                borrowernumber => $borrowernumber,
+                biblionumber   => $biblionumber,
+                priority       => 1,
+                notes          => 'Placed By ILL',
+                itemumber      => $itemnumber,
+            }
         );
 
         if ($request_id) {
@@ -933,17 +930,14 @@ sub acceptitem {
         else { # Place hold
             if ($userid && $patron) { # Check userid as well as patron in case username "" exists
                 $reserve_id = AddReserve(
-                    $branchcode,
-                    $patron->borrowernumber,
-                    $biblionumber,
-                    [$biblioitemnumber],
-                    1,
-                    undef,
-                    undef,
-                    'Placed By ILL',
-                    '',
-                    $itemnumber,
-                    undef
+                    {
+                        branchcode     => $branchcode,
+                        borrowernumber => $patron->borrowernumber,
+                        biblionumber   => $biblionumber,
+                        priority       => 1,
+                        notes          => 'Placed By ILL',
+                        itemumber      => $itemnumber,
+                    }
                 );
             }
             else {
