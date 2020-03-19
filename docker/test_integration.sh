@@ -146,7 +146,7 @@ then
     cd koha-testing-docker
     docker-compose down
     cd ..
-    rm -f koha-testing-docker
+    rm -rf koha-testing-docker
     rm -rf kohaclone
     rm -rf .env
     rm -rf koha-conf.xml
