@@ -159,7 +159,7 @@ subtest 'Test RequestItem with invalid user and valid item' => sub {
 };
 
 subtest 'Test RequestItem with valid user and valid item' => sub {
-    plan tests => 2;
+    plan tests => 3;
 
     C4::Context->set_preference('maxoutstanding', 1);
 
@@ -173,6 +173,8 @@ subtest 'Test RequestItem with valid user and valid item' => sub {
             note        => "Test fee note",
         }
     );
+
+    is( ref $accountline, 'Koha::Account::Line', "Got back accountline" );
 
     my $ncip_message;
     $tt->process('v2/RequestItem.xml', {
