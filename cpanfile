@@ -1,3 +1,5 @@
+requires 'Catmandu::Importer::MARC';
+requires 'Catmandu::Store::ElasticSearch';
 requires 'Config::Merge', '1.04';
 requires 'Cwd';
 requires 'Dancer', '1.3202';
