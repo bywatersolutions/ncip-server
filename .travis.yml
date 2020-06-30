@@ -15,7 +15,7 @@ jobs:
 
       script:
         - cd docker
-        - ./test_integration.sh -v master
+        - ./test_integration.sh -v v20.05.01
 
     - stage: build docker image
       services:
@@ -34,11 +34,11 @@ jobs:
 
       before_deploy:
         - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
-        - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:master-latest"
+        - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:v20.05-latest"
 
       deploy:
         provider: script
-        script: docker push "${IMAGE_NAME}:master-latest"
+        script: docker push "${IMAGE_NAME}:v20.05-latest"
         on:
           tags: false
           all_branches: true
