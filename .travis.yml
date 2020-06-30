@@ -9,14 +9,6 @@ env:
 
 jobs:
   include:
-    - stage: run integration tests
-      services:
-        - docker
-
-      script:
-        - cd docker
-        - ./test_integration.sh -v v18.11.00
-
     - stage: build docker image
       services:
         - docker
