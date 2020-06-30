@@ -46,8 +46,8 @@ git clone --depth 1 git://git.koha-community.org/koha.git -b "${version}" kohacl
 cd kohaclone
 echo "KOHACLONE CONTENTS"
 echo $(ls)
-echo "GIT SHOW HEAD"
-echo $(git show HEAD)
+#echo "GIT SHOW HEAD"
+#echo $(git show HEAD)
 # Grab the Koha version from Koha.pm
 export KOHA_VER="$(cat Koha.pm | grep '$VERSION =')" && export KOHA_VER=${KOHA_VER%\"*} && export KOHA_VER=${KOHA_VER##*\"} && echo $KOHA_VER
 IFS='.' read -ra VER_PARTS <<< "$KOHA_VER"
