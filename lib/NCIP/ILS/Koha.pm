@@ -35,9 +35,6 @@ use C4::Circulation qw{
   AddRenewal
 };
 use C4::Context;
-use C4::Items qw{
-  DelItem
-};
 use C4::Reserves qw{
   CanBookBeReserved
   CanItemBeReserved
@@ -54,7 +51,6 @@ use C4::Biblio qw{
 };
 use C4::Barcodes::ValueBuilder;
 use C4::Items qw{
-  AddItem
   ModItemTransfer
 };
 use Koha::Database;
@@ -896,21 +892,25 @@ sub acceptitem {
             $item_branchcode = $patron->branchcode;
         }
 
-        my $item = {
-            barcode          => $barcode,
-            holdingbranch    => $item_branchcode,
-            homebranch       => $item_branchcode,
-            itype            => $itemtype,
-            replacementprice => $replacement_price,
-            itemcallnumber   => $item_callnumber,
-            ccode            => $item_ccode,
-            location         => $item_location,
-        };
-        ( $biblionumber, $biblioitemnumber, $itemnumber, undef, $frameworkcode )
-          = AddItem( $item, $biblionumber );
+        my $item = Koha::Item->new(
+            {
+                biblionumber     => $biblionumber,
+                barcode          => $barcode,
+                holdingbranch    => $item_branchcode,
+                homebranch       => $item_branchcode,
+                itype            => $itemtype,
+                replacementprice => $replacement_price,
+                itemcallnumber   => $item_callnumber,
+                ccode            => $item_ccode,
+                location         => $item_location,
+            }
+        )->store->get_from_storage;
+
+        $biblionumber     = $item->biblionumber;
+        $biblioitemnumber = $item->biblioitemnumber;
+        $itemnumber       = $item->itemnumber;
     }
 
-    my $item = Koha::Items->find( $itemnumber );
     my $holds = $item->current_holds;
     my $first_hold = $holds->next;
     my $reserve_id = $first_hold ? $first_hold->reserve_id : undef;
@@ -1010,8 +1010,7 @@ sub delete_item {
         my @holds = Koha::Holds->search({ itemnumber => $item->id });
         $_->cancel for @holds;
 
-        $success = DelItem(
-            { itemnumber => $item->id, biblionumber => $item->biblionumber } );
+        $success = $item->delete;
 
         if ( $biblio->items->count == 0 ) {
             DelBiblio( $biblio->id );
