@@ -829,6 +829,7 @@ sub acceptitem {
     $self->userenv();    # set userenvironment
     my ( $itemnumber, $biblionumber, $biblioitemnumber );
 
+    my $item;
     if ($create) {
         my $record;
 
@@ -892,7 +893,7 @@ sub acceptitem {
             $item_branchcode = $patron->branchcode;
         }
 
-        my $item = Koha::Item->new(
+        $item = Koha::Item->new(
             {
                 biblionumber     => $biblionumber,
                 barcode          => $barcode,
@@ -910,6 +911,8 @@ sub acceptitem {
         $biblioitemnumber = $item->biblioitemnumber;
         $itemnumber       = $item->itemnumber;
     }
+
+    $item ||= Koha::Items->find( $itemnumber );
 
     my $holds = $item->current_holds;
     my $first_hold = $holds->next;
