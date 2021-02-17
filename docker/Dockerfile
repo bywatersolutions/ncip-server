@@ -8,7 +8,7 @@ ENV MAX_WORKERS 2
 ENV MAX_REQS_PER_CHILD 500
 
 RUN apt-get -y update \
-    && apt-get -y install wget gnupg2 coreutils cpanminus make \
+    && apt-get -y install curl wget gnupg2 coreutils cpanminus make \
     && wget -q -O- https://debian.koha-community.org/koha/gpg.asc | apt-key add - \
     && echo 'deb http://debian.koha-community.org/koha stable main' | tee /etc/apt/sources.list.d/koha.list \
     && rm -rf /var/cache/apt/archives/* \
