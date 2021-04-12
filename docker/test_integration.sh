@@ -42,7 +42,7 @@ cd docker
 
 export LOCAL_USER_ID="$(id -u)" # Needed for koha-testing-docker
 
-git clone --depth 5 git://git.koha-community.org/koha.git -b "${version}" kohaclone
+git clone --depth 5 https://git.koha-community.org/Koha-community/Koha.git -b "${version}" kohaclone
 cd kohaclone
 echo "KOHACLONE CONTENTS"
 echo $(ls)
@@ -124,6 +124,10 @@ NCIP_CONTAINER_ID=$(docker run -d \
         --mount type=bind,source=$KOHA_CONF_PATH,target=/koha-conf.xml \
         --mount type=bind,source=$NCIP_CONF,target=/app/config.yml \
         ncip-test-build /app/docker/loop_forever.sh)
+
+docker exec -t $NCIP_CONTAINER_ID mkdir -p /etc/koha/sites/kohadev/
+docker exec -t $NCIP_CONTAINER_ID touch /etc/koha/sites/kohadev/log4perl.conf
+docker exec -t $NCIP_CONTAINER_ID chmod 777 /etc/koha/sites/kohadev/log4perl.conf
 
 echo "RUNNING NCIP UNIT TESTS"
 docker exec -t $NCIP_CONTAINER_ID prove -r -v t
