@@ -34,4 +34,4 @@ jobs:
       run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
 
     - name: Push to Docker Hub
-      run: docker push bywater/koha-ncip-server
+      run: docker push bywater/koha-ncip-server:v20.11-latest
