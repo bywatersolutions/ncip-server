@@ -35,6 +35,7 @@ any [ 'get', 'post' ] => '/' => sub {
     $log->debug("FORMATTED: $xml");
 
     my $content = $ncip->process_request( $xml, config );
+    $content ||= "It works!"; # No NCIP message was passed in
 
     $log->debug("NCIP::Dancing: Finished processing request");
     $log->debug("NCIP::Dancing: About to generate XML response");
