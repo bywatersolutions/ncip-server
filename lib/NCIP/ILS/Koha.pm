@@ -629,7 +629,7 @@ sub request {
                 biblionumber   => $biblionumber,
                 priority       => 1,
                 notes          => 'Placed By ILL',
-                itemumber      => $itemnumber,
+                itemnumber     => $itemnumber,
             }
         );
 
@@ -939,7 +939,7 @@ sub acceptitem {
                         biblionumber   => $biblionumber,
                         priority       => 1,
                         notes          => 'Placed By ILL',
-                        itemumber      => $itemnumber,
+                        itemnumber     => $itemnumber,
                     }
                 );
             }
