@@ -148,12 +148,12 @@ sub checkin {
     my $dropbox     = $params->{dropbox};
     my $config      = $params->{config};
 
-    $self->userenv();
-
     unless ($branch) {
 	my $item = Koha::Items->find( { barcode => $barcode } );
         $branch = $item->holdingbranch if $item;
     }
+
+    $self->userenv($branch);
 
     my ( $success, $messages, $issue, $borrower ) =
       AddReturn( $barcode, $branch, $exempt_fine, $dropbox );
@@ -611,7 +611,7 @@ sub request {
         }
     }
 
-    $self->userenv();
+    $self->userenv( $branchcode );
 
     my $borrowernumber = $patron->borrowernumber;
     my $itemnumber     = $item ? $item->itemnumber : undef;
@@ -826,7 +826,7 @@ sub acceptitem {
         }
     }
 
-    $self->userenv();    # set userenvironment
+    $self->userenv( $branchcode );    # set userenvironment
     my ( $itemnumber, $biblionumber, $biblioitemnumber );
 
     my $item;
@@ -1002,7 +1002,7 @@ sub delete_item {
     my $success = 1;
     my @problems;
 
-    $self->userenv();
+    $self->userenv( $branch );
 
     my $item = Koha::Items->find( { barcode => $barcode } );
     my $biblio = Koha::Biblios->find( $item->biblionumber );
