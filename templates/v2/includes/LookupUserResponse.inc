@@ -136,7 +136,7 @@ RequestedItem
         [% END %]
     [%- END -%]
 
-    [%- IF do_not_include_user_identifier_primary_key -%]
+    [%- UNLESS config.do_not_include_user_identifier_primary_key -%]
         <UserId>
             <UserIdentifierType>Primary Key</UserIdentifierType>
             <UserIdentifierValue>[% user.userdata.borrowernumber %]</UserIdentifierValue>
