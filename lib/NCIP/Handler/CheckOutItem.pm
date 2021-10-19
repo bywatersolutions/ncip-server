@@ -44,7 +44,7 @@ sub handle {
         }
 
         # checkout the item
-        my $data = $self->ils->checkout( $userid, $itemid, $date_due );
+        my $data = $self->ils->checkout( $userid, $itemid, $date_due, $config );
 
         my ( $from, $to ) = $self->get_agencies($xmldoc);
 
