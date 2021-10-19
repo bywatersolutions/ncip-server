@@ -121,19 +121,29 @@ sub userdata {
     return $patron_hashref;
 }
 
-sub userenv {    #FIXME: This really needs to be in a config file
-    my $self    = shift;
-    my $branch  = shift || 'AS';
+sub userenv {
+    my $self        = shift;
+    my $branchcode  = shift;
+    my $config      = shift;
+
+    my $librarian
+        = $config->{userenv_borrowernumber}
+        ? Koha::Patrons->find( $config->{userenv_borrowernumber} )
+        : undef;
+    warn
+        "No valid librarian found for userenv_borrowernumber $config->{userenv_borrowernumber}! Please update your configuration!"
+        unless $librarian;
+
     my @USERENV = (
-        undef,               #set_userenv shifts the first var for no reason
-        312,                 #borrowernumber
-        'NCIP',              #userid
-        '24535000002009',    #cardnumber
-        'NCIP',              #firstname
-        'User',              #surname
-        $branch,             #branchcode need to set this properly
-        'Auckland',          #branchname
-        1,                   #userflags
+        undef,     #set_userenv shifts the first var for no reason
+        $librarian ? $librarian->borrowernumber : 1,
+        $librarian ? $librarian->userid         : 'NCIP',
+        $librarian ? $librarian->cardnumber     : 'NCIP',
+        $librarian ? $librarian->firstname      : 'NCIP',
+        $librarian ? $librarian->surname        : 'Server',
+        $branchcode,
+        'NCIP',    #branchname
+        1,         #userflags
     );
 
     C4::Context->_new_userenv('DUMMY_SESSION_ID');
@@ -153,7 +163,7 @@ sub checkin {
         $branch = $item->holdingbranch if $item;
     }
 
-    $self->userenv($branch);
+    $self->userenv($branch,$config);
 
     my ( $success, $messages, $issue, $borrower ) =
       AddReturn( $barcode, $branch, $exempt_fine, $dropbox );
@@ -236,12 +246,13 @@ sub checkout {
     my $userid   = shift;
     my $barcode  = shift;
     my $date_due = shift;
+    my $config   = shift;
 
     my $patron = Koha::Patrons->find( { cardnumber => $userid } );
     $patron ||= Koha::Patrons->find( { userid => $userid } );
 
     my $item = Koha::Items->find( { barcode => $barcode } );
-    $self->userenv( $item->holdingbranch ) if $item;
+    $self->userenv( $item->holdingbranch, $config ) if $item;
 
     if ($patron) {
         my ( $error, $confirm ) =
@@ -492,6 +503,7 @@ sub request {
     my $biblionumber = shift;
     my $type         = shift;
     my $branchcode   = shift;
+    my $config       = shift;
 
     my $patron = Koha::Patrons->find( { cardnumber => $userid } );
     $patron ||= Koha::Patrons->find( { userid => $userid } );
@@ -611,7 +623,7 @@ sub request {
         }
     }
 
-    $self->userenv( $branchcode );
+    $self->userenv( $branchcode, $config );
 
     my $borrowernumber = $patron->borrowernumber;
     my $itemnumber     = $item ? $item->itemnumber : undef;
@@ -826,7 +838,7 @@ sub acceptitem {
         }
     }
 
-    $self->userenv( $branchcode );    # set userenvironment
+    $self->userenv( $branchcode, $config );    # set userenvironment
     my ( $itemnumber, $biblionumber, $biblioitemnumber );
 
     my $item;
@@ -1002,7 +1014,7 @@ sub delete_item {
     my $success = 1;
     my @problems;
 
-    $self->userenv( $branch );
+    $self->userenv( $branch, $config );
 
     my $item = Koha::Items->find( { barcode => $barcode } );
     my $biblio = Koha::Biblios->find( $item->biblionumber );
