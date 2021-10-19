@@ -121,31 +121,19 @@ sub userdata {
     return $patron_hashref;
 }
 
-sub userenv {
-    my $self        = shift;
-    my $branchcode  = shift;
-    my $config      = shift;
-
-    $branchcode ||= 'NCIP'; # Needed for unit testing purposes
-
-    my $librarian
-        = $config->{userenv_borrowernumber}
-        ? Koha::Patrons->find( $config->{userenv_borrowernumber} )
-        : undef;
-    warn
-        "No valid librarian found for userenv_borrowernumber $config->{userenv_borrowernumber}! Please update your configuration!"
-        unless $librarian;
-
+sub userenv {    #FIXME: This really needs to be in a config file
+    my $self    = shift;
+    my $branch  = shift || 'AS';
     my @USERENV = (
-        undef,     #set_userenv shifts the first var for no reason
-        $librarian ? $librarian->borrowernumber : 1,
-        $librarian ? $librarian->userid         : 'NCIP',
-        $librarian ? $librarian->cardnumber     : 'NCIP',
-        $librarian ? $librarian->firstname      : 'NCIP',
-        $librarian ? $librarian->surname        : 'Server',
-        $branchcode,
-        'NCIP',    #branchname
-        1,         #userflags
+        undef,               #set_userenv shifts the first var for no reason
+        312,                 #borrowernumber
+        'NCIP',              #userid
+        '24535000002009',    #cardnumber
+        'NCIP',              #firstname
+        'User',              #surname
+        $branch,             #branchcode need to set this properly
+        'Auckland',          #branchname
+        1,                   #userflags
     );
 
     C4::Context->_new_userenv('DUMMY_SESSION_ID');
