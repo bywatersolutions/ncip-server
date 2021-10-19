@@ -89,6 +89,7 @@ subtest 'Test RequestItem with valid user and valid item' => sub {
     }, \$ncip_message) || die $tt->error(), "\n";
 
     $response = dancer_response( POST => '/', { body => $ncip_message } );
+    say "RESPONSE: $response";
     $dom = $dom_converter->fromXMLStringtoHash( $response->content );
 
     my $hold_id = $dom->{NCIPMessage}->{RequestItemResponse}->{RequestId}->{RequestIdentifierValue}->{text};
