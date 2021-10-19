@@ -60,7 +60,7 @@ sub handle {
 
         my $data =
           $self->ils->request( $userid, $itemid, $biblionumber, $type,
-            $branchcode );
+            $branchcode, $config );
 
         if ( $data->{success} ) {
             my $elements = $self->get_user_elements($xmldoc);
