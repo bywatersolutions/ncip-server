@@ -342,12 +342,24 @@ sub checkout {
                 {
                     problem_type =>
                       'Check Out Not Allowed - Item Has Outstanding Requests',
-                    problem_detail => 'Check out of Item cannot proceed '
-                      . 'because the Item has outstanding requests.',
+                    problem_detail => 'Check out of item cannot proceed '
+                      . 'because the item has outstanding requests.',
                     problem_element => 'ItemIdentifierValue',
                     problem_value   => $barcode,
                 }
             ) if $reasons->{RESERVE_WAITING} || $reasons->{RESERVED};
+
+            push(
+                @problems,
+                {
+                    problem_type =>
+                      'Check Out Not Allowed - Item Is Already Checked Out',
+                    problem_detail => 'Check out of Item cannot proceed '
+                      . "because the item is checked out to the patron with cardnumber $reasons->{issued_cardnumber}",
+                    problem_element => 'ItemIdentifierValue',
+                    problem_value   => $barcode,
+                }
+            ) if $reasons->{ISSUED_TO_ANOTHER};
 
             push(
                 @problems,
@@ -368,6 +380,21 @@ sub checkout {
               || $reasons->{NO_RENEWAL_FOR_ONSITE_CHECKOUTS}    #FIXME: Should
               || $reasons->{NO_MORE_RENEWALS}                   #FIXME have
               || $reasons->{RENEW_ISSUE};    #FIXME different error
+
+            unless ( @problems ) {
+                push(
+                    @problems,
+                    {
+                        problem_type   => 'Resource Cannot Be Provided',
+                        problem_detail => 'Check out cannot proceed because '
+                          . 'of an unkown reasons. Please check the NCIP server logs.',
+                        problem_element => 'ItemIdentifierValue',
+                        problem_value   => $barcode,
+                    }
+                  );
+
+                warn Data::Dumper::Dumper( $reasons );
+            }
 
             return { success => 0, problems => \@problems };
         }
