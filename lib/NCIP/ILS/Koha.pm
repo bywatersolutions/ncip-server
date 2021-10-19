@@ -126,6 +126,8 @@ sub userenv {
     my $branchcode  = shift;
     my $config      = shift;
 
+    $branchcode ||= 'NCIP'; # Needed for unit testing purposes
+
     my $librarian
         = $config->{userenv_borrowernumber}
         ? Koha::Patrons->find( $config->{userenv_borrowernumber} )
