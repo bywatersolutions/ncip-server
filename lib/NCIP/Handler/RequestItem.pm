@@ -58,6 +58,8 @@ sub handle {
 
         $branchcode = $to->[0]->textContent() if $to;
 
+        my $config = $self->{config}->{koha};
+
         my $data =
           $self->ils->request( $userid, $itemid, $biblionumber, $type,
             $branchcode, $config );

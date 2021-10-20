@@ -522,16 +522,6 @@ sub request {
     my $branchcode   = shift;
     my $config       = shift;
 
-    warn "NCIP::ILS::Koha::request(
-        self         => $self,
-        userid       => $userid,
-        barcode      => $barcode,
-        biblionumber => $biblionumber,
-        type         => $type,
-        branchcode   => $branchcode,
-        config       => $config
-    )";
-
     my $patron = Koha::Patrons->find( { cardnumber => $userid } );
     $patron ||= Koha::Patrons->find( { userid => $userid } );
 
