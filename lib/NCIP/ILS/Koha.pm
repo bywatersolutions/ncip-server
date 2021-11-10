@@ -615,7 +615,7 @@ sub request {
                 success  => 0,
                 problems => [
                     {
-                        problem_type    => 'Tempaorary Processing Failure',
+                        problem_type    => 'Temporary Processing Failure',
                         problem_detail  => 'The identifier code is not known.',
                         problem_element => 'BibliographicItemIdentifierCode',
                         problem_value   => $type,
@@ -661,7 +661,7 @@ sub request {
                         problem_type => 'Duplicate Request',
                         problem_detail =>
                           'Request for the Item already exists; '
-                          . 'acting ont his update would create a duplicate request for the Item for the User',
+                          . 'acting on this update would create a duplicate request for the Item for the User',
                     }
                 ]
             };
