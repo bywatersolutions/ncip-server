@@ -76,6 +76,9 @@ koha:
   # If true, don't send the borrowernumber in a UserId block
   do_not_include_user_identifier_primary_key: 0
 
+  # Search this field for the user id instead of cardnumber/userid
+  #user_id_lookup_field: sort1
+
   # Patron 'ID' to send back, options are 'cardnumber', 'userid', 'same'
   # 'same' will send back whatever id was sent to the server for the lookup
   lookup_user_id: 'cardnumber'
