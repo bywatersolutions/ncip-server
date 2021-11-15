@@ -210,7 +210,7 @@ sub checkin {
         if ($transferToDo) {
             my $from_branch = $item->holdingbranch;
             my $to_branch   = $pickup_branchcode;
-            ModItemTransfer( $itemnumber, $from_branch, $to_branch );
+            ModItemTransfer( $itemnumber, $from_branch, $to_branch, 'Reserve' );
         }
     }
 
@@ -1018,7 +1018,7 @@ sub acceptitem {
         if ($transferToDo) {
            my $from_branch = $item->holdingbranch;
            my $to_branch   = $branchcode;
-           ModItemTransfer( $itemnumber, $from_branch, $to_branch );
+           ModItemTransfer( $itemnumber, $from_branch, $to_branch, 'Reserve' );
         }
     }
 
