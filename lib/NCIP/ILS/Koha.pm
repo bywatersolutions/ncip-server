@@ -95,9 +95,9 @@ sub itemdata {
 sub userdata {
     my $self     = shift;
     my $userid   = shift;
+    my $config   = shift;
 
-    my $patron = Koha::Patrons->find( { cardnumber => $userid } );
-    $patron ||= Koha::Patrons->find( { userid => $userid } );
+    my $patron = $self->find_patron( { userid => $userid, config => $config } );
 
     return unless $patron;
 
@@ -250,8 +250,7 @@ sub checkout {
     my $date_due = shift;
     my $config   = shift;
 
-    my $patron = Koha::Patrons->find( { cardnumber => $userid } );
-    $patron ||= Koha::Patrons->find( { userid => $userid } );
+    my $patron = $self->find_patron( { userid => $userid, config => $config } );
 
     my $item = Koha::Items->find( { barcode => $barcode } );
     $self->userenv( $item->holdingbranch, $config ) if $item;
@@ -411,9 +410,9 @@ sub renew {
     my $self    = shift;
     my $barcode = shift;
     my $userid  = shift;
+    my $config  = shift;
 
-    my $patron = Koha::Patrons->find( { cardnumber => $userid } );
-    $patron ||= Koha::Patrons->find( { userid => $userid } );
+    my $patron = $self->find_patron( { userid => $userid, config => $config } );
     return {
         success  => 0,
         problems => [
@@ -507,8 +506,7 @@ sub request {
     my $branchcode   = shift;
     my $config       = shift;
 
-    my $patron = Koha::Patrons->find( { cardnumber => $userid } );
-    $patron ||= Koha::Patrons->find( { userid => $userid } );
+    my $patron = $self->find_patron( { userid => $userid, config => $config } );
 
     return {
         success  => 0,
@@ -804,8 +802,7 @@ sub acceptitem {
     my $itemtype =
       $iteminfo->{itemtype} || $fieldslib->{$field}{$subfield}{defaultvalue} || $item_itemtype;
 
-    my $patron = Koha::Patrons->find( { cardnumber => $userid } );
-    $patron ||= Koha::Patrons->find( { userid => $userid } );
+    my $patron = $self->find_patron( { userid => $userid, config => $config } );
 
     if ($branchcode) {
         my $valid = Koha::Libraries->search({ branchcode => $branchcode })->count();
@@ -1077,6 +1074,20 @@ sub authenticate_patron {
     my $hash = $ils_user->userdata->{password};
 
     return checkpw_hash( $pin, $hash );
+}
+
+sub find_patron {
+    my ( $self, $params ) = @_;
+
+    my $userid = $params->{userid};
+    my $user_id_lookup_field = $params->{config}->{user_id_lookup_field} || q{};
+
+    my $patron
+        = $user_id_lookup_field
+        ? Koha::Patrons->find( { $user_id_lookup_field => $userid } )
+        : Koha::Patrons->find( { cardnumber            => $userid } ) || Koha::Patrons->find( { userid => $userid } );
+
+    return $patron;
 }
 
 1;

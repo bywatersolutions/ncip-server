@@ -22,6 +22,8 @@ our @ISA = qw(NCIP::Handler);
 sub handle {
     my $self   = shift;
     my $xmldoc = shift;
+    my $config = $self->{config}->{koha};
+
     if ($xmldoc) {
         my $root = $xmldoc->documentElement();
         my $xpc  = $self->xpc();
@@ -30,7 +32,7 @@ sub handle {
 
         my ( $from, $to ) = $self->get_agencies($xmldoc);
 
-        my $data = $self->ils->renew( $itemid, $userid );
+        my $data = $self->ils->renew( $itemid, $userid, $config );
 
         if ( $data->{success} ) {
             my @elements = $root->findnodes('RenewItem/ItemElementType/Value');
