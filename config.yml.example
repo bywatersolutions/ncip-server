@@ -80,6 +80,9 @@ koha:
   # 'same' will send back whatever id was sent to the server for the lookup
   lookup_user_id: 'cardnumber'
 
+  # Search this field for the user id instead of cardnumber/userid
+  #user_id_lookup_field: sort1
+
   # If this option is enabled, items created by AcceptItem will use AcceptItem/RequestId/RequestIdentifierValue
   # as the barcode instead of AcceptItem/ItemId/ItemIdentifierValue
   #request_identifier_value_as_barcode: 1

@@ -30,7 +30,8 @@ sub handle {
 
         my ( $from, $to ) = $self->get_agencies($xmldoc);
 
-        my $data = $self->ils->renew( $itemid, $userid );
+        my $config = $self->{config}->{koha};
+        my $data = $self->ils->renew( $itemid, $userid, $config );
 
         if ( $data->{success} ) {
             my @elements = $root->findnodes('RenewItem/ItemElementType/Value');

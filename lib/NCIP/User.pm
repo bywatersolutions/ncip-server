@@ -17,11 +17,13 @@ use base qw(Class::Accessor);
 NCIP::User->mk_accessors(qw(userid ils userdata));
 
 sub initialise {
-    my ($self) = @_;
+    my ( $self, $config ) = @_;
+
+    die "NCIP::User::initialise - No config passed in!" unless $config;
 
     my $ils = $self->ils;
 
-    my ( $userdata, $error ) = $ils->userdata( $self->userid );
+    my ( $userdata, $error ) = $ils->userdata( $self->userid, $config );
 
     $self->{userdata} = $userdata;
 }
