@@ -70,7 +70,7 @@ sub handle {
         # Need to deal with that also
 
         my $user = NCIP::User->new( { userid => $user_id, ils => $self->ils } );
-        $user->initialise($config);
+        $user->initialise();
 
         if ($pin) {
             if ( $user->is_valid() ) {
