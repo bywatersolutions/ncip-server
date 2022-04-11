@@ -5,5 +5,13 @@
     <ItemId>
       <ItemIdentifierValue>3110888</ItemIdentifierValue>
     </ItemId>
+
+    <ItemElementType>Bibliographic Description</ItemElementType>
+    <ItemElementType>Circulation Status</ItemElementType>
+    <ItemElementType>Electronic Resource</ItemElementType>
+    <ItemElementType>Hold Queue Length</ItemElementType>
+    <ItemElementType>Item Description</ItemElementType>
+    <ItemElementType>Item Use Restriction Type</ItemElementType>
+    <ItemElementType>Location</ItemElementType>
   </LookupItem>
 </NCIPMessage>
