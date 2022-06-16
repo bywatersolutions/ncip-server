@@ -97,11 +97,8 @@ subtest 'Test CheckOutItem with valid user and item' => sub {
         'CheckOutItemResponse returns correct item barcode'
     );
 
-    is(
-	$dom->{NCIPMessage}->{CheckOutItemResponse}->{DateDue}->{text},
-	'2032-12-30T00:00:00',
-	'CheckOutItemResponse returns correct date due'
-    );
+    is( $dom->{NCIPMessage}->{CheckOutItemResponse}->{DateDue}->{text},
+        '2032-12-30T13:54:00', 'CheckOutItemResponse returns correct date due' );
 
 };
 
