@@ -37,6 +37,7 @@ fi
 
 cd ..
 NCIP_CLONE=$(pwd)
+echo "NCIP CLONE: $NCIP_CLONE";
 docker build --pull -f docker/Dockerfile --tag ncip-test-build .
 cd docker
 
@@ -114,6 +115,12 @@ echo "$(ls $NCIP_CONF)"
 
 echo "DOCKER NETWORKS:"
 echo $(docker network ls)
+
+result=${PWD##*/}
+if [ "$result" != "docker" ]; then
+    echo "This script needs to be run from the docker directory"
+    exit 1
+fi
 
 KOHA_DOCKER_NET=$(docker network ls -q -f "name=koha")
 

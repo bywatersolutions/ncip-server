@@ -12,6 +12,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
+    - name: Branch name
+      run: echo Running on branch ${GITHUB_REF##*/}
+
     - name: Run integration tests
       run: |
         cd docker
