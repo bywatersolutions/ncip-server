@@ -47,7 +47,6 @@ use C4::Biblio qw{
   DelBiblio
   GetMarcFromKohaField
   GetBiblioData
-  GetMarcBiblio
 };
 use C4::Barcodes::ValueBuilder;
 use C4::Items qw{
@@ -69,10 +68,10 @@ sub itemdata {
     if ($item) {
 	my $item_hashref = $item->unblessed();
 
-        my $biblio = GetBiblioData( $item_hashref->{biblionumber} );
-        $item_hashref->{biblio} = $biblio;
+        my $biblio = Koha::Biblio->find( $item_hashref->{biblionumber} );
+        $item_hashref->{biblio} = $biblio->unblessed;
 
-        my $record = GetMarcBiblio({ biblionumber => $item_hashref->{biblionumber}});
+        my $record = $biblio->metadata->record({ biblionumber => $item_hashref->{biblionumber}});
         $item_hashref->{record} = $record;
 
         my $itemtype = Koha::Database->new()->schema()->resultset('Itemtype')
