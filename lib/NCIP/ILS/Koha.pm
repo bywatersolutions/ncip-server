@@ -71,7 +71,7 @@ sub itemdata {
         my $biblio = Koha::Biblio->find( $item_hashref->{biblionumber} );
         $item_hashref->{biblio} = $biblio->unblessed;
 
-        my $record = $biblio->metadata->record({ biblionumber => $item_hashref->{biblionumber}});
+        my $record = $biblio->metadata->record;
         $item_hashref->{record} = $record;
 
         my $itemtype = Koha::Database->new()->schema()->resultset('Itemtype')
