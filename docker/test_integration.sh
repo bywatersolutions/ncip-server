@@ -38,7 +38,7 @@ fi
 cd ..
 NCIP_CLONE=$(pwd)
 echo "NCIP CLONE: $NCIP_CLONE";
-#docker build --pull -f docker/Dockerfile --tag ncip-test-build .
+docker build --pull -f docker/Dockerfile --tag ncip-test-build .
 cd docker
 
 export LOCAL_USER_ID="$(id -u)" # Needed for koha-testing-docker
