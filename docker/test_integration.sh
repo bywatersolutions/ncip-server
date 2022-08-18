@@ -38,7 +38,7 @@ fi
 cd ..
 NCIP_CLONE=$(pwd)
 echo "NCIP CLONE: $NCIP_CLONE";
-docker build --pull -f docker/Dockerfile --tag ncip-test-build .
+#docker build --pull -f docker/Dockerfile --tag ncip-test-build .
 cd docker
 
 export LOCAL_USER_ID="$(id -u)" # Needed for koha-testing-docker
@@ -82,6 +82,7 @@ docker-compose build
 #sudo sysctl -w vm.max_map_count=262144
 export KOHA_INTRANET_URL="http://127.0.0.1:8081"
 export KOHA_MARC_FLAVOUR="marc21"
+export KOHA_IMAGE=$KOHA_BRANCH
 docker-compose down
 docker-compose run koha &disown
 

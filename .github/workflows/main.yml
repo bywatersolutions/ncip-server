@@ -18,7 +18,7 @@ jobs:
     - name: Run integration tests
       run: |
         cd docker
-        ./test_integration.sh -v v22.05.03-01
+        ./test_integration.sh -v 22.05.x
 
   build_docker:
     name: Build docker image
