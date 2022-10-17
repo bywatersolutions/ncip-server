@@ -81,7 +81,7 @@ sub itemdata {
         my $hold = GetReserveStatus( $item_hashref->{itemnumber} );
         $item_hashref->{hold} = $hold;
 
-        my @holds = Koha::Holds->search( { biblionumber =>  $item_hashref->{biblionumber} } );
+        my @holds = Koha::Holds->search( { biblionumber =>  $item_hashref->{biblionumber} } )->as_list;
         $item_hashref->{holds} = \@holds;
 
         my @transfers = GetTransfers( $item_hashref->{itemnumber} );
@@ -845,8 +845,8 @@ sub acceptitem {
             };
         }
     } else {
-        my @branches = Koha::Libraries->search();
-        if ( @branches > 1 ) {
+        my $branches = Koha::Libraries->search();
+        if ( $branches->count() > 1 ) {
             return {
                 success  => 0,
                 problems => [
@@ -859,7 +859,7 @@ sub acceptitem {
             };
         }
         else {
-            $branchcode = $branches[0]->{branchcode};
+            $branchcode = $branches->next()->branchcode;
         }
     }
 
@@ -1047,8 +1047,10 @@ sub delete_item {
     if ($item) {
         # Cancel holds related to this particular item,
         # there should only be one in practice
-        my @holds = Koha::Holds->search({ itemnumber => $item->id });
-        $_->cancel for @holds;
+        my $holds = Koha::Holds->search({ itemnumber => $item->id });
+        while ( my $h = $holds->next ) {
+            $h->cancel;
+        }
 
         $success = $item->delete;
 
