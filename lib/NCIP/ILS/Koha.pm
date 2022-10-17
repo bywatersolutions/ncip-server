@@ -656,7 +656,7 @@ sub request {
 
     my $can_reserve =
       $itemnumber
-      ? CanItemBeReserved( $borrowernumber, $itemnumber )->{status}
+      ? CanItemBeReserved( $patron, $item )->{status}
       : CanBookBeReserved( $borrowernumber, $biblionumber )->{status};
 
     if ( $can_reserve eq 'OK' ) {
