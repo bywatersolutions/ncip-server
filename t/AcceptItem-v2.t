@@ -123,7 +123,7 @@ subtest 'Test AcceptItem with valid user' => sub {
     );
 
     my $item = Koha::Items->find({ barcode => $item_barcode });
-    is( ref($item), 'Koha::Item', 'Found item with corrosponding item bardcode' );
+    is( ref($item), 'Koha::Item', 'Found item with corrosponding item barcode' );
 
     my $b = $item->biblio;
     is( $b->frameworkcode, 'FA', 'Bib has correct framework code' );
@@ -184,7 +184,7 @@ subtest 'Test AcceptItem with item_branchcode set to a valid branchcode' => sub 
     );
 
     my $item = Koha::Items->find({ barcode => $item_barcode });
-    is( ref($item), 'Koha::Item', 'Found item with corrosponding item bardcode' );
+    is( ref($item), 'Koha::Item', 'Found item with corrosponding item barcode' );
 
     my $b = $item->biblio;
     is( $b->frameworkcode, 'FA', 'Bib has correct framework code' );
@@ -248,7 +248,7 @@ subtest 'Test AcceptItem with item_branchcode set to __PATRON__BRANCHCODE__' => 
     );
 
     my $item = Koha::Items->find({ barcode => $item_barcode });
-    is( ref($item), 'Koha::Item', 'Found item with corrosponding item bardcode' );
+    is( ref($item), 'Koha::Item', 'Found item with corrosponding item barcode' );
 
     my $b = $item->biblio;
     is( $b->frameworkcode, 'FA', 'Bib has correct framework code' );
