@@ -30,7 +30,6 @@ use C4::Circulation qw{
   AddReturn
   CanBookBeIssued
   AddIssue
-  GetTransfers
   CanBookBeRenewed
   AddRenewal
 };
@@ -67,6 +66,7 @@ sub itemdata {
 
     if ($item) {
 	my $item_hashref = $item->unblessed();
+	$item_hashref->{object} = $item;
 
         my $biblio = Koha::Biblio->find( $item_hashref->{biblionumber} );
         $item_hashref->{biblio} = $biblio->unblessed;
@@ -83,9 +83,6 @@ sub itemdata {
 
         my @holds = Koha::Holds->search( { biblionumber =>  $item_hashref->{biblionumber} } )->as_list;
         $item_hashref->{holds} = \@holds;
-
-        my @transfers = GetTransfers( $item_hashref->{itemnumber} );
-        $item_hashref->{transfers} = \@transfers;
 
         return $item_hashref;
     }

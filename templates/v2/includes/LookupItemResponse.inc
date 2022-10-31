@@ -94,7 +94,7 @@
                                 On Order
                             [% ELSIF item.hold.found %]
                                 Available For Pickup
-                            [% ELSIF item.transfers.size %]
+                            [% ELSIF item.object.transfer %]
                                 In Transit Between Library Locations
                             [% ELSE %]
                                 Checked In
