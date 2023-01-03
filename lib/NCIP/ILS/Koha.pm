@@ -255,14 +255,14 @@ sub checkout {
     if ($patron) {
         my ( $error, $confirm, $problem );
         try {
-            my ( $error, $confirm )
-                = CanBookBeIssued( $patron, $barcode, dt_from_string($date_due) );
+            my $dt = dt_from_string( $date_due, 'rfc3339' );
+            my ( $error, $confirm ) = CanBookBeIssued( $patron, $barcode, $dt );
         }
         catch {
             $problem = [
                 {
-                    problem_type    => 'Unknown Error',
-                    problem_detail  => $_,
+                    problem_type   => 'Unknown Error',
+                    problem_detail => $_,
                 }
             ];
         }
@@ -421,15 +421,15 @@ sub checkout {
         }
         else {
             try {
-                my $issue = AddIssue( $patron->unblessed, $barcode, $date_due );
-
+                my $dt    = dt_from_string( $date_due, 'rfc3339' );
+                my $issue = AddIssue( $patron->unblessed, $barcode, $dt );
                 $date_due = dt_from_string( $issue->date_due() );
             }
             catch {
                 $problem = [
                     {
-                        problem_type    => 'Unknown Error',
-                        problem_detail  => $_,
+                        problem_type   => 'Unknown Error',
+                        problem_detail => $_,
                     }
                 ];
             };
