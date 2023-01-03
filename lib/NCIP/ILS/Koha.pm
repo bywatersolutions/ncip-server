@@ -17,6 +17,7 @@ package NCIP::ILS::Koha;
 
 use Modern::Perl;
 use Object::Tiny qw{ name };
+use Try::Tiny;
 
 use MARC::Record;
 use MARC::Field;
@@ -252,8 +253,20 @@ sub checkout {
     $self->userenv( $item->holdingbranch, $config ) if $item;
 
     if ($patron) {
-        my ( $error, $confirm ) =
-          CanBookBeIssued( $patron, $barcode, dt_from_string($date_due) );
+        my ( $error, $confirm, $problem );
+        try {
+            my ( $error, $confirm )
+                = CanBookBeIssued( $patron, $barcode, dt_from_string($date_due) );
+        }
+        catch {
+            $problem = [
+                {
+                    problem_type    => 'Unknown Error',
+                    problem_detail  => $_,
+                }
+            ];
+        }
+        return { success => 0, problems => $problem } if $problem;
 
         my $reasons = { %$error, %$confirm };
 
@@ -407,8 +420,22 @@ sub checkout {
             return { success => 0, problems => \@problems };
         }
         else {
-            my $issue = AddIssue( $patron->unblessed, $barcode, $date_due );
-            $date_due = dt_from_string( $issue->date_due() );
+            try {
+                my $issue = AddIssue( $patron->unblessed, $barcode, $date_due );
+
+                $date_due = dt_from_string( $issue->date_due() );
+            }
+            catch {
+                $problem = [
+                    {
+                        problem_type    => 'Unknown Error',
+                        problem_detail  => $_,
+                    }
+                ];
+            };
+
+            return { success => 0, problems => $problem } if $problem;
+
             return {
                 success    => 1,
                 date_due   => $date_due,
