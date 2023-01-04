@@ -256,7 +256,7 @@ sub checkout {
         my ( $error, $confirm, $problem );
         try {
             my $dt = dt_from_string( $date_due, 'rfc3339' );
-            my ( $error, $confirm ) = CanBookBeIssued( $patron, $barcode, $dt );
+            ( $error, $confirm ) = CanBookBeIssued( $patron, $barcode, $dt );
         }
         catch {
             $problem = [
@@ -265,7 +265,7 @@ sub checkout {
                     problem_detail => $_,
                 }
             ];
-        }
+        };
         return { success => 0, problems => $problem } if $problem;
 
         my $reasons = { %$error, %$confirm };
