@@ -105,6 +105,9 @@ sub userdata {
     elsif ( C4::Context->preference('OverduesBlockCirc') eq 'block' && $patron->has_overdues ) {
         $block_status = -1; # UserPrivilegeStatus => Delinquent
     }
+    elsif ( C4::Context->preference('noissuescharge') && $patron->account_balance > C4::Context->preference('noissuescharge') ) {
+        $block_status = 2;
+    }
     else {
         $block_status = 0;
     }
