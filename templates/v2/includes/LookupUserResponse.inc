@@ -115,12 +115,10 @@ RequestedItem
                 <UserPrivilegeStatus>
                     [%- FILTER collapse -%]
                         <UserPrivilegeStatusType>[%- FILTER collapse -%]
-                                [%- IF user.userdata.restricted == -1 # overdues block circ-%]
+                                [%- IF user.userdata.restricted < 0 -%]
                                     Delinquent
-                                [%- ELSIF user.userdata.restricted == 1 # has restriction-%]
+                                [%- ELSIF user.userdata.restricted > 0 -%]
                                     Restricted
-                                [%- ELSIF user.userdata.restricted == 2 # fees block circ -%]
-                                    Barred
                                 [%- ELSE -%]
                                     Ok
                                 [%- END -%]
