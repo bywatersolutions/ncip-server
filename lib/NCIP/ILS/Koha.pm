@@ -1069,9 +1069,9 @@ sub delete_item {
     $self->userenv( $branch, $config );
 
     my $item = Koha::Items->find( { barcode => $barcode } );
-    my $biblio = Koha::Biblios->find( $item->biblionumber );
 
     if ($item) {
+        my $biblio = Koha::Biblios->find( $item->biblionumber );
         # Cancel holds related to this particular item,
         # there should only be one in practice
         my $holds = Koha::Holds->search({ itemnumber => $item->id });
