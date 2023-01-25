@@ -255,10 +255,11 @@ sub checkout {
     my $item = Koha::Items->find( { barcode => $barcode } );
     $self->userenv( $item->holdingbranch, $config ) if $item;
 
+    my $dt = $date_due ? dt_from_string( $date_due, 'rfc3339' ) : undef;
+
     if ($patron) {
         my ( $error, $confirm, $problem );
         try {
-            my $dt = $date_due ? dt_from_string( $date_due, 'rfc3339' ) : undef;
             ( $error, $confirm ) = CanBookBeIssued( $patron, $barcode, $dt );
         }
         catch {
@@ -424,7 +425,6 @@ sub checkout {
         }
         else {
             try {
-                my $dt    = dt_from_string( $date_due, 'rfc3339' );
                 my $issue = AddIssue( $patron->unblessed, $barcode, $dt );
                 $date_due = dt_from_string( $issue->date_due() );
             }
