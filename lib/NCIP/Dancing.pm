@@ -42,8 +42,9 @@ any [ 'get', 'post' ] => '/' => sub {
     };
     $log->debug("FORMATTED: $xml");
 
+    my $content;
     try {
-        my $content = $ncip->process_request( $xml, config );
+        $content = $ncip->process_request( $xml, config );
     } catch {
         $log->debug("ERROR PROCESSING REQUEST: $_";
     };
