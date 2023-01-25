@@ -46,7 +46,7 @@ any [ 'get', 'post' ] => '/' => sub {
     try {
         $content = $ncip->process_request( $xml, config );
     } catch {
-        $log->debug("ERROR PROCESSING REQUEST: $_";
+        $log->debug("ERROR PROCESSING REQUEST: $_");
     };
     $content ||= "It works!"; # No NCIP message was passed in
 
