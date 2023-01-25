@@ -6,6 +6,7 @@ use FindBin;
 use Log::Log4perl;
 use XML::Tidy::Tiny qw(xml_tidy);
 use XML::Tidy;
+use Try::Tiny;
 
 use NCIP;
 
@@ -30,11 +31,22 @@ any [ 'get', 'post' ] => '/' => sub {
     $xml ||= q{};
     $log->debug("RAW XML: **$xml**");
 
-    # Tidy's and validates XML. Gets rid of DOCTYPE stanzas, our parser chokes on them
-    $xml = XML::Tidy->new( xml  => $xml )->tidy()->toString() if $xml;
+    # Gets rid of DOCTYPE stanzas, our parser chokes on them
+    $xml =~ s/<!DOCTYPE[^>[]*(\[[^]]*\])?>//g;
+
+    # Tidy's and validates XML.
+    try {
+        $xml = XML::Tidy->new( xml  => $xml )->tidy()->toString() if $xml;
+    } catch {
+        $log->debug("ERROR FORMATTING XML: $_");
+    };
     $log->debug("FORMATTED: $xml");
 
-    my $content = $ncip->process_request( $xml, config );
+    try {
+        my $content = $ncip->process_request( $xml, config );
+    } catch {
+        $log->debug("ERROR PROCESSING REQUEST: $_";
+    };
     $content ||= "It works!"; # No NCIP message was passed in
 
     $log->debug("NCIP::Dancing: Finished processing request");
