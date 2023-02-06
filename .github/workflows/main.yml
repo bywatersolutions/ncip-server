@@ -18,7 +18,7 @@ jobs:
     - name: Run integration tests
       run: |
         cd docker
-        ./test_integration.sh -v master
+        ./test_integration.sh -v 22.11.x
 
   build_docker:
     name: Build docker image
@@ -28,7 +28,7 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Run integration tests
-      run: docker build -f docker/Dockerfile --tag bywater/koha-ncip-server:latest .
+      run: docker build -f docker/Dockerfile --tag bywater/koha-ncip-server:v22.11-latest .
 
     - name: Log in to Docker Hub
       env:
@@ -37,4 +37,4 @@ jobs:
       run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
 
     - name: Push to Docker Hub
-      run: docker push bywater/koha-ncip-server
+      run: docker push bywater/koha-ncip-server:v22.11-latest
