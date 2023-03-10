@@ -614,7 +614,7 @@ sub request {
 
     my $item = $barcode ? Koha::Items->find( { barcode => $barcode } ) : undef;
 
-    if ($barcode) {
+    if ( $barcode && !$item ) {
         return {
             success  => 0,
             problems => [
@@ -625,8 +625,7 @@ sub request {
                     problem_value   => $barcode,
                 }
             ]
-          }
-          unless $item;
+        };
     }
 
     unless ($item) {
