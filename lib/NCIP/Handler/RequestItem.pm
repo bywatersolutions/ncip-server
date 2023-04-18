@@ -59,10 +59,18 @@ sub handle {
         $branchcode = $to->[0]->textContent() if $to;
 
         my $config = $self->{config}->{koha};
+        my $ignore_item_requests = $config->{ignore_item_requests};
 
-        my $data =
-          $self->ils->request( $userid, $itemid, $biblionumber, $type,
-            $branchcode, $config );
+        my $data;
+        if ($ignore_item_requests) {
+            $data = {
+                success    => 1,
+                request_id => 0,
+            };
+        }
+        else {
+            $data = $self->ils->request( $userid, $itemid, $biblionumber, $type, $branchcode, $config );
+        }
 
         if ( $data->{success} ) {
             my $elements = $self->get_user_elements($xmldoc);

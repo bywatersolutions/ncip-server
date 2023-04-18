@@ -96,3 +96,6 @@ koha:
 
   # Set to 1 for any and all records created by NCIP ( via AcceptItem messages ) to not show up in OPAC search results
   suppress_in_opac: ""
+
+  # Set to 1 and Koha will not create holds when it recieves a RequestItem message
+  ignore_item_requests: 0
