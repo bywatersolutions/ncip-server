@@ -35,3 +35,15 @@ jobs:
 
     - name: Push to Docker Hub
       run: docker push bywater/koha-ncip-server:v21.11-latest
+
+    - name: Log in to Quay.io
+      env:
+        QUAY_USER: ${{secrets.QUAY_USER}}
+        QUAY_PASSWORD: ${{secrets.QUAY_PASSWORD}}
+      run: docker login quay.io -u $QUAY_USER -p $QUAY_PASSWORD
+
+    - name: Tag image for quay.io
+      run: docker tag bywater/koha-ncip-server:v21.11-latest quay.io/bywatersolutions/koha-ncip-server:v21.11-latest
+
+    - name: Push image to quay.io
+      run: docker push quay.io/bywatersolutions/koha-ncip-server:v21.11-latest
