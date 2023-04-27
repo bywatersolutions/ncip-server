@@ -1,4 +1,4 @@
-FROM debian:stretch-slim
+FROM debian:buster-slim
 MAINTAINER Kyle M Hall <kyle@bywatersolutions.com>
 
 ENV PERL5LIB /kohalib
