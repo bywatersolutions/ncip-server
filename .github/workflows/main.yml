@@ -27,14 +27,14 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: Run integration tests
-      run: docker build -f docker/Dockerfile --tag bywater/koha-ncip-server:v22.05-latest .
-
     - name: Log in to Docker Hub
       env:
         DOCKER_USER: ${{secrets.DOCKER_USER}}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+
+    - name: Run integration tests
+      run: docker build -f docker/Dockerfile --tag bywater/koha-ncip-server:v22.05-latest .
 
     - name: Push to Docker Hub
       run: docker push bywater/koha-ncip-server:v22.05-latest
