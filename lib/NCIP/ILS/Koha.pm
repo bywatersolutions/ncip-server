@@ -276,6 +276,7 @@ sub checkout {
 
         delete $reasons->{DEBT} if C4::Context->preference('AllowFineOverride');
         delete $reasons->{USERBLOCKEDOVERDUE} unless C4::Context->preference("OverduesBlockCirc") eq 'block';
+        delete $reasons->{ADDITIONAL_MATERIALS}; # just triggers the accompanying materials warning in Koha during checkout
 
         if (%$reasons) {
             my @problems;
