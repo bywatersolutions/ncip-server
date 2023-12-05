@@ -18,7 +18,7 @@ jobs:
     - name: Run integration tests
       run: |
         cd docker
-        ./test_integration.sh -v master
+        ./test_integration.sh -v 23.05.x
 
   build_docker:
     name: Build docker image
@@ -33,20 +33,17 @@ jobs:
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
 
-    - name: Run integration tests
-      run: docker build -f docker/Dockerfile --tag bywater/koha-ncip-server:latest .
-
-    - name: Push to Docker Hub
-      run: docker push bywater/koha-ncip-server
-
     - name: Log in to Quay.io
       env:
         QUAY_USER: ${{secrets.QUAY_USER}}
         QUAY_PASSWORD: ${{secrets.QUAY_PASSWORD}}
       run: docker login quay.io -u $QUAY_USER -p $QUAY_PASSWORD
 
-    - name: Tag image for quay.io
-      run: docker tag bywater/koha-ncip-server:latest quay.io/bywatersolutions/koha-ncip-server:latest
+    - name: Run integration tests
+      run: docker build -f docker/Dockerfile --tag bywater/koha-ncip-server:v23.05-latest --tag quay.io/bywatersolutions/koha-ncip-server:v23.05-latest .
 
-    - name: Push image to quay.io
-      run: docker push quay.io/bywatersolutions/koha-ncip-server:latest
+    - name: Push to Docker Hub
+      run: docker push bywater/koha-ncip-server:v23.05-latest
+
+    - name: Push to Quay.io
+      run: docker push quay.io/bywatersolutions/koha-ncip-server:v23.05-latest
