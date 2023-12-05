@@ -81,7 +81,7 @@ subtest 'Test CheckInItem with valid user and item' => sub {
     config->{koha}->{no_error_on_return_without_checkout} = 1;
     config->{koha}->{trap_hold_on_checkin} = 0;
 
-    my $issue = C4::Circulation::AddIssue( $patron_1->unblessed, $item_1->barcode );
+    my $issue = C4::Circulation::AddIssue( $patron_1, $item_1->barcode );
 
     my $ncip_message;
     $tt->process('v1/CheckInItem.xml', {
