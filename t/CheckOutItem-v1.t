@@ -52,17 +52,6 @@ my $patron_category = $builder->build(
 
 my $library = Koha::Libraries->search()->next();
 
-my $librarian = $builder->build_object(
-    {
-        class => 'Koha::Patrons',
-        value => {
-            branchcode   => $library->id,
-            categorycode => $patron_category->{categorycode},
-        }
-    }
-);
-config->{koha}->{userenv_borrowernumber} = $librarian->id;
-
 my $patron_1 = $builder->build_object(
     {
         class => 'Koha::Patrons',
