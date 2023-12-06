@@ -1,5 +1,13 @@
 # NCIP Server for Koha
 
+## Security
+
+This NCIP server can support token based authentication.
+To enable token based authentication:
+* Create a Koha system preference named `NcipRequireToken`, set it to 1 to enforce tokens
+* Create a Koha system preference named `NcipToken` with a token you've generated
+* Pass the token in the API endpoint you've set up for your NCIP server, e.g. if it was `my.ils.lib/ncip`, it will now be `my.ils.ib/ncip/TokenGoesHere`.
+
 ## Installation
 
 ### For package sites, become the instance user
