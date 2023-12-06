@@ -12,7 +12,16 @@ use NCIP;
 
 our $VERSION = '0.1';
 
-any [ 'get', 'post' ] => '/' => sub {
+any [ 'get', 'post' ] => '/' => \&process_ncip_request;
+
+any [ 'get', 'post' ] => '/:token' => \&process_ncip_request;
+
+sub process_ncip_request {
+    my $token = params->{token};
+    my $require_token = C4::Context->preference('NcipRequireToken');
+    die if $require_token && !$token;
+    die if $token && $token ne C4::Context->preference('NcipToken');
+
     my $appdir = realpath("$FindBin::Bin/..");
 
     #FIXME: Why are we always looking in t for the config, even for production?
