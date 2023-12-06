@@ -19,8 +19,8 @@ any [ 'get', 'post' ] => '/:token' => \&process_ncip_request;
 sub process_ncip_request {
     my $token = params->{token};
     my $require_token = C4::Context->preference('NcipRequireToken');
-    die if $require_token && !$token;
-    die if $token && $token ne C4::Context->preference('NcipToken');
+    return "It works!" if $require_token && !$token;
+    return "It works!" if $token && $token ne C4::Context->preference('NcipToken');
 
     my $appdir = realpath("$FindBin::Bin/..");
 
