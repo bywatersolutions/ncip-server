@@ -8,6 +8,8 @@ use XML::Tidy::Tiny qw(xml_tidy);
 use XML::Tidy;
 use Try::Tiny;
 
+use C4::Context;
+
 use NCIP;
 
 our $VERSION = '0.1';
