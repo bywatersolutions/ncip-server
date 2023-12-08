@@ -100,12 +100,15 @@ sub userdata {
 
     my $block_status;
     if ( $patron->is_debarred ) {
-        $block_status = 1; # UserPrivilegeStatus => Restricted
+        $block_status = 1;    # UserPrivilegeStatus => Restricted
     }
     elsif ( C4::Context->preference('OverduesBlockCirc') eq 'block' && $patron->has_overdues ) {
-        $block_status = -1; # UserPrivilegeStatus => Delinquent
+        $block_status = -1;    # UserPrivilegeStatus => Delinquent
     }
-    elsif ( C4::Context->preference('noissuescharge') && $patron->account_balance > C4::Context->preference('noissuescharge') ) {
+    elsif (C4::Context->preference('noissuescharge')
+        && ( $patron->account_balance > C4::Context->preference('noissuescharge') )
+        && !C4::Context->preference('AllowFineOverride') )
+    {
         $block_status = 2;
     }
     else {
