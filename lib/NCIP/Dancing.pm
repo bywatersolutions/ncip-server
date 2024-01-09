@@ -19,27 +19,37 @@ any [ 'get', 'post' ] => '/' => \&process_ncip_request;
 any [ 'get', 'post' ] => '/:token' => \&process_ncip_request;
 
 sub process_ncip_request {
+    my $log  = Log::Log4perl->get_logger("NCIP");
+
+    $log->debug("****************************** INCOMING REQUEST ******************************");
+    $log->debug("REQUEST: " . request->to_string() );
+    $log->debug("METHOD: " . request->method() );
+    $log->debug("HEADERS: " . Data::Dumper::Dumper( request->headers()->as_string ) );
+    $log->debug("PARAMS: " . Data::Dumper::Dumper( scalar params ) );
+    $log->debug("BODY: " . Data::Dumper::Dumper( request->body ) );
+
     my $token = params->{token};
     my $require_token = C4::Context->preference('NcipRequireToken');
-    return "It works!" if $require_token && !$token;
-    return "It works!" if $token && $token ne C4::Context->preference('NcipToken');
+    $log->debug("RETURNING. TOKEN REQUIRED BUT NOT PROVIDED") && return "It works!" if $require_token && !$token;
+    $log->debug("RETURNING. TOKEN $token DOES NOT MATCH" . C4::Context->preference('NcipToken') ) && return "It works!" if $token && $token ne C4::Context->preference('NcipToken');
 
     my $appdir = realpath("$FindBin::Bin/..");
 
     #FIXME: Why are we always looking in t for the config, even for production?
     my $ncip = NCIP->new("$appdir/t/config_sample");
-    my $log  = Log::Log4perl->get_logger("NCIP");
 
-    $log->debug("MESSAGE INCOMING");
-    $log->debug("INCOMING PARAMS: " . Data::Dumper::Dumper( scalar params ) );
 
-    my $xml = param 'xml';
+    my $xml = q{};
+
+    $xml = param 'xml';
+    $log->debug("XML FOUND IN PARAM xml?: " . ( $xml ? 'yes' : 'no' ) );
+
     $xml ||= param 'XForms:Model';
-    if ( !$xml && request->is_post ) {
-        $xml = request->body;
-    }
+    $log->debug("XML FOUND IN PARAM XForms:Model?: " . ( $xml ? 'yes' : 'no' ) );
 
-    $xml ||= q{};
+    $xml ||= request->body;
+    $log->debug("XML FOUND IN BODY?: " . ( $xml ? 'yes' : 'no' ) );
+
     $log->debug("RAW XML: **$xml**");
 
     # Gets rid of DOCTYPE stanzas, our parser chokes on them
