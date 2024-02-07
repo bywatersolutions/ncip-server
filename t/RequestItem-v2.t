@@ -114,10 +114,10 @@ subtest 'Test RequestItem with valid user and invalid item' => sub {
     $response = dancer_response( POST => '/', { body => $ncip_message } );
     $dom = $dom_converter->fromXMLStringtoHash( $response->content );
 
-    is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemDetail}->{text}, 'Item is not known.', "RequestItemResponse for invalid item returns correct ProblemDetail" );
+    is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemDetail}->{text}, 'Record is not known.', "RequestItemResponse for invalid item returns correct ProblemDetail" );
     is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemValue}->{text}, 'INVALID_BIBLIONUMBER', "RequestItemResponse for invalid item returns correct ProblemValue" );
-    is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemElement}->{text}, 'BibliographicRecordIdentifier', "RequestItemResponse for invalid item returns correct ProblemElement" );
-    is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemType}->{text}, 'Unknown Item', "RequestItemResponse for invalid item returns correct ProblemType" );
+    is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemElement}->{text}, 'SYSNUMBER', "RequestItemResponse for invalid item returns correct ProblemElement" );
+    is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemType}->{text}, 'Unknown Record', "RequestItemResponse for invalid system number returns correct ProblemType" );
 };
 
 subtest 'Test RequestItem with invalid user and valid item' => sub {
