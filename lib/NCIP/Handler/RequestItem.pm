@@ -29,8 +29,9 @@ sub handle {
 
         my $userid;
         my $itemid;
-        my $biblionumber;
         my $branchcode;
+        my $identifier;
+        my $bib_item_id_code;
 
         if ( $self->{ncip_version} == 1 ) {
             ($userid) = $xpc->findnodes( '//UserIdentifierValue', $root );
@@ -39,8 +40,12 @@ sub handle {
             ($itemid) = $xpc->findnodes( '//ItemIdentifierValue', $root );
             $itemid = $itemid->textContent() if $itemid;
 
-            ($biblionumber) = $xpc->findnodes( '//BibliographicRecordIdentifier', $root );
-            $biblionumber = $biblionumber->textContent() if $biblionumber;
+            ($identifier) = $xpc->findnodes( '//BibliographicRecordIdentifier', $root );
+            $identifier = $identifier->textContent() if $identifier;
+
+            $bib_item_id_code = $xpc->findnodes( '//BibliographicItemIdentifierCode', $root );
+            ($identifier) = $xpc->findnodes( '//BibliographicItemIdentifier', $root )->textContent()
+                if ( $bib_item_id_code eq 'ISBN' );
         } else {
             ($userid) = $xpc->findnodes( '//ns:UserIdentifierValue', $root );
             $userid = $userid->textContent() if $userid;
@@ -48,11 +53,15 @@ sub handle {
             ($itemid) = $xpc->findnodes( '//ns:ItemIdentifierValue', $root );
             $itemid = $itemid->textContent() if $itemid;
 
-            ($biblionumber) = $xpc->findnodes( '//ns:BibliographicRecordIdentifier', $root );
-            $biblionumber = $biblionumber->textContent() if $biblionumber;
+            ($identifier) = $xpc->findnodes( '//ns:BibliographicRecordIdentifier', $root );
+            $identifier = $identifier->textContent() if $identifier;
+
+            $bib_item_id_code = $xpc->findnodes( '//ns:BibliographicItemIdentifierCode', $root );
+            ($identifier) = $xpc->findnodes( '//ns:BibliographicItemIdentifier', $root )->textContent()
+                if ( $bib_item_id_code eq 'ISBN' );
         }
 
-        my $type = 'SYSNUMBER';
+        my $type = $bib_item_id_code || 'SYSNUMBER';
 
         my ( $from, $to ) = $self->get_agencies($xmldoc);
 
@@ -60,9 +69,18 @@ sub handle {
 
         my $config = $self->{config}->{koha};
 
-        my $data =
-          $self->ils->request( $userid, $itemid, $biblionumber, $type,
-            $branchcode, $config );
+        my $ignore_item_requests = $config->{ignore_item_requests};
+
+        my $data;
+        if ($ignore_item_requests) {
+            $data = {
+                success    => 1,
+                request_id => 0,
+            };
+        }
+        else {
+            $data = $self->ils->request( $userid, $itemid, $identifier, $type, $branchcode, $config );
+        }
 
         if ( $data->{success} ) {
             my $elements = $self->get_user_elements($xmldoc);
