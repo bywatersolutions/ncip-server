@@ -555,13 +555,13 @@ sub renew {
 }
 
 sub request {
-    my $self         = shift;
-    my $userid       = shift;
-    my $barcode      = shift;
-    my $biblionumber = shift;
-    my $type         = shift;
-    my $branchcode   = shift;
-    my $config       = shift;
+    my $self       = shift;
+    my $userid     = shift;
+    my $barcode    = shift;
+    my $identifier = shift;
+    my $type       = shift;
+    my $branchcode = shift;
+    my $config     = shift;
 
     my $patron = $self->find_patron( { userid => $userid, config => $config } );
 
@@ -575,8 +575,8 @@ sub request {
                 problem_value   => $userid,
             }
         ]
-      }
-      unless $patron;
+        }
+        unless $patron;
 
     my $max_outstanding    = C4::Context->preference("maxoutstanding");
     my $amount_outstanding = $patron->account->balance;
@@ -600,7 +600,7 @@ sub request {
     $branchcode ||= q{};
     $branchcode =~ s/^\s+|\s+$//g;
     $branchcode ||= $patron->branchcode;
-    my $branch = Koha::Libraries->find( $branchcode );
+    my $branch = Koha::Libraries->find($branchcode);
     return {
         success  => 0,
         problems => [
@@ -613,10 +613,24 @@ sub request {
                 problem_value   => $branchcode,
             }
         ]
-      }
-      unless $branch;
+        }
+        unless $branch;
 
-    my $item = $barcode ? Koha::Items->find( { barcode => $barcode } ) : undef;
+
+    my ( $biblio, $item );
+
+    if ( $type eq 'SYSNUMBER' ) {
+        $biblio = Koha::Biblios->find($identifier);
+    }
+    elsif ( $type eq 'ISBN' ) {
+        my $biblioitem = Koha::Biblioitems->find($identifier);
+        $biblio = Koha::Biblios->find( $biblioitem->biblionumber ) if $biblioitem;
+    }
+
+    if ($barcode) {
+        $item = Koha::Items->find( { barcode => $barcode } );
+    }
+
 
     if ( $barcode && !$item ) {
         return {
@@ -631,73 +645,38 @@ sub request {
             ]
         };
     }
-
-    unless ($item) {
-        if ( $type eq 'SYSNUMBER' ) {
-	    my $biblio = Koha::Biblios->find( $biblionumber );
-
-            return {
-                success  => 0,
-                problems => [
-                    {
-                        problem_type    => 'Unknown Item',
-                        problem_detail  => 'Item is not known.',
-                        problem_element => 'BibliographicRecordIdentifier',
-                        problem_value   => $biblionumber,
-                    }
-                ]
-              }
-              unless $biblio;
-        }
-        elsif ( $type eq 'ISBN' ) {
-            return {
-                success  => 0,
-                problems => [
-                    {
-                        problem_type => 'Tempaorary Processing Failure',
-                        problem_detail =>
-                          'Unable to handle record look up by ISBN. '
-                          . 'Not yet implemented',
-                        problem_element => 'BibliographicItemIdentifierCode',
-                        problem_value   => $type,
-                    }
-                ]
-            };
-        }
-        else {
-            return {
-                success  => 0,
-                problems => [
-                    {
-                        problem_type    => 'Temporary Processing Failure',
-                        problem_detail  => 'The identifier code is not known.',
-                        problem_element => 'BibliographicItemIdentifierCode',
-                        problem_value   => $type,
-                    }
-                ]
-            };
-        }
+    elsif ( !$biblio ) {
+        return {
+            success  => 0,
+            problems => [
+                {
+                    problem_type    => 'Unknown Record',
+                    problem_detail  => 'Record is not known.',
+                    problem_element => $type,
+                    problem_value   => $identifier,
+                }
+            ]
+        };
     }
 
     $self->userenv( $branchcode, $config );
 
     my $borrowernumber = $patron->borrowernumber;
-    my $itemnumber     = $item ? $item->itemnumber : undef;
 
-    my $can_reserve =
-      $itemnumber
-      ? CanItemBeReserved( $patron, $item )->{status}
-      : CanBookBeReserved( $borrowernumber, $biblionumber )->{status};
+    my $can_reserve
+        = $item
+        ? CanItemBeReserved( $patron, $item )->{status}
+        : CanBookBeReserved( $patron->id, $biblio->id )->{status};
 
     if ( $can_reserve eq 'OK' ) {
         my $request_id = AddReserve(
             {
                 branchcode     => $branchcode,
                 borrowernumber => $borrowernumber,
-                biblionumber   => $biblionumber,
+                biblionumber   => $identifier,
                 priority       => 1,
                 notes          => 'Placed By ILL',
-                itemnumber     => $itemnumber,
+                itemnumber     => $item ? $item->id : undef,
             }
         );
 
@@ -712,10 +691,9 @@ sub request {
                 success  => 0,
                 problems => [
                     {
-                        problem_type => 'Duplicate Request',
-                        problem_detail =>
-                          'Request for the Item already exists; '
-                          . 'acting on this update would create a duplicate request for the Item for the User',
+                        problem_type   => 'Duplicate Request',
+                        problem_detail => 'Request for the Item already exists; '
+                            . 'acting on this update would create a duplicate request for the Item for the User',
                     }
                 ]
             };
@@ -752,9 +730,8 @@ sub request {
             success  => 0,
             problems => [
                 {
-                    problem_type => 'User Ineligible To Request This Item',
-                    problem_detail =>
-                      'User has placed the maximum requests allowed.',
+                    problem_type    => 'User Ineligible To Request This Item',
+                    problem_detail  => 'User has placed the maximum requests allowed.',
                     problem_element => 'UniqueItemIdentifier',
                     problem_value   => $barcode,
                 }
@@ -782,8 +759,7 @@ sub request {
                     problem_type    => 'User Ineligible To Request This Item',
                     problem_element => 'UniqueItemIdentifier',
                     problem_value   => $barcode,
-                    problem_detail  => 'User cannot request this Item to be '
-                      . 'picked up at specified location.',
+                    problem_detail  => 'User cannot request this Item to be ' . 'picked up at specified location.',
                 }
             ]
         };
@@ -796,9 +772,7 @@ sub request {
                     problem_type    => 'User Ineligible To Request This Item',
                     problem_element => 'UniqueItemIdentifier',
                     problem_value   => $barcode,
-                    problem_detail =>
-                      'User cannot request this Item. ILS returned code '
-                      . $can_reserve,
+                    problem_detail  => 'User cannot request this Item. ILS returned code ' . $can_reserve,
                 }
             ]
         };
