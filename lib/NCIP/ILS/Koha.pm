@@ -623,7 +623,7 @@ sub request {
         $biblio = Koha::Biblios->find($identifier);
     }
     elsif ( $type eq 'ISBN' ) {
-        my $biblioitem = Koha::Biblioitems->find($identifier);
+        my $biblioitem = Koha::Biblioitems->search( isbn => { -like => "%$identifier%" } )->next();
         $biblio = Koha::Biblios->find( $biblioitem->biblionumber ) if $biblioitem;
     }
 
