@@ -44,8 +44,10 @@ sub handle {
             $identifier = $identifier->textContent() if $identifier;
 
             $bib_item_id_code = $xpc->findnodes( '//BibliographicItemIdentifierCode', $root );
-            ($identifier) = $xpc->findnodes( '//BibliographicItemIdentifier', $root )->textContent()
-                if ( $bib_item_id_code eq 'ISBN' );
+            if ( $bib_item_id_code eq 'ISBN' ) {
+                ($identifier) = $xpc->findnodes( '//BibliographicItemIdentifier', $root );
+                $identifier = $identifier->textContent();
+            };
         } else {
             ($userid) = $xpc->findnodes( '//ns:UserIdentifierValue', $root );
             $userid = $userid->textContent() if $userid;
@@ -57,8 +59,10 @@ sub handle {
             $identifier = $identifier->textContent() if $identifier;
 
             $bib_item_id_code = $xpc->findnodes( '//ns:BibliographicItemIdentifierCode', $root );
-            ($identifier) = $xpc->findnodes( '//ns:BibliographicItemIdentifier', $root )->textContent()
-                if ( $bib_item_id_code eq 'ISBN' );
+            if ( $bib_item_id_code eq 'ISBN' ) {
+                ($identifier) = $xpc->findnodes( '//ns:BibliographicItemIdentifier', $root );
+                $identifier = $identifier->textContent();
+            };
         }
 
         my $type = $bib_item_id_code || 'SYSNUMBER';
