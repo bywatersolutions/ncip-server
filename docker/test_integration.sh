@@ -129,6 +129,13 @@ docker exec -t $NCIP_CONTAINER_ID mkdir -p /etc/koha/sites/kohadev/
 docker exec -t $NCIP_CONTAINER_ID touch /etc/koha/sites/kohadev/log4perl.conf
 docker exec -t $NCIP_CONTAINER_ID chmod 777 /etc/koha/sites/kohadev/log4perl.conf
 
+echo "
+docker run -d --net='$KOHA_DOCKER_NET' --mount type=bind,source=$SYNC_REPO,target=/kohalib --mount type=bind,source=$KOHA_CONF_PATH,target=/koha-conf.xml --mount type=bind,source=$NCIP_CONF,target=/app/config.yml ncip-test-build /app/docker/loop_forever.sh
+docker exec -t $NCIP_CONTAINER_ID mkdir -p /etc/koha/sites/kohadev/
+docker exec -t $NCIP_CONTAINER_ID touch /etc/koha/sites/kohadev/log4perl.conf
+docker exec -t $NCIP_CONTAINER_ID chmod 777 /etc/koha/sites/kohadev/log4perl.conf
+"
+
 echo "RUNNING NCIP UNIT TESTS"
 docker exec -t $NCIP_CONTAINER_ID prove -r -v t
 if [ $? == 0 ]
