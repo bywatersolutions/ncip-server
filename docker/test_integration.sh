@@ -5,6 +5,7 @@ function usage()
     echo "usage: test_integration.sh -v <version> [-i] | [-h]"
     echo "  -v --version     : The version of Koha to test against"
     echo "  -i --interactive : Leave containers running until a key is pressed"
+    echo "  -s --sourcecode  : Optional, path to ncip source code"
 }
 
 interactive=
@@ -16,6 +17,9 @@ while [ "$1" != "" ]; do
                                 version=$1
                                 ;;
         -i | --interactive )    interactive=true
+                                ;;
+        -s | --sourcecode )     shift
+                                sourcecode=$1
                                 ;;
         -h | --help )           usage
                                 exit
@@ -34,6 +38,16 @@ then
 else
     echo "VERSION: ${version}"
 fi
+
+SOURCECODE_DIR=""
+if [ -z "$sourcecode" ]
+then
+    echo "USING INTERNAL NCIP SOURCE CODE"
+else
+    $SOURCECODE_DIR = "--mount type=bind,source=$sourcecode,target=/app"
+    echo "USING NCIP SOURCE CODE FOUND AT $sourcecode"
+fi
+echo "SOURCECODE_DIR IS $SOURCECODE_DIR"
 
 cd ..
 NCIP_CLONE=$(pwd)
@@ -131,6 +145,7 @@ KOHA_DOCKER_NET=$(docker network ls -q -f "name=koha")
 echo "STARTING NCIP CONTAINER"
 NCIP_CONTAINER_ID=$(docker run -d \
         --net="$KOHA_DOCKER_NET" \
+        $SOURCECODE_DIR \
         --mount type=bind,source=$SYNC_REPO,target=/kohalib \
         --mount type=bind,source=$KOHA_CONF_PATH,target=/koha-conf.xml \
         --mount type=bind,source=$NCIP_CONF,target=/app/config.yml \
