@@ -14,8 +14,8 @@ use NCIP;
 
 our $VERSION = '0.1';
 
+any [ 'get', 'post' ] => '/health' => \&process_health_request;
 any [ 'get', 'post' ] => '/' => \&process_ncip_request;
-
 any [ 'get', 'post' ] => '/:token' => \&process_ncip_request;
 
 sub process_ncip_request {
@@ -82,4 +82,21 @@ sub process_ncip_request {
     return $xml_response;
 };
 
-true;
+sub process_health_request {
+    my $ok = 0;
+    try {
+        require C4::Context;
+        my $dbh = C4::Context->dbh;
+        if ( $dbh->do("SELECT * FROM systempreferences LIMIT 1") ) {
+           $ok = 1;
+        }
+    };
+
+    if ( $ok ) {
+	return "OK";
+    } else {
+        send_error("Unable to access database", 503);
+    }
+}
+
+1;
