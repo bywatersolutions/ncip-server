@@ -69,8 +69,8 @@ IFS='.' read -ra VER_PARTS <<< "$KOHA_VER"
 
 export KOHA_MAJOR=${VER_PARTS[0]}
 export KOHA_MINOR=${VER_PARTS[1]}
-# If the minor version is even, assume we are on master
-if [ $((KOHA_MINOR%2)) -eq 0 ]; then export KOHA_BRANCH='master'; else export KOHA_BRANCH="$KOHA_MAJOR.$KOHA_MINOR"; fi
+# If the minor version is even, assume we are on main
+if [ $((KOHA_MINOR%2)) -eq 0 ]; then export KOHA_BRANCH='main'; else export KOHA_BRANCH="$KOHA_MAJOR.$KOHA_MINOR"; fi
 echo "MAJOR: $KOHA_MAJOR"
 echo "MINOR: $KOHA_MINOR"
 echo "BRANCH: $KOHA_BRANCH"
