@@ -388,7 +388,7 @@ sub checkout {
                     problem_element => 'ItemIdentifierValue',
                     problem_value   => $barcode,
                 }
-            ) if $reasons->{ISSUED_TO_ANOTHER};
+            ) if $reasons->{ISSUED_TO_ANOTHER} && $item->checkout->borrowernumber ne $patron->borrowernumber;
 
             push(
                 @problems,
