@@ -17,6 +17,7 @@ RUN apt-get -y update \
 RUN apt-get update -y \
     && apt-get -y install \
        koha-perldeps \
+       libalgorithm-munkres-perl \
     && rm -rf /var/cache/apt/archives/* \
     && rm -rf /var/lib/api/lists/*
 
