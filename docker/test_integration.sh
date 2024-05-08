@@ -112,11 +112,16 @@ sleep 60
 echo "4 MINUTES DONE"
 sleep 60
 echo "5 MINUTES DONE"
+sleep 60
+echo "6 MINUTES DONE"
 echo "WAKING UP"
 
 echo "DOCKER PS: $(docker ps)"
 export KOHA_CONTAINER_ID=$(docker ps --filter "name=docker_koha_run" -q)
 echo "KOHA CONTAINER $KOHA_CONTAINER_ID"
+
+echo "KOHA DOCKER LOGS"
+docker logs $KOHA_CONTAINER_ID
 
 echo "KOHA DATABASE VERSION"
 docker exec $KOHA_CONTAINER_ID sh -c 'echo "SELECT * FROM systempreferences WHERE variable = \"Version\"" | koha-mysql kohadev'
