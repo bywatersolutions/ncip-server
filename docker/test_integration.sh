@@ -118,6 +118,9 @@ echo "DOCKER PS: $(docker ps)"
 export KOHA_CONTAINER_ID=$(docker ps --filter "name=docker_koha_run" -q)
 echo "KOHA CONTAINER $KOHA_CONTAINER_ID"
 
+echo "KOHA DATABASE VERSION"
+docker exec $KOHA_CONTAINER_ID sh -c 'echo "SELECT * FROM systempreferences WHERE variable = \"Version\"" | koha-mysql kohadev'
+
 #docker exec $KOHA_CONTAINER_ID cat /etc/koha/sites/kohadev/koha-conf.xml > koha-conf.xml 2>&1
 docker cp $KOHA_CONTAINER_ID:/etc/koha/sites/kohadev/koha-conf.xml koha-conf.xml
 KOHA_CONF_PATH="$(pwd)/koha-conf.xml"
