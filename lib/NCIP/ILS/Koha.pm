@@ -942,12 +942,16 @@ sub acceptitem {
                 # The library doesn't want to accept items with an existing barcode
                 # feature can be used to prevent accidental duplicate requests
                 return {
-                    problem_type    => 'Cannot Accept Item',
-                    problem_detail  => 'Item with this barcode already exists',
-                    problem_element => 'ItemIdentifierValue',
-                    problem_value   => $barcode,
+                    success  => 0,
+                    problems => [
+                        {
+                            problem_type    => 'Cannot Accept Item',
+                            problem_detail  => 'Item with this barcode already exists',
+                            problem_element => 'ItemIdentifierValue',
+                            problem_value   => $barcode,
+                        }
+                    ]
                 };
-
             }
             else {
                 # If the barcode already exists, just make up a new one
@@ -988,12 +992,16 @@ sub acceptitem {
     if ( $action =~ /^Hold For Pickup/ || $action =~ /^Circulate/ ) {
         if ($reserve_id) { # There shouldn't be a hold already, abort if there is one
             return {
-                problem_type =>
-                  'Check Out Not Allowed - Item Has Outstanding Requests',
-                problem_detail => 'Check out of Item cannot proceed '
-                  . 'because the Item has outstanding requests.',
-                problem_element => 'ItemIdentifierValue',
-                problem_value   => $barcode,
+                success  => 0,
+                problems => [
+                    {
+                        problem_type   => 'Check Out Not Allowed - Item Has Outstanding Requests',
+                        problem_detail => 'Check out of Item cannot proceed '
+                            . 'because the Item has outstanding requests.',
+                        problem_element => 'ItemIdentifierValue',
+                        problem_value   => $barcode,
+                    }
+                ]
             };
         }
         else { # Place hold
