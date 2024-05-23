@@ -378,37 +378,46 @@ sub checkout {
                 }
             ) if $reasons->{RESERVE_WAITING} || $reasons->{RESERVED};
 
-            push(
-                @problems,
-                {
-                    problem_type =>
-                      'Check Out Not Allowed - Item Is Already Checked Out',
-                    problem_detail => 'Check out of Item cannot proceed '
-                      . "because the item is checked out to the patron with cardnumber $reasons->{issued_cardnumber}",
-                    problem_element => 'ItemIdentifierValue',
-                    problem_value   => $barcode,
-                }
-            ) if $reasons->{ISSUED_TO_ANOTHER} && $item->checkout->borrowernumber ne $patron->borrowernumber;
+            if ( $reasons->{ISSUED_TO_ANOTHER} && $item->checkout->borrowernumber ne $patron->borrowernumber ) {
+                warn "Checkout of $barcode failed due to being issued to another.";
+                warn "Checkout out to: " . $item->checkout->borrowernumber;
+                warn "Checkout request for: " . $patron->borrowernumber;
+                push(
+                    @problems,
+                    {
+                        problem_type   => 'Check Out Not Allowed - Item Is Already Checked Out',
+                        problem_detail => 'Check out of Item cannot proceed '
+                            . "because the item is checked out to the patron with cardnumber $reasons->{issued_cardnumber}",
+                        problem_element => 'ItemIdentifierValue',
+                        problem_value   => $barcode,
+                    }
+                );
+            }
 
-            push(
-                @problems,
-                {
-                    problem_type   => 'Resource Cannot Be Provided',
-                    problem_detail => 'Check out cannot proceed because '
-                      . 'the desired resource cannot be provided',
-                    problem_element => 'ItemIdentifierValue',
-                    problem_value   => $barcode,
-                }
-              )
-              if $reasons->{WTHDRAWN}
-              || $reasons->{RESTRICTED}
-              || $reasons->{ITEM_LOST}
-              || $reasons->{ITEM_LOST}
-              || $reasons->{BORRNOTSAMEBRANCH}
-              || $reasons->{HIGHHOLDS}
-              || $reasons->{NO_RENEWAL_FOR_ONSITE_CHECKOUTS}    #FIXME: Should
-              || $reasons->{NO_MORE_RENEWALS}                   #FIXME have
-              || $reasons->{RENEW_ISSUE};    #FIXME different error
+            if (
+                   $reasons->{WTHDRAWN}
+                || $reasons->{RESTRICTED}
+                || $reasons->{ITEM_LOST}
+                || $reasons->{ITEM_LOST}
+                || $reasons->{BORRNOTSAMEBRANCH}
+                || $reasons->{HIGHHOLDS}
+                || $reasons->{NO_RENEWAL_FOR_ONSITE_CHECKOUTS}    #FIXME: Should
+                || $reasons->{NO_MORE_RENEWALS}                   #FIXME  have
+                || $reasons->{RENEW_ISSUE}                        #FIXME  different errors
+                )
+            {
+                warn "Checkout of $barcode failed with reasons: " . Data::Dumper::Dumper( $reasons );
+                push(
+                    @problems,
+                    {
+                        problem_type   => 'Resource Cannot Be Provided',
+                        problem_detail => 'Check out cannot proceed because '
+                            . 'the desired resource cannot be provided',
+                        problem_element => 'ItemIdentifierValue',
+                        problem_value   => $barcode,
+                    }
+                );
+            }
 
             unless ( @problems ) {
                 push(
@@ -422,7 +431,7 @@ sub checkout {
                     }
                   );
 
-                warn Data::Dumper::Dumper( $reasons );
+                warn "Checkout of $barcode failed for uncaptured reasons: " .  Data::Dumper::Dumper( $reasons );
             }
 
             return { success => 0, problems => \@problems };
