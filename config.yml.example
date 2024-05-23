@@ -99,3 +99,8 @@ koha:
 
   # Set to 1 and Koha will not create holds when it recieves a RequestItem message
   ignore_item_requests: 0
+
+  # Set to 1 to deny accepting items with a barcode that already exists in the ILS
+  # May be used to prevent confusion between the ILL and system items
+  # or as a way to prevent duplicate requests via ILL
+  deny_duplicate_barcodes: 0

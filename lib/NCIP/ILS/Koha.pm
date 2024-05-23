@@ -821,6 +821,7 @@ sub acceptitem {
     my $frameworkcode            = $config->{framework}                || 'FA';
     my $item_branchcode          = $config->{item_branchcode}          || $branchcode;
     my $always_generate_barcode  = $config->{always_generate_barcode}  || 0;
+    my $deny_duplicate_barcodes  = $config->{deny_duplicate_barcodes}  || 0;
     my $barcode_prefix           = $config->{barcode_prefix}           || q{};
     my $replacement_price        = $config->{replacement_price}        || undef;
     my $item_itemtype            = $config->{item_itemtype}            || q{};
@@ -934,9 +935,24 @@ sub acceptitem {
 
         $barcode = $barcode_prefix . $biblionumber . time
           unless $barcode;     # Reasonable gurantee of uniqueness
-        while ( Koha::Items->find( { barcode => $barcode } ) )
-        {    # If the barcode already exists, just make up a new one
-            $barcode = $barcode_prefix . $biblionumber . time;
+
+        while ( Koha::Items->find( { barcode => $barcode } ) ) {
+            if ($deny_duplicate_barcodes) {
+
+                # The library doesn't want to accept items with an existing barcode
+                # feature can be used to prevent accidental duplicate requests
+                return {
+                    problem_type    => 'Cannot Accept Item',
+                    problem_detail  => 'Item with this barcode already exists',
+                    problem_element => 'ItemIdentifierValue',
+                    problem_value   => $barcode,
+                };
+
+            }
+            else {
+                # If the barcode already exists, just make up a new one
+                $barcode = $barcode_prefix . $biblionumber . time;
+            }
         }
 
         if ( $item_branchcode eq '__PATRON_BRANCHCODE__' ) {
