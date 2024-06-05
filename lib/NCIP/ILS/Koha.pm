@@ -1048,14 +1048,12 @@ sub acceptitem {
     ];
 
     if ( $success && $trap_hold_on_accept_item ) {
-        my $transferToDo = $item->holdingbranch ne $item->homebranch;
-        ModReserveAffect( $itemnumber, $patron->id, $transferToDo, $reserve_id );
+        my $from_branch = $item->holdingbranch;
+        my $to_branch   = $branchcode;
 
-        if ($transferToDo) {
-           my $from_branch = $item->holdingbranch;
-           my $to_branch   = $branchcode;
-           ModItemTransfer( $itemnumber, $from_branch, $to_branch, 'Reserve' );
-        }
+        my $transferToDo = $from_branch ne $to_branch;
+        ModReserveAffect( $itemnumber, $patron->id, $transferToDo, $reserve_id );
+        ModItemTransfer( $itemnumber, $from_branch, $to_branch, 'Reserve' ) if $transferToDo;
     }
 
     return {
