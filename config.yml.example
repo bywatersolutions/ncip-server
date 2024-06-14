@@ -104,3 +104,6 @@ koha:
   # May be used to prevent confusion between the ILL and system items
   # or as a way to prevent duplicate requests via ILL
   deny_duplicate_barcodes: 0
+
+  # If set, titles for records created via AcceptItem messages will have this word or phrase prepended to the title
+  accept_item_title_prefix: ""
