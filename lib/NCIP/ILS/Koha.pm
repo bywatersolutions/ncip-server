@@ -829,6 +829,7 @@ sub acceptitem {
     my $item_location            = $config->{item_location}            || q{};
     my $trap_hold_on_accept_item = $config->{trap_hold_on_accept_item} // 1;
     my $suppress_in_opac         = $config->{suppress_in_opac}         || q{};
+    my $accept_item_title_prefix = $config->{accept_item_title_prefix} || q{};
 
     my $item_callnumber = $iteminfo->{itemcallnumber} || $config->{item_callnumber} || q{};
 
@@ -904,7 +905,7 @@ sub acceptitem {
                     '100', '1', '0', 'a' => $iteminfo->{author}
                 ),
                 MARC::Field->new(
-                    '245', '1', '0', 'a' => $iteminfo->{title}
+                    '245', '1', '0', 'a' => $accept_item_title_prefix . $iteminfo->{title}
                 ),
                 MARC::Field->new(
                     '260', '1', '0',
