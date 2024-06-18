@@ -151,7 +151,6 @@ sub userenv {
         1,         #userflags
     );
 
-    C4::Context->_new_userenv('DUMMY_SESSION_ID');
     C4::Context::set_userenv(@USERENV);
 }
 
