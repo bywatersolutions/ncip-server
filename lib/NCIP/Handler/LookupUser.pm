@@ -6,7 +6,7 @@ package NCIP::Handler::LookupUser;
 
 =head1 SYNOPSIS
 
-    Not to be called directly, NCIP::Handler will pick the appropriate Handler 
+    Not to be called directly, NCIP::Handler will pick the appropriate Handler
     object, given a message type
 
 =head1 FUNCTIONS
@@ -25,7 +25,6 @@ sub handle {
     my $xmldoc = shift;
 
     my $config = $self->{config}->{koha};
-    my $ns = $self->{ncip_version} == 1 ? q{} : q{ns:};
 
     if ($xmldoc) {
 
@@ -40,16 +39,20 @@ sub handle {
             # We may get a password, username combo instead of userid
             # Need to deal with that also
             my $root = $xmldoc->documentElement();
-            my @authtypes = $xpc->findnodes( '//' . $ns . 'AuthenticationInput', $root );
+            my @authtypes = ( $xpc->findnodes( '//ns:AuthenticationInput', $root ), $xpc->findnodes( '//AuthenticationInput', $root ) );
 
             my $barcode;
 
             foreach my $node (@authtypes) {
-                my $class = $xpc->findnodes( './' . $ns . 'AuthenticationInputType/Value', $node );
-                $class ||= $xpc->findnodes( './' . $ns . 'AuthenticationInputType', $node );
+                my $class = $xpc->findnodes( './ns:AuthenticationInputType/Value', $node );
+                $class ||= $xpc->findnodes( './ns:AuthenticationInputType', $node );
+                $class ||= $xpc->findnodes( './AuthenticationInputType/Value', $node );
+                $class ||= $xpc->findnodes( './AuthenticationInputType', $node );
 
-                my $value = $xpc->findnodes( './' . $ns . 'AuthenticationInputData/Value', $node );
-                $value ||= $xpc->findnodes( './' . $ns . 'AuthenticationInputData', $node );
+                my $value = $xpc->findnodes( './ns:AuthenticationInputData/Value', $node );
+                $value ||= $xpc->findnodes( './ns:AuthenticationInputData', $node );
+                $value ||= $xpc->findnodes( './AuthenticationInputData/Value', $node );
+                $value ||= $xpc->findnodes( './AuthenticationInputData', $node );
 
                 if ( $class->[0]->textContent eq 'Barcode Id' ) {
                     $barcode = $value->[0]->textContent;
@@ -146,7 +149,7 @@ sub handle {
                     message_type => 'LookupUserResponse',
                     problems     => [
                         {
-                            problem_type    => 'Unknown User',
+                            problem_type    => 'Unkown User',
                             problem_detail  => 'User is not known',
                             problem_element => 'UserId',
                             problem_value   => $user_id,
