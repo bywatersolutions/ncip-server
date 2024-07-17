@@ -146,7 +146,7 @@ sub handle {
                     message_type => 'LookupUserResponse',
                     problems     => [
                         {
-                            problem_type    => 'Unkown User',
+                            problem_type    => 'Unknown User',
                             problem_detail  => 'User is not known',
                             problem_element => 'UserId',
                             problem_value   => $user_id,
