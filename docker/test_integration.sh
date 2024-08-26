@@ -1,4 +1,5 @@
 #!/bin/bash
+#set -e # Causes script to exit on any command failure
 
 function usage()
 {
@@ -75,6 +76,9 @@ git clone https://gitlab.com/koha-community/koha-testing-docker.git
 cd koha-testing-docker
 git checkout origin/${KOHA_BRANCH} # Check out the correct koha-testing-docker branch
 cp env/defaults.env .env
+DOCKER_PATH=$(which docker)
+echo "DOCKER PATH: $DOCKER_PATH";
+sed -i "s|DOCKER_BINARY=\$(which docker)|DOCKER_BINARY=${DOCKER_PATH}|" .env
 echo "CWD: $(pwd)";
 echo "LS: $(ls -alh)";
 echo "ENV: $(cat .env)";
