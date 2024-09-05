@@ -82,12 +82,12 @@ sed -i "s|DOCKER_BINARY=\$(which docker)|DOCKER_BINARY=${DOCKER_PATH}|" .env
 echo "CWD: $(pwd)";
 echo "LS: $(ls -alh)";
 echo "ENV: $(cat .env)";
-docker-compose build
+docker compose build
 #sudo sysctl -w vm.max_map_count=262144
 export KOHA_INTRANET_URL="http://127.0.0.1:8081"
 export KOHA_MARC_FLAVOUR="marc21"
-docker-compose down
-docker-compose run koha &disown
+docker compose down
+docker compose run koha &disown
 
 cd .. # Now copy koha-conf.xml to somewhere the NCIP server can read it
 
@@ -163,7 +163,7 @@ then
     # POST RUN CLEANUP
     docker rm -f $NCIP_CONTAINER_ID
     cd koha-testing-docker
-    docker-compose down
+    docker compose down
     cd ..
     rm -rf koha-testing-docker
     rm -rf kohaclone
