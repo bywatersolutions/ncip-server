@@ -112,7 +112,7 @@ echo "KOHA CONTAINER $KOHA_CONTAINER_ID"
 docker cp $KOHA_CONTAINER_ID:/etc/koha/sites/kohadev/koha-conf.xml koha-conf.xml
 KOHA_CONF_PATH="$(pwd)/koha-conf.xml"
 echo "KOHA CONF: $KOHA_CONF_PATH";
-ls -alh $(pwd)
+cat $KOHA_CONF_PATH
 
 echo "SYNC_REPO: $SYNC_REPO"
 echo "$(ls $SYNC_REPO)";
