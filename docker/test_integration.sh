@@ -111,6 +111,8 @@ echo "KOHA CONTAINER $KOHA_CONTAINER_ID"
 #docker exec $KOHA_CONTAINER_ID cat /etc/koha/sites/kohadev/koha-conf.xml > koha-conf.xml 2>&1
 docker cp $KOHA_CONTAINER_ID:/etc/koha/sites/kohadev/koha-conf.xml koha-conf.xml
 KOHA_CONF_PATH="$(pwd)/koha-conf.xml"
+echo "FILES IN $(pwd):"
+ls -alh $(pwd)
 echo "KOHA CONF: $KOHA_CONF_PATH";
 cat $KOHA_CONF_PATH
 
