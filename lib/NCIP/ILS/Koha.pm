@@ -507,7 +507,7 @@ sub renew {
       unless $item;
 
     my ( $ok, $error ) =
-      CanBookBeRenewed( $patron->borrowernumber, $item->itemnumber );
+      CanBookBeRenewed( $patron->borrowernumber, $item );
 
     $error //= q{};
 
