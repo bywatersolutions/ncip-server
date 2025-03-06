@@ -60,6 +60,9 @@ sub handle {
                 elsif ( $class->[0]->textContent eq 'PIN' ) {
                     $pin = $value->[0]->textContent;
                 }
+                elsif ( $class->[0]->textContent eq 'Password' ) {
+                    $pin = $value->[0]->textContent;
+                }
 
             }
 
