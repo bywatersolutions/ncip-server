@@ -107,3 +107,6 @@ koha:
 
   # If set, titles for records created via AcceptItem messages will have this word or phrase prepended to the title
   accept_item_title_prefix: ""
+
+  # If set, CheckInItem will act as if DeleteItem had been called directly after
+  delete_item_on_checkin: 0
