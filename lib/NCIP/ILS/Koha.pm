@@ -228,6 +228,11 @@ sub checkin {
         );
     }
 
+    # If delete_item_on_checkin is enabled, CheckInItem will act as if DeleteItem had been called directly after
+    if ( $success && $config->{delete_item_on_checkin} ) {
+        $self->delete_item( $params );
+    }
+
     my $result = {
         success   => $success,
         problems  => \@problems,
