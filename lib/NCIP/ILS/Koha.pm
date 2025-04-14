@@ -1088,6 +1088,7 @@ sub delete_item {
             $h->cancel;
         }
 
+        $item->move_to_deleted;
         $success = $item->delete;
 
         if ( $biblio->items->count == 0 ) {
