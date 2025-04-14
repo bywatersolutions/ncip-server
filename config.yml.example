@@ -110,3 +110,12 @@ koha:
 
   # If set, CheckInItem will act as if DeleteItem had been called directly after
   delete_item_on_checkin: 0
+
+  # If delete_item_on_checkin is enabled, limit deletion to just this itemtype, leave blank for all itemtypes
+  delete_item_on_checkin_itemtype: ILL
+
+  # If delete_item_on_checkin is enabled, limit deletion to just this homebranch, leave blank for all homebranchs
+  delete_item_on_checkin_homebranch: ILLBRANCH
+
+  # If delete_item_on_checkin is enabled, limit deletion to just this holdingbranch, leave blank for all holdingbranchs
+  delete_item_on_checkin_holdingbranch: ILLBRANCH
