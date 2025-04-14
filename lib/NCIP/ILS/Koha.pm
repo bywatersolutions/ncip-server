@@ -230,7 +230,31 @@ sub checkin {
 
     # If delete_item_on_checkin is enabled, CheckInItem will act as if DeleteItem had been called directly after
     if ( $success && $config->{delete_item_on_checkin} ) {
-        $self->delete_item( $params );
+        my $do_del = 1;
+
+        if (   $config->{delete_item_on_checkin_itemtype}
+            && $item->effective_itemtype ne $config->{delete_item_on_checkin_itemtype} )
+        {
+            $do_del = 0;
+        }
+
+        if (   $config->{delete_item_on_checkin_homebranch}
+            && $item->homebranch ne $config->{delete_item_on_checkin_homebranch} )
+        {
+            $do_del = 0;
+        }
+
+        if (   $config->{delete_item_on_checkin_holdingbranch}
+            && $item->holdingbranch ne $config->{delete_item_on_checkin_holdingbranch} )
+        {
+            $do_del = 0;
+        }
+
+        if ($do_del) {
+            my $ret = $self->delete_item($params);
+
+            warn "ERROR Failed to delete item barcode $barcode: " . Data::Dumper::Dumper($ret) unless $ret->{success};
+        }
     }
 
     my $result = {
