@@ -162,8 +162,9 @@ sub checkin {
     my $dropbox     = $params->{dropbox};
     my $config      = $params->{config};
 
-    unless ($branch) {
 	my $item = Koha::Items->find( { barcode => $barcode } );
+
+    unless ($branch) {
         $branch = $item->holdingbranch if $item;
     }
 
