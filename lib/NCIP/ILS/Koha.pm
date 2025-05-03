@@ -834,7 +834,7 @@ sub acceptitem {
     my $item_callnumber = $iteminfo->{itemcallnumber} || $config->{item_callnumber} || q{};
 
     my ( $field, $subfield ) =
-      GetMarcFromKohaField( 'biblioitems.itemtype', $frameworkcode );
+      GetMarcFromKohaField( 'biblioitems.itemtype' );
     ( $field, $subfield ) =
       GetMarcFromKohaField( 'biblioitems.itemtype' ) unless $field && $subfield;
 
