@@ -18,6 +18,7 @@ package NCIP::ILS::Koha;
 use Modern::Perl;
 use Object::Tiny qw{ name };
 use Try::Tiny;
+use Carp qw{ cluck };
 
 use MARC::Record;
 use MARC::Field;
@@ -298,7 +299,7 @@ sub checkout {
             $problem = [
                 {
                     problem_type   => 'Unknown Error',
-                    problem_detail => $_,
+                    problem_detail => cluck $_,
                 }
             ];
         };
@@ -474,7 +475,7 @@ sub checkout {
                 $problem = [
                     {
                         problem_type   => 'Unknown Error',
-                        problem_detail => $_,
+                        problem_detail => cluck $_,
                     }
                 ];
             };
