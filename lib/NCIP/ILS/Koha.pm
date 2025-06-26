@@ -468,7 +468,7 @@ sub checkout {
         }
         else {
             try {
-                my $issue = AddIssue( $patron, $barcode, $dt, my $cancel_reserve = 1 );
+                my $issue = AddIssue( $patron, $barcode, $dt );
                 $date_due = dt_from_string( $issue->date_due() );
             }
             catch {
