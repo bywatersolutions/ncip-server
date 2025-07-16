@@ -30,6 +30,7 @@ sub handle {
 
         # Given our xml document, lets find our userid
         my ($user_id) = $xmldoc->getElementsByTagNameNS( $self->namespace(), 'UserIdentifierValue' );
+        warn "FOUND USER ID ELEMENT: $user_id";
 
         my $xpc = $self->xpc();
 
@@ -64,9 +65,11 @@ sub handle {
             }
 
             $user_id = $barcode;
+            warn "FOUND USER ID: $user_id";
         }
         else {
             $user_id = $user_id->textContent();
+            warn "FOUND USER ID: $user_id";
         }
 
         # We may get a password, username combo instead of userid
@@ -127,6 +130,24 @@ sub handle {
 
         # if we have blank user, we need to return that
         # and can skip looking for elementtypes
+        if ( !$user_id ) {
+            return $self->render_output(
+                'problem.tt',
+                {
+                    message_type => 'LookupUserResponse',
+                    problems     => [
+                        {
+                            problem_type    => 'No user identifier provided',
+                            problem_detail  => 'UserId was not provided or is not found in a known element',
+                            problem_element => 'UserId',
+                            problem_value   => $user_id,
+                        }
+                    ],
+                    from_agency  => $to,
+                    to_agency    => $from,
+                }
+            );
+        }
         if ( $user->is_valid() ) {
             my $elements = $self->get_user_elements($xmldoc);
             return $self->render_output(
