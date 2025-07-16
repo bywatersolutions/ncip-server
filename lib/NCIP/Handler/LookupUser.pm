@@ -27,14 +27,12 @@ sub handle {
     my $config = $self->{config}->{koha};
 
     if ($xmldoc) {
-        my $root = $xmldoc->documentElement();
-        my $xpc  = $self->xpc();
 
         # Given our xml document, lets find our userid
-        my $user_id  = $xpc->find( '//UserIdentifierValue', $root ) #v1
-        $user_id ||= $xpc->find( '//ns:UserIdentifierValue', $root ); #v2
-
+        my ($user_id) = $xmldoc->getElementsByTagNameNS( $self->namespace(), 'UserIdentifierValue' );
         warn "FOUND USER ID ELEMENT: $user_id";
+
+        my $xpc = $self->xpc();
 
         my $pin;
         unless ($user_id) {
