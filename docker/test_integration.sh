@@ -86,13 +86,24 @@ cd .. # Now set up koha-testing-docker
 ls -alh
 pwd
 export LOCAL_USER_ID="$(id -u)" # Needed for koha-testing-docker
+echo "CHECKING OUT koha-testing-docker BRANCH ${KOHA_BRANCH}"
 git clone https://gitlab.com/koha-community/koha-testing-docker.git
 cd koha-testing-docker
 git checkout origin/${KOHA_BRANCH} # Check out the correct koha-testing-docker branch
+git branch
 cp env/defaults.env .env
 DOCKER_PATH=$(which docker)
 echo "DOCKER PATH: $DOCKER_PATH";
-sed -i "s|DOCKER_BINARY=\$(which docker)|DOCKER_BINARY=${DOCKER_PATH}|" .env
+
+SED_INPLACE_CMD="s|DOCKER_BINARY=\$(which docker)|DOCKER_BINARY=${DOCKER_PATH}|"
+if sed --version >/dev/null 2>&1; then
+  # GNU sed
+  sed -i "$SED_INPLACE_CMD" .env
+else
+  # BSD sed (macOS)
+  sed -i '' "$SED_INPLACE_CMD" .env
+fi
+
 echo "CWD: $(pwd)";
 echo "LS: $(ls -alh)";
 echo "ENV: $(cat .env)";
@@ -100,10 +111,21 @@ docker compose build
 #sudo sysctl -w vm.max_map_count=262144
 export KOHA_INTRANET_URL="http://127.0.0.1:8081"
 export KOHA_MARC_FLAVOUR="marc21"
-echo "Stopping existing containers if running..."
-docker compose down
-echo "Starting koha containers..."
-docker compose run koha &disown
+
+
+if [[ "$(uname -m)" == "aarch64" || "$(uname -m)" == "arm64" ]]; then
+  echo "USING ARM64"
+  echo "Stopping existing containers if running..."
+  docker compose -f docker-compose-arm64.yml down
+  echo "Starting koha containers..."
+  docker compose -f docker-compose-arm64.yml run koha &disown
+else
+  echo "USING AMD64"
+  echo "Stopping existing containers if running..."
+  docker compose down
+  echo "Starting koha containers..."
+  docker compose run koha &disown
+fi
 
 cd .. # Now copy koha-conf.xml to somewhere the NCIP server can read it
 
