@@ -76,10 +76,6 @@ sub handle {
             $user_id = $barcode;
             warn "FOUND USER ID: $user_id";
         }
-        else {
-            $user_id = $user_id->textContent();
-            warn "FOUND USER ID: $user_id";
-        }
 
         # We may get a password, username combo instead of userid
         # Need to deal with that also
