@@ -584,8 +584,12 @@ sub renew {
       }
       if $error;    # Generic message for all other reasons
 
-    my $datedue =
-      AddRenewal( $patron->borrowernumber, $item->itemnumber );
+    my $datedue = AddRenewal(
+        {
+            borrowernumber => $patron->borrowernumber,
+            itemnumber => $item->itemnumber,
+        }
+    );
 
     return {
         success => 1,
