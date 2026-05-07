@@ -24,6 +24,8 @@
 	<UserIdentifierValue>[% user.userdata.cardnumber | xml %]</UserIdentifierValue>
     [%- CASE 'userid' -%]
 	<UserIdentifierValue>[% user.userdata.userid | xml %]</UserIdentifierValue>
+    [%- CASE 'borrowernumber' -%]
+	<UserIdentifierValue>[% user.userdata.borrowernumber | xml %]</UserIdentifierValue>
     [%- CASE -%]
         ERROR: lookup_user_id is set to an invalid value!
     [%- END -%]
