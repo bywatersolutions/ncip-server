@@ -536,11 +536,8 @@ sub renew {
       }
       unless $item;
 
-    my ( $ok, $error ) =
-      CanBookBeRenewed( $patron->borrowernumber, $item->itemnumber );
-
-    $error //= q{};
-
+    # CanBookBeRenewed now wants the patron and checkout objects, not their ids
+    my $checkout = $item->checkout;
     return {
         success  => 0,
         problems => [
@@ -553,7 +550,11 @@ sub renew {
             }
         ]
       }
-      if $error eq 'no_checkout';
+      unless $checkout;
+
+    my ( $ok, $error ) = CanBookBeRenewed( $patron, $checkout );
+
+    $error //= q{};
 
     return {
         success  => 0,
@@ -584,8 +585,13 @@ sub renew {
       }
       if $error;    # Generic message for all other reasons
 
-    my $datedue =
-      AddRenewal( $patron->borrowernumber, $item->itemnumber );
+    # AddRenewal now takes a hashref of params rather than positional ids
+    my $datedue = AddRenewal(
+        {
+            borrowernumber => $patron->borrowernumber,
+            itemnumber     => $item->itemnumber,
+        }
+    );
 
     return {
         success => 1,
