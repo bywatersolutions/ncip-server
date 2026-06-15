@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<NCIPMessage version="http://www.niso.org/schemas/ncip/v2_0/ncip_v2_0.xsd" xmlns="http://www.niso.org/2008/ncip">
+  <RenewItem>
+    <UserId>
+      <AgencyId>KOHA</AgencyId>
+      <UserIdentifierValue>[% user_identifier %]</UserIdentifierValue>
+    </UserId>
+    <ItemId>
+      <AgencyId>KOHA</AgencyId>
+      <ItemIdentifierValue>[% item_identifier %]</ItemIdentifierValue>
+    </ItemId>
+    <DesiredDateDue>2032-12-30T13:54:19Z</DesiredDateDue>
+  </RenewItem>
+</NCIPMessage>
