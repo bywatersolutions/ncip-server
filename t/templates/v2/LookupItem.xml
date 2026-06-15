@@ -3,7 +3,7 @@
 <NCIPMessage version="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd" xmlns="http://www.niso.org/2008/ncip">
   <LookupItem>
     <ItemId>
-      <ItemIdentifierValue>3110888</ItemIdentifierValue>
+      <ItemIdentifierValue>[% item_identifier %]</ItemIdentifierValue>
     </ItemId>
 
     <ItemElementType>Bibliographic Description</ItemElementType>
