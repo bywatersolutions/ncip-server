@@ -70,7 +70,7 @@ sub itemdata {
 	my $item_hashref = $item->unblessed();
 	$item_hashref->{object} = $item;
 
-        my $biblio = Koha::Biblio->find( $item_hashref->{biblionumber} );
+        my $biblio = Koha::Biblios->find( $item_hashref->{biblionumber} );
         $item_hashref->{biblio} = $biblio->unblessed;
 
         my $record = $biblio->metadata->record;
