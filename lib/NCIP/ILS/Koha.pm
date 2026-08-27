@@ -53,6 +53,10 @@ use C4::Barcodes::ValueBuilder;
 use C4::Items qw{
   ModItemTransfer
 };
+use C4::MarcModificationTemplates qw{
+  GetModificationTemplates
+  ModifyRecordWithTemplate
+};
 use Koha::Database;
 use Koha::DateUtils qw{ dt_from_string };
 use Koha::Holds;
@@ -957,6 +961,17 @@ sub acceptitem {
                     $field, '', '', $subfield => $itemtype
                 ),
             );
+        }
+
+        # Apply the MARC modification template with the configured name, if any
+        if ( my $template_name = $config->{accept_item_marc_modification_template} ) {
+            my ($template) = grep { $_->{name} eq $template_name } GetModificationTemplates();
+            if ($template) {
+                ModifyRecordWithTemplate( $template->{template_id}, $record );
+            }
+            else {
+                warn "AcceptItem: no MARC modification template named '$template_name' found, record not modified";
+            }
         }
 
         $ENV{"OVERRIDE_SYSPREF_BiblioAddsAuthorities"} = 0; # Never auto-link incoming biblio
