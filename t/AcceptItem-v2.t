@@ -2,7 +2,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 use Dancer::Test;
 use Template;
@@ -15,6 +15,7 @@ use NCIP::Dancing;
 use Dancer ':syntax';
 
 # From Koha
+use C4::MarcModificationTemplates qw{ AddModificationTemplate AddModificationTemplateAction };
 use Koha::Database;
 use Koha::Libraries;
 use Koha::Patrons;
@@ -261,4 +262,49 @@ subtest 'Test AcceptItem with item_branchcode set to __PATRON__BRANCHCODE__' => 
 
     is( $item->homebranch, $patron_1->branchcode, "Item homebranch is set to the patron's branchcode" );
     is( $item->holdingbranch, $patron_1->branchcode, "Item holdingbranch is set to the patron's branchcode" );
+};
+
+subtest 'Test AcceptItem with accept_item_marc_modification_template set' => sub {
+    plan tests => 3;
+
+    config->{koha}->{framework} = 'FA';
+    config->{koha}->{replacement_price} = undef;
+    config->{koha}->{barcode_prefix} = undef;
+    config->{koha}->{item_branchcode} = undef;
+    config->{koha}->{always_generate_barcode} = undef;
+    config->{koha}->{trap_hold_on_accept_item} = undef;
+    config->{koha}->{item_callnumber} = undef;
+    config->{koha}->{item_itemtype} = undef;
+    config->{koha}->{item_ccode} = undef;
+    config->{koha}->{item_location} = undef;
+    config->{koha}->{accept_item_marc_modification_template} = 'NCIP AcceptItem';
+
+    my $template_id = AddModificationTemplate('NCIP AcceptItem');
+    AddModificationTemplateAction(
+        $template_id, 'copy_and_replace_field', 0,
+        '245',        'a',                      '', '245', 'a',
+        'Precision',  'PRECISION',              '',
+        '',           '',                       '', '', '', '',
+        'Copy and replace field 245$a using RegEx s/Precision/PRECISION/'
+    );
+
+    my $ncip_message;
+    $tt->process('v2/AcceptItem.xml', {
+	patron_cardnumber => $patron_1->cardnumber,
+	pickup_location => $library_2->id,
+    }, \$ncip_message) || die $tt->error(), "\n";
+
+    $response = dancer_response( POST => '/', { body => $ncip_message } );
+    $dom = $dom_converter->fromXMLStringtoHash( $response->content );
+
+    my $item_barcode = $dom->{NCIPMessage}->{AcceptItemResponse}->{ItemId}->{ItemIdentifierValue}->{text};
+    ok(
+	$item_barcode,
+	'AcceptItemResponse gives an ItemIdentifierValue'
+    );
+
+    my $item = Koha::Items->find({ barcode => $item_barcode });
+    is( ref($item), 'Koha::Item', 'Found item with corrosponding item barcode' );
+
+    is( $item->biblio->title, 'PRECISION framing', 'Title was modified by the MARC modification template' );
 };
