@@ -870,6 +870,7 @@ sub acceptitem {
     my $trap_hold_on_accept_item = $config->{trap_hold_on_accept_item} // 1;
     my $suppress_in_opac         = $config->{suppress_in_opac}         || q{};
     my $accept_item_title_prefix = $config->{accept_item_title_prefix} || q{};
+    my $accept_item_uppercase_fields = $config->{accept_item_uppercase_fields} || [];
 
     my $item_callnumber = $iteminfo->{itemcallnumber} || $config->{item_callnumber} || q{};
 
@@ -974,6 +975,24 @@ sub acceptitem {
             }
         }
 
+        # Convert the configured fields to upper case, database columns are
+        # resolved to MARC fields via the Koha to MARC mapping
+        for my $uppercase_field (@$accept_item_uppercase_fields) {
+            my @mappings =
+                $uppercase_field =~ /^([0-9]{3})\$(.)$/
+                ? ( $1, $2 )
+                : GetMarcFromKohaField($uppercase_field);
+            while (@mappings) {
+                my ( $tag, $code ) = splice @mappings, 0, 2;
+                for my $marc_field ( $record->field($tag) ) {
+                    next unless defined $marc_field->subfield($code);
+                    my @subfields = map { $_->[0] eq $code ? ( $_->[0], uc $_->[1] ) : @$_ } $marc_field->subfields();
+                    $marc_field->replace_with(
+                        MARC::Field->new( $tag, $marc_field->indicator(1), $marc_field->indicator(2), @subfields ) );
+                }
+            }
+        }
+
         $ENV{"OVERRIDE_SYSPREF_BiblioAddsAuthorities"} = 0; # Never auto-link incoming biblio
         ( $biblionumber, $biblioitemnumber ) = AddBiblio( $record, $frameworkcode );
 
@@ -1015,19 +1034,25 @@ sub acceptitem {
             $item_branchcode = $patron->branchcode;
         }
 
-        $item = Koha::Item->new(
-            {
-                biblionumber     => $biblionumber,
-                barcode          => $barcode,
-                holdingbranch    => $item_branchcode,
-                homebranch       => $item_branchcode,
-                itype            => $itemtype,
-                replacementprice => $replacement_price,
-                itemcallnumber   => $item_callnumber,
-                ccode            => $item_ccode,
-                location         => $item_location,
-            }
-        )->store->get_from_storage;
+        my $item_values = {
+            biblionumber     => $biblionumber,
+            barcode          => $barcode,
+            holdingbranch    => $item_branchcode,
+            homebranch       => $item_branchcode,
+            itype            => $itemtype,
+            replacementprice => $replacement_price,
+            itemcallnumber   => $item_callnumber,
+            ccode            => $item_ccode,
+            location         => $item_location,
+        };
+
+        # Upper case any item columns listed in accept_item_uppercase_fields
+        for my $uppercase_field (@$accept_item_uppercase_fields) {
+            next unless $uppercase_field =~ /^items\.(\w+)$/;
+            $item_values->{$1} = uc $item_values->{$1} if defined $item_values->{$1};
+        }
+
+        $item = Koha::Item->new($item_values)->store->get_from_storage;
 
         $biblionumber     = $item->biblionumber;
         $biblioitemnumber = $item->biblioitemnumber;
