@@ -33,7 +33,7 @@
         </MediumType>
       </BibliographicDescription>
       <ItemDescription>
-        <CallNumber>694.2 .G84 2001</CallNumber>
+        <CallNumber>[% item_callnumber || '694.2 .G84 2001' %]</CallNumber>
       </ItemDescription>
     </ItemOptionalFields>
     <PickupLocation>[% pickup_location %]</PickupLocation>
