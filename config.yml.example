@@ -66,6 +66,9 @@ koha:
   # Set a default replacement price for items
   replacement_price: 125.00
 
+  # Apply the Koha MARC modification template with this name to records created via AcceptItem
+  #accept_item_marc_modification_template: 'NCIP AcceptItem'
+
   ## Set defaults for items ##
   # Used if AcceptItem/ItemOptionalFields/ItemDescription/CallNumber doesn't exist
   #item_callnumber: 'ILL'
