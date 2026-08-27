@@ -69,6 +69,15 @@ koha:
   # Apply the Koha MARC modification template with this name to records created via AcceptItem
   #accept_item_marc_modification_template: 'NCIP AcceptItem'
 
+  # Convert these fields to upper case on records created via AcceptItem.
+  # Entries are Koha database columns (resolved via the Koha to MARC mapping)
+  # or MARC field$subfield pairs. items.* columns are upper cased on the
+  # created item itself.
+  #accept_item_uppercase_fields:
+  #  - biblio.title
+  #  - 100$a
+  #  - items.itemcallnumber
+
   ## Set defaults for items ##
   # Used if AcceptItem/ItemOptionalFields/ItemDescription/CallNumber doesn't exist
   #item_callnumber: 'ILL'
