@@ -19,6 +19,11 @@ any [ 'get', 'post' ] => '/' => \&process_ncip_request;
 any [ 'get', 'post' ] => '/:token' => \&process_ncip_request;
 
 sub process_ncip_request {
+    my $appdir = realpath("$FindBin::Bin/..");
+
+    #FIXME: Why are we always looking in t for the config, even for production?
+    my $ncip = NCIP->new("$appdir/t/config_sample");
+
     my $log  = Log::Log4perl->get_logger("NCIP");
 
     $log->debug("****************************** INCOMING REQUEST ******************************");
@@ -32,12 +37,6 @@ sub process_ncip_request {
     my $require_token = C4::Context->preference('NcipRequireToken');
     $log->debug("RETURNING. TOKEN REQUIRED BUT NOT PROVIDED") && return "It works!" if $require_token && !$token;
     $log->debug("RETURNING. TOKEN $token DOES NOT MATCH" . C4::Context->preference('NcipToken') ) && return "It works!" if $token && $token ne C4::Context->preference('NcipToken');
-
-    my $appdir = realpath("$FindBin::Bin/..");
-
-    #FIXME: Why are we always looking in t for the config, even for production?
-    my $ncip = NCIP->new("$appdir/t/config_sample");
-
 
     my $xml = q{};
 
