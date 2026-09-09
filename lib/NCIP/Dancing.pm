@@ -30,8 +30,14 @@ sub process_ncip_request {
 
     my $token = params->{token};
     my $require_token = C4::Context->preference('NcipRequireToken');
-    $log->debug("RETURNING. TOKEN REQUIRED BUT NOT PROVIDED") && return "It works!" if $require_token && !$token;
-    $log->debug("RETURNING. TOKEN $token DOES NOT MATCH" . C4::Context->preference('NcipToken') ) && return "It works!" if $token && $token ne C4::Context->preference('NcipToken');
+    if ( $require_token && !$token ){
+        $log->debug("RETURNING. TOKEN REQUIRED BUT NOT PROVIDED");
+        return "It works!";
+    }
+    if ( $token && $token ne C4::Context->preference('NcipToken') ){
+        $log->debug("RETURNING. TOKEN $token DOES NOT MATCH" . C4::Context->preference('NcipToken') );
+        return "It works!";
+    }
 
     my $appdir = realpath("$FindBin::Bin/..");
 
