@@ -33,12 +33,12 @@ sub process_ncip_request {
 
     if ( $require_token && !$token ) {
         $log->debug("RETURNING. TOKEN REQUIRED BUT NOT PROVIDED");
-        return "It works!";
+        return send_error( "Invalid or missing authorization token", 403 );
     }
 
     if ( $token && $token ne C4::Context->preference('NcipToken') ) {
         $log->debug("RETURNING. TOKEN $token DOES NOT MATCH" . C4::Context->preference('NcipToken') );
-        return "It works!";
+        return send_error( "Invalid or missing authorization token", 403 );
     }
 
     my $appdir = realpath("$FindBin::Bin/..");

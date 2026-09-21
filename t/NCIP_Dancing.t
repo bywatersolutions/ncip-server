@@ -32,21 +32,23 @@ t::lib::Mocks::mock_preference( 'NcipRequireToken', 1 );
 t::lib::Mocks::mock_preference( 'NcipToken',        'S3CR3T' );
 
 subtest 'Request with no token is rejected when a token is required' => sub {
-    plan tests => 1;
+    plan tests => 2;
 
     set_log_level_to_info();
     my $response = dancer_response( POST => '/', { body => $ncip_message } );
 
-    is( $response->content, 'It works!', 'No NCIP response is returned when the required token is missing' );
+    is( $response->status, 403, 'A request without the required token is forbidden' );
+    unlike( $response->content, qr/LookupVersionResponse/, 'The message is not processed' );
 };
 
 subtest 'Request with the wrong token is rejected' => sub {
-    plan tests => 1;
+    plan tests => 2;
 
     set_log_level_to_info();
     my $response = dancer_response( POST => '/N0TS3CR3T', { body => $ncip_message } );
 
-    is( $response->content, 'It works!', 'No NCIP response is returned when the token does not match' );
+    is( $response->status, 403, 'A request with a token that does not match is forbidden' );
+    unlike( $response->content, qr/LookupVersionResponse/, 'The message is not processed' );
 };
 
 subtest 'Request with the correct token is processed' => sub {
