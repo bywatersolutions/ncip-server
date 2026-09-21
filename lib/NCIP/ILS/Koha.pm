@@ -944,8 +944,10 @@ sub acceptitem {
             $record = MARC::Record->new();
             $record->leader('     nac a22     1u 4500');
             $record->insert_fields_ordered(
-                MARC::Field->new(
-                    '100', '1', '0', 'a' => $iteminfo->{author}
+                (
+                    $iteminfo->{author}
+                    ? MARC::Field->new( '100', '1', '0', 'a' => $iteminfo->{author} )
+                    : ()
                 ),
                 MARC::Field->new(
                     '245', '1', '0', 'a' => $accept_item_title_prefix . $iteminfo->{title}
