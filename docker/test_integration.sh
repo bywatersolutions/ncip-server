@@ -129,20 +129,26 @@ fi
 
 cd .. # Now copy koha-conf.xml to somewhere the NCIP server can read it
 
-echo "SLEEPING 5 MINUTES"
-sleep 60
-echo "1 MINUTE DONE"
-sleep 60
-echo "2 MINUTES DONE"
-sleep 60
-echo "3 MINUTES DONE"
-sleep 60
-echo "4 MINUTES DONE"
-sleep 60
-echo "5 MINUTES DONE"
-sleep 60
-echo "6 MINUTES DONE"
-echo "WAKING UP"
+# The tests fail with missing tables if they start before Koha has finished
+# loading the database, so wait for it rather than for a fixed number of minutes
+echo "WAITING FOR KOHA TO BE READY"
+WAIT_UNTIL=$(( $(date +%s) + 900 ))
+while true; do
+  KOHA_CONTAINER_ID=$(docker ps --filter "name=docker-koha-run" -q)
+
+  if [ -n "$KOHA_CONTAINER_ID" ] && docker exec $KOHA_CONTAINER_ID sh -c 'echo "SELECT 1 FROM systempreferences LIMIT 1" | koha-mysql kohadev' > /dev/null 2>&1; then
+    echo "KOHA IS READY"
+    break
+  fi
+
+  if [ "$(date +%s)" -ge "$WAIT_UNTIL" ]; then
+    echo "GAVE UP WAITING FOR KOHA AFTER 15 MINUTES"
+    docker ps -a
+    exit 1
+  fi
+
+  sleep 5
+done
 
 echo "DOCKER PS: $(docker ps)"
 export KOHA_CONTAINER_ID=$(docker ps --filter "name=docker-koha-run" -q)
