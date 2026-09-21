@@ -15,12 +15,19 @@
       <UserIdentifierType>Barcode Id</UserIdentifierType>
       <UserIdentifierValue>[% user_identifier %]</UserIdentifierValue>
     </UserId>
+[%- IF item_identifier %]
+    <ItemId>
+      <ItemIdentifierValue>[% item_identifier %]</ItemIdentifierValue>
+    </ItemId>
+[%- END %]
+[%- IF biblionumber %]
     <BibliographicId>
       <BibliographicRecordId>
         <BibliographicRecordIdentifier>[% biblionumber %]</BibliographicRecordIdentifier>
         <BibliographicRecordIdentifierCode>SYSNUMBER</BibliographicRecordIdentifierCode>
       </BibliographicRecordId>
     </BibliographicId>
+[%- END %]
     <RequestId>
       <AgencyId>KOHA</AgencyId>
       <RequestIdentifierValue>483580</RequestIdentifierValue>

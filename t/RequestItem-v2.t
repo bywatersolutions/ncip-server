@@ -2,7 +2,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 use Dancer::Test;
 use Template;
@@ -156,6 +156,38 @@ subtest 'Test RequestItem with invalid user and valid item' => sub {
     is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemValue}->{text}, 'INVALID_BRANCHCODE', "RequestItemResponse for invalid item returns correct ProblemValue" );
     is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemElement}->{text}, 'ToAgencyId', "RequestItemResponse for invalid item returns correct ProblemElement" );
     is( $dom->{NCIPMessage}->{RequestItemResponse}->{Problem}->{ProblemType}->{text}, 'Unknown Agency', "RequestItemResponse for invalid item returns correct ProblemType" );
+};
+
+subtest 'Test RequestItem with only an item identifier' => sub {
+    plan tests => 3;
+
+    my $patron_2 = $builder->build_object(
+        {
+            class => 'Koha::Patrons',
+            value => {
+                branchcode   => $library->id,
+                categorycode => $patron_category->{categorycode},
+                dateexpiry   => '2032-12-31',
+            }
+        }
+    );
+
+    my $ncip_message;
+    $tt->process('v2/RequestItem.xml', {
+        user_identifier   => $patron_2->cardnumber,
+        item_identifier   => $item_1->barcode,
+        pickup_branchcode => $item_1->holdingbranch,
+    }, \$ncip_message) || die $tt->error(), "\n";
+
+    $response = dancer_response( POST => '/', { body => $ncip_message } );
+    $dom = $dom_converter->fromXMLStringtoHash( $response->content );
+
+    my $hold_id = $dom->{NCIPMessage}->{RequestItemResponse}->{RequestId}->{RequestIdentifierValue}->{text};
+    ok( $hold_id, "RequestItemResponse returned a request id" );
+
+    my $hold = Koha::Holds->find( $hold_id );
+    is( $hold->biblionumber, $item_1->biblionumber, "Request is for the record the item is on" );
+    is( $hold->itemnumber, $item_1->itemnumber, "Request is for the item that was sent" );
 };
 
 subtest 'Test RequestItem with valid user and valid item' => sub {
