@@ -876,10 +876,7 @@ sub acceptitem {
 
     my $item_callnumber = $iteminfo->{itemcallnumber} || $config->{item_callnumber} || q{};
 
-    my ( $field, $subfield ) =
-      GetMarcFromKohaField( 'biblioitems.itemtype', $frameworkcode );
-    ( $field, $subfield ) =
-      GetMarcFromKohaField( 'biblioitems.itemtype' ) unless $field && $subfield;
+    my ( $field, $subfield ) = GetMarcFromKohaField('biblioitems.itemtype');
 
     my $fieldslib =
       C4::Biblio::GetMarcStructure( 1, $frameworkcode, { unsafe => 1 } );
