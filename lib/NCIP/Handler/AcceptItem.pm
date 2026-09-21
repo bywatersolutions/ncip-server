@@ -67,9 +67,13 @@ sub handle {
                 if ( $publisher->[0] ) {
                     $itemdata->{publisher} = $publisher->[0]->textContent();
                 }
-                my $medium = $xpc->find( '//Mediumtype', $bibliographic->[0] );
+                my $medium = $xpc->find( '//MediumType', $bibliographic->[0] );
                 if ( $medium->[0] ) {
-                    $itemdata->{mediumtype} = $medium->[0]->textContent();
+
+                    # MediumType may be a scheme/value pair or a simple value
+                    my $medium_value = $xpc->find( 'Value', $medium->[0] );
+                    $itemdata->{mediumtype} =
+                        $medium_value->[0] ? $medium_value->[0]->textContent() : $medium->[0]->textContent();
                 }
                 my $format = $xpc->find( '//Format', $bibliographic->[0] );
                 if ( $format->[0] ) {
@@ -127,9 +131,13 @@ sub handle {
                 if ( $publisher->[0] ) {
                     $itemdata->{publisher} = $publisher->[0]->textContent();
                 }
-                my $medium = $xpc->find( '//ns:Mediumtype', $bibliographic->[0] );
+                my $medium = $xpc->find( '//ns:MediumType', $bibliographic->[0] );
                 if ( $medium->[0] ) {
-                    $itemdata->{mediumtype} = $medium->[0]->textContent();
+
+                    # MediumType may be a scheme/value pair or a simple value
+                    my $medium_value = $xpc->find( 'ns:Value', $medium->[0] );
+                    $itemdata->{mediumtype} =
+                        $medium_value->[0] ? $medium_value->[0]->textContent() : $medium->[0]->textContent();
                 }
                 my $format = $xpc->find( '//ns:Format', $bibliographic->[0] );
                 if ( $format->[0] ) {

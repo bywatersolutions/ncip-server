@@ -954,9 +954,12 @@ sub acceptitem {
                     'b' => $iteminfo->{publisher},
                     'c' => $iteminfo->{publicationdate}
                 ),
+                # MediumType only sets 942$c when no itemtype was determined
+                # via itemtype_map, the framework default, or item_itemtype,
+                # so a configured itemtype always wins
                 MARC::Field->new(
                     '942', '1', '0',
-                    'c' => $iteminfo->{mediumtype},
+                    ( $iteminfo->{mediumtype} && !$itemtype ? ( 'c' => $iteminfo->{mediumtype} ) : () ),
                     'n' => $suppress_in_opac,
                 ),
                 MARC::Field->new(

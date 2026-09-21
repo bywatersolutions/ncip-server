@@ -2,7 +2,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 
 use Dancer::Test;
 use Template;
@@ -388,4 +388,69 @@ subtest 'Test AcceptItem with no author' => sub {
 
     is( $biblio->metadata->record->field('100'), undef, 'No 100 field was added for a message without an author' );
     is( $biblio->author, undef, 'The record created has no author' );
+};
+
+subtest 'Test AcceptItem with MediumType' => sub {
+    plan tests => 4;
+
+    config->{koha}->{framework} = 'FA';
+    config->{koha}->{replacement_price} = undef;
+    config->{koha}->{barcode_prefix} = undef;
+    config->{koha}->{item_branchcode} = undef;
+    config->{koha}->{always_generate_barcode} = undef;
+    config->{koha}->{trap_hold_on_accept_item} = undef;
+    config->{koha}->{item_callnumber} = undef;
+    config->{koha}->{item_itemtype} = undef;
+    config->{koha}->{item_ccode} = undef;
+    config->{koha}->{item_location} = undef;
+    config->{koha}->{itemtype_map} = undef;
+    config->{koha}->{accept_item_marc_modification_template} = undef;
+    config->{koha}->{accept_item_uppercase_fields} = undef;
+
+    # With no itemtype configured, the MediumType value lands in 942$c
+    my $ncip_message;
+    $tt->process('v2/AcceptItem.xml', {
+	patron_cardnumber => $patron_1->cardnumber,
+	pickup_location => $library_2->id,
+	item_barcode => 'NCIPMEDIUM1',
+    }, \$ncip_message) || die $tt->error(), "\n";
+
+    $response = dancer_response( POST => '/', { body => $ncip_message } );
+
+    my $item = Koha::Items->find({ barcode => 'NCIPMEDIUM1' });
+    is( ref($item), 'Koha::Item', 'Found item with corrosponding item barcode' );
+
+    my @medium_itemtypes = grep { defined $_ && length $_ } map { $_->subfield('c') }
+        $item->biblio->metadata->record->field('942');
+    is_deeply(
+	\@medium_itemtypes,
+	['Book'], "The MediumType value is in the created record's 942\$c"
+    );
+
+    # With an itemtype configured, the itemtype wins over MediumType
+    my $itemtype = $builder->build_object({ class => 'Koha::ItemTypes' });
+    config->{koha}->{itemtype_map} = { DVD => $itemtype->itemtype };
+
+    my $ncip_message_dvd;
+    $tt->process('v2/AcceptItem.xml', {
+	patron_cardnumber => $patron_1->cardnumber,
+	pickup_location => $library_2->id,
+	item_barcode => 'NCIPMEDIUM2',
+	format => 'DVD',
+    }, \$ncip_message_dvd) || die $tt->error(), "\n";
+
+    $response = dancer_response( POST => '/', { body => $ncip_message_dvd } );
+
+    $item = Koha::Items->find({ barcode => 'NCIPMEDIUM2' });
+    is( ref($item), 'Koha::Item', 'Found item with corrosponding item barcode' );
+
+    my @itemtypes = grep { defined $_ && length $_ } map { $_->subfield('c') }
+        $item->biblio->metadata->record->field('942');
+    is_deeply(
+	\@itemtypes,
+	[ $itemtype->itemtype ],
+	"The mapped itemtype is the only 942\$c on the created record, MediumType did not override it"
+    );
+
+    config->{koha}->{itemtype_map} = undef;
 };

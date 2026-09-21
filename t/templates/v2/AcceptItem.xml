@@ -12,7 +12,7 @@
     </UserId>
     <ItemId>
       <AgencyId>PPU</AgencyId>
-      <ItemIdentifierValue>345678912</ItemIdentifierValue>
+      <ItemIdentifierValue>[% item_barcode || '345678912' %]</ItemIdentifierValue>
     </ItemId>
     <ItemOptionalFields>
       <BibliographicDescription>
@@ -33,6 +33,9 @@
           <Scheme>http://www.niso.org/ncip/v1_0/imp1/schemes/mediumtype/mediumtype.scm</Scheme>
           <Value>Book</Value>
         </MediumType>
+[% IF format -%]
+        <Format>[% format %]</Format>
+[% END -%]
       </BibliographicDescription>
       <ItemDescription>
         <CallNumber>[% item_callnumber || '694.2 .G84 2001' %]</CallNumber>
