@@ -1,0 +1,23 @@
+[Unit]
+Description=Koha INSTANCE NCIP Server Service
+After=network.target koha-common.service
+Wants=koha-common.service
+
+[Service]
+Type=simple
+Environment="KOHA_CONF=/etc/koha/sites/INSTANCE/koha-conf.xml"
+Environment="PERL5LIB=/var/lib/koha/INSTANCE/ncip-server:/var/lib/koha/INSTANCE/ncip-server/lib:/usr/share/koha/lib/"
+
+ExecStart=/usr/bin/plackup \
+  -E development \
+  -s Starman \
+  --workers 2 \
+  --max-requests 50000 \
+  -a /var/lib/koha/INSTANCE/ncip-server/bin/ncip_dancing.pl \
+  --port 3001
+
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

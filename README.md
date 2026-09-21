@@ -80,6 +80,23 @@ Configure the init script to run at boot
 ```bash
 sudo update-rc.d ncip-server defaults
 ```
+
+### Or set up the systemd service
+
+Instead of the init script, copy `systemd-service-template` to your systemd directory:
+```bash
+sudo cp systemd-service-template /etc/systemd/system/ncip-server.service
+```
+
+Edit the file you just created:
+* Replace every `INSTANCE` with your Koha instance name
+* Update the port if 3001 is already being used on your server
+
+Enable and start the service
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now ncip-server
+```
 ### Expose the ncip-server to the outside world
 
 Modify you Koha Apache configuration, in the Intranet section, add the following:
