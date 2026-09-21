@@ -7,6 +7,7 @@ use Test::More tests => 3;
 use Dancer::Test;
 use Log::Log4perl;
 use Template;
+use Test::MockModule;
 use XML::Hash;
 
 use lib 'lib';
@@ -28,13 +29,26 @@ my $tt = Template->new({
 my $ncip_message;
 $tt->process('v2/LookupVersion.xml', {}, \$ncip_message) || die $tt->error(), "\n";
 
+# The token checks must work at any log level. Set the level above DEBUG, then keep
+# NCIP->new() from putting it back to the DEBUG level in t/config_sample/log4perl.conf
+Log::Log4perl->init(
+    \q{
+log4perl.rootLogger             = INFO, SCREEN
+log4perl.appender.SCREEN        = Log::Log4perl::Appender::Screen
+log4perl.appender.SCREEN.stderr = 1
+log4perl.appender.SCREEN.layout = Log::Log4perl::Layout::SimpleLayout
+}
+);
+
+my $log4perl = Test::MockModule->new('Log::Log4perl');
+$log4perl->mock( 'init', sub { 1 } );
+
 t::lib::Mocks::mock_preference( 'NcipRequireToken', 1 );
 t::lib::Mocks::mock_preference( 'NcipToken',        'S3CR3T' );
 
 subtest 'Request with no token is rejected when a token is required' => sub {
     plan tests => 2;
 
-    set_log_level_to_info();
     my $response = dancer_response( POST => '/', { body => $ncip_message } );
 
     is( $response->status, 403, 'A request without the required token is forbidden' );
@@ -44,7 +58,6 @@ subtest 'Request with no token is rejected when a token is required' => sub {
 subtest 'Request with the wrong token is rejected' => sub {
     plan tests => 2;
 
-    set_log_level_to_info();
     my $response = dancer_response( POST => '/N0TS3CR3T', { body => $ncip_message } );
 
     is( $response->status, 403, 'A request with a token that does not match is forbidden' );
@@ -54,23 +67,8 @@ subtest 'Request with the wrong token is rejected' => sub {
 subtest 'Request with the correct token is processed' => sub {
     plan tests => 1;
 
-    set_log_level_to_info();
     my $response = dancer_response( POST => '/S3CR3T', { body => $ncip_message } );
     my $dom      = $dom_converter->fromXMLStringtoHash( $response->content );
 
     ok( $dom->{NCIPMessage}->{LookupVersionResponse}, 'A LookupVersionResponse is returned when the token matches' );
 };
-
-# The token checks must work at any log level. NCIP->new() re-initializes Log4perl
-# from t/config_sample/log4perl.conf ( DEBUG ) for every request it processes,
-# so the level is set again before each request.
-sub set_log_level_to_info {
-    Log::Log4perl->init(
-        \q{
-log4perl.rootLogger             = INFO, SCREEN
-log4perl.appender.SCREEN        = Log::Log4perl::Appender::Screen
-log4perl.appender.SCREEN.stderr = 1
-log4perl.appender.SCREEN.layout = Log::Log4perl::Layout::SimpleLayout
-}
-    );
-}
