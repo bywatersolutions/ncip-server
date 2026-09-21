@@ -16,7 +16,9 @@
     </ItemId>
     <ItemOptionalFields>
       <BibliographicDescription>
+[%- UNLESS no_author %]
         <Author>Guertin, Mike.</Author>
+[%- END %]
         <BibliographicItemId>
           <BibliographicItemIdentifier>1561584630</BibliographicItemIdentifier>
           <BibliographicItemIdentifierCode>

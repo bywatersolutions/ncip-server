@@ -2,7 +2,7 @@
 
 use Modern::Perl;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 use Dancer::Test;
 use Template;
@@ -349,4 +349,43 @@ subtest 'Test AcceptItem with accept_item_uppercase_fields set' => sub {
     is( $b->author, 'GUERTIN, MIKE.', 'Author was upper cased via the 100$a entry' );
 
     is( $item->itemcallnumber, 'ILL FIC 694.2', 'Item callnumber was upper cased via the items.itemcallnumber entry' );
+};
+
+subtest 'Test AcceptItem with no author' => sub {
+    plan tests => 3;
+
+    config->{koha}->{framework} = 'FA';
+    config->{koha}->{replacement_price} = undef;
+    config->{koha}->{barcode_prefix} = undef;
+    config->{koha}->{item_branchcode} = undef;
+    config->{koha}->{always_generate_barcode} = undef;
+    config->{koha}->{trap_hold_on_accept_item} = undef;
+    config->{koha}->{item_callnumber} = undef;
+    config->{koha}->{item_itemtype} = undef;
+    config->{koha}->{item_ccode} = undef;
+    config->{koha}->{item_location} = undef;
+    config->{koha}->{accept_item_marc_modification_template} = undef;
+    config->{koha}->{accept_item_uppercase_fields} = undef;
+
+    my $ncip_message;
+    $tt->process('v2/AcceptItem.xml', {
+	patron_cardnumber => $patron_1->cardnumber,
+	pickup_location => $library_2->id,
+	no_author => 1,
+    }, \$ncip_message) || die $tt->error(), "\n";
+
+    $response = dancer_response( POST => '/', { body => $ncip_message } );
+    $dom = $dom_converter->fromXMLStringtoHash( $response->content );
+
+    my $item_barcode = $dom->{NCIPMessage}->{AcceptItemResponse}->{ItemId}->{ItemIdentifierValue}->{text};
+    ok(
+	$item_barcode,
+	'AcceptItemResponse gives an ItemIdentifierValue'
+    );
+
+    my $item = Koha::Items->find({ barcode => $item_barcode });
+    my $biblio = $item->biblio;
+
+    is( $biblio->metadata->record->field('100'), undef, 'No 100 field was added for a message without an author' );
+    is( $biblio->author, undef, 'The record created has no author' );
 };
