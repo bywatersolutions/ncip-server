@@ -680,6 +680,8 @@ sub request {
         $item = Koha::Items->find( { barcode => $barcode } );
     }
 
+    # A request that gives only an item identifier still needs the record the item is on
+    $biblio ||= $item->biblio if $item;
 
     if ( $barcode && !$item ) {
         return {
